@@ -1,27 +1,108 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Oculta el botón de preferencias de Next.js en desarrollo */
+#__next-dev-overlay {
+  display: none !important;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Fondo claro pastel para salud */
+  --bg: #faf9f6;               /* crema muy claro, casi blanco */
+  --text: #2e4a3b;             /* verde oscuro suave, texto principal */
+  --text-alt: #556b58;         /* verde grisáceo, texto secundario */
+
+  /* Colores principales */
+  --primary: #8ecae6;          /* azul pastel */
+  --primary-secondary: #bde0fe;/* azul muy claro pastel */
+
+  /* Colores secundarios */
+  --secondary: #f4a261;        /* melocotón pastel */
+  --secondary-secondary: #ffe8d6; /* durazno muy claro */
+
+  --muted: #e0e0e0;            /* gris claro uso general */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Variables para modo oscuro - tonos oscuros y texturas suaves */
+.dark {
+  --bg: #121917;               /* negro verdoso profundo */
+  --text: #d0e8d0;             /* verde menta pálido, texto principal */
+  --text-alt: #a3c9a8;         /* verde grisáceo claro, texto secundario */
+
+  /* Colores principales oscuros */
+  --primary: #282828;          /* azul oscuro frío */
+  --primary-secondary: #3f3f3f; /* azul grisáceo */
+
+  /* Colores secundarios oscuros */
+  --secondary: #59b08a;        /* verde oscuro */
+  --secondary-secondary: #80c2a3; /* verde tono claro */
+
+  --muted: #2e3c36;            /* verde grisáceo oscuro */
 }
 
+/* 
+ * Soporte automático para modo oscuro según la preferencia del sistema operativo
+ */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #0a0a0a;
   }
 }
 
+/* Aplica las variables CSS en el body */
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.bg-secondary {
+  background-color: var(--secondary);
+}
+
+.text-secondary {
+  color: var(--secondary);
+}
+
+.bg-primary-secondary {
+  background-color: var(--primary-secondary);
+}
+
+.text-primary-secondary {
+  color: var(--primary-secondary);
+}
+
+.bg-secondary-secondary {
+  background-color: var(--secondary-secondary);
+}
+
+.text-secondary-secondary {
+  color: var(--secondary-secondary);
+}
+
+/* También para texto principal y secundario */
+.text-text {
+  color: var(--text);
+}
+
+.text-text-alt {
+  color: var(--text-alt);
+}
+
+/* Fondo y texto general */
+.bg-bg {
+  background-color: var(--bg);
+}
+
+.text-default {
+  color: var(--text);
 }

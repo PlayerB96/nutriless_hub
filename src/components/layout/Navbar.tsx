@@ -1,15 +1,19 @@
 "use client";
 
-import Link from "next/link";
-import { useTheme } from "@/shared/hooks/useTheme";
+import { useTheme } from "next-themes";
 import { useEffect, useState, useRef } from "react";
+import Link from "next/link";
 
-export default function Navbar() {
-  const { theme, toggleTheme } = useTheme();
+interface NavbarProps {
+  setIsMobileOpen: (open: boolean) => void;
+}
+
+export default function Navbar({ setIsMobileOpen }: NavbarProps) {
+  const { theme, setTheme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [dashboardOpen, setDashboardOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
-  const submenuRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -18,87 +22,84 @@ export default function Navbar() {
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
-        submenuRef.current &&
-        !submenuRef.current.contains(event.target as Node)
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
       ) {
-        setDashboardOpen(false);
+        setProfileOpen(false);
       }
     }
 
-    if (dashboardOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dashboardOpen]);
+  }, []);
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
-  const dashboardIds = ["1", "2", "3"];
+  const currentTheme = theme === "system" ? systemTheme : theme;
 
   return (
-    <nav className="bg-gray-100 dark:bg-gray-900 shadow p-4 flex justify-between items-center relative">
-      <div className="flex items-center space-x-6">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">Mi Plataforma</h1>
-
-        <Link href="/" className="text-gray-700 dark:text-gray-300 hover:underline">
-          Home
-        </Link>
-
-        {/* Dashboard con link y submenu */}
-        <div className="relative flex items-center" ref={submenuRef}>
-          {/* Link normal a /dashboard */}
-          <Link
-            href="/dashboard"
-            className="text-gray-700 dark:text-gray-300 hover:underline"
-          >
-            Dashboard
-          </Link>
-
-          {/* Botón para abrir submenu */}
+    <nav className="bg-primary text-text dark:bg-primary dark:text-text shadow p-4">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        {/* Izquierda: Botón hamburguesa móvil + Mejorar plan */}
+        <div className="flex items-center space-x-4">
+          {/* Botón hamburguesa solo en móvil */}
           <button
-            onClick={() => setDashboardOpen(!dashboardOpen)}
-            aria-expanded={dashboardOpen}
-            aria-haspopup="true"
-            className="ml-1 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none"
-            title="Abrir submenu de IDs"
+            className="md:hidden text-text px-2 py-1 rounded hover:bg-muted/80 focus:outline-none"
+            onClick={() => setIsMobileOpen(true)}
+            aria-label="Abrir menú lateral"
           >
-            ▼
+            ☰
           </button>
 
-          {dashboardOpen && (
-            <div className="absolute left-0 mt-8 w-32 bg-white dark:bg-gray-800 rounded shadow-lg z-10">
-              {dashboardIds.map((id) => (
-                <Link
-                  key={id}
-                  href={`/dashboard/${id}`}
-                  className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-                  onClick={() => setDashboardOpen(false)}
-                >
-                  ID {id}
-                </Link>
-              ))}
-            </div>
-          )}
+          <button className="bg-accent text-white px-4 py-2 rounded hover:opacity-90 text-sm md:text-base">
+            Mejorar Plan
+          </button>
         </div>
 
-        <Link href="/settings" className="text-gray-700 dark:text-gray-300 hover:underline">
-          Settings
-        </Link>
-      </div>
+        {/* Derecha: Botón de tema + perfil */}
+        <div className="flex items-center space-x-4">
+          {/* Botón de modo oscuro / claro */}
+          <button
+            onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
+            className="bg-secondary text-white px-3 py-2 rounded text-sm md:text-base hover:opacity-90"
+          >
+            {currentTheme === "dark" ? "Modo Claro" : "Modo Oscuro"}
+          </button>
 
-      <button
-        onClick={toggleTheme}
-        className="bg-cyan-700 dark:bg-sky-500/70 text-white px-4 py-2 rounded hover:bg-cyan-800 transition"
-      >
-        {theme === "dark" ? "Modo Claro" : "Modo Oscuro"}
-      </button>
+          {/* Menú de perfil */}
+          <div className="relative" ref={profileRef}>
+            <button
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="flex items-center space-x-2 bg-muted px-3 py-2 rounded hover:bg-muted/80 text-sm md:text-base"
+            >
+              <span className="font-medium">Perfil</span>
+              <span>▼</span>
+            </button>
+
+            {profileOpen && (
+              <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-zinc-800 rounded shadow-lg z-10">
+                <Link
+                  href="/settings"
+                  className="block px-4 py-2 hover:bg-secondary dark:hover:bg-secondary text-sm"
+                >
+                  Configuración
+                </Link>
+                <button
+                  onClick={() => {
+                    setProfileOpen(false);
+                    console.log("Cerrar sesión");
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-secondary dark:hover:bg-secondary text-sm"
+                >
+                  Cerrar sesión
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </nav>
   );
 }

@@ -1,0 +1,59 @@
+// schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  UserFood  UserFood[]
+}
+
+model Food {
+  id                Int                @id @default(autoincrement())
+  name              String
+  category          String
+  createdAt         DateTime           @default(now())
+  userId            Int
+  nutritionDetails  NutritionDetail[]
+  householdMeasures HouseholdMeasure[]
+  UserFood          UserFood[]
+}
+
+model UserFood {
+  id     Int      @id @default(autoincrement())
+  userId Int
+  foodId Int
+  date   DateTime @default(now())
+  user   User     @relation(fields: [userId], references: [id])
+  food   Food     @relation(fields: [foodId], references: [id])
+}
+
+// Detalle Nutricional
+model NutritionDetail {
+  id       Int    @id @default(autoincrement())
+  foodId   Int
+  food     Food   @relation(fields: [foodId], references: [id])
+  nutrient String // Ejemplo: "Vitamina C", "Zinc", "Calorías"
+  value    Float // cantidad, ej: 10.5
+  unit     String // ej: "mg", "kcal", "µg"
+}
+
+// Medidas caseras
+model HouseholdMeasure {
+  id          Int    @id @default(autoincrement())
+  foodId      Int
+  food        Food   @relation(fields: [foodId], references: [id])
+  description String // Ej: "1 taza", "1 cucharada", "1 rebanada"
+  quantity    Float // Cantidad en esa medida (ej: 1 o 2.5)
+  weightGrams Float // Peso en gramos equivalente a esa cantidad
+}
