@@ -3,6 +3,8 @@
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import { Sun, Moon, ChevronDown, ChevronUp } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 interface NavbarProps {
   setIsMobileOpen: (open: boolean) => void;
@@ -60,38 +62,49 @@ export default function Navbar({ setIsMobileOpen }: NavbarProps) {
 
         {/* Derecha: Botón de tema + perfil */}
         <div className="flex items-center space-x-4">
-          {/* Botón de modo oscuro / claro */}
+          {/* Botón de modo oscuro / claro con iconos */}
           <button
             onClick={() => setTheme(currentTheme === "dark" ? "light" : "dark")}
-            className="bg-secondary text-white px-3 py-2 rounded text-sm md:text-base hover:opacity-90"
+            className="bg-secondary text-white p-2 rounded hover:opacity-90 flex items-center justify-center"
+            aria-label="Cambiar tema"
           >
-            {currentTheme === "dark" ? "Modo Claro" : "Modo Oscuro"}
+            {currentTheme === "dark" ? (
+              <Sun className="w-5 h-5 cursor-pointer" />
+            ) : (
+              <Moon className="w-5 h-5 cursor-pointer" />
+            )}
           </button>
 
           {/* Menú de perfil */}
           <div className="relative" ref={profileRef}>
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center space-x-2 bg-muted px-3 py-2 rounded hover:bg-muted/80 text-sm md:text-base"
+              className="flex items-center space-x-2 bg-muted px-3 py-2 rounded hover:bg-muted/80 text-sm md:text-base cursor-pointer"
+              aria-haspopup="true"
+              aria-expanded={profileOpen}
             >
               <span className="font-medium">Perfil</span>
-              <span>▼</span>
+              {profileOpen ? (
+                <ChevronUp className="w-4 h-4 ml-2 inline-block" />
+              ) : (
+                <ChevronDown className="w-4 h-4 ml-2 inline-block" />
+              )}
             </button>
-
             {profileOpen && (
               <div className="absolute right-0 mt-2 w-44 bg-white dark:bg-zinc-800 rounded shadow-lg z-10">
                 <Link
                   href="/settings"
                   className="block px-4 py-2 hover:bg-secondary dark:hover:bg-secondary text-sm"
+                  onClick={() => setProfileOpen(false)}
                 >
                   Configuración
                 </Link>
                 <button
                   onClick={() => {
                     setProfileOpen(false);
-                    console.log("Cerrar sesión");
+                    signOut({ callbackUrl: "/login" });
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-secondary dark:hover:bg-secondary text-sm"
+                  className="w-full text-left px-4 py-2 hover:bg-secondary dark:hover:bg-secondary text-sm cursor-pointer "
                 >
                   Cerrar sesión
                 </button>
