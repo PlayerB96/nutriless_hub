@@ -6,6 +6,7 @@ import "../../globals.css"; // ajusta la ruta si cambias de nivel
 
 export default function LoginLayout({
   children,
+  
 }: {
   children: React.ReactNode;
 }) {

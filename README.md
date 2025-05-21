@@ -38,5 +38,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## COMANDOS
 
 # CARGAR DATA NECESARIA PARA BASE DE DATOS (DESDE seed.ts)
-
 npx prisma db seed
+
+# CINSTALAR DEPENDENCIA
+npm install lightningcss

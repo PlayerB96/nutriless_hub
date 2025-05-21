@@ -1,14 +1,6 @@
-// auth/[...nextauth]/routes/route.ts
-import { NextRequest, NextResponse } from "next/server";
+import NextAuth from "next-auth/next";
 
-export async function GET() {
-  // Por ejemplo, retornar datos de usuario autenticado
-  return NextResponse.json({ message: "Ruta GET personalizada para auth" });
-}
+import { authOptions } from "@/lib/auth";
 
-export async function POST(request: NextRequest) {
-  // Procesar algún dato enviado en una ruta auth personalizada
-  const data = await request.json();
-  // lógica personalizada aquí
-  return NextResponse.json({ success: true, data });
-}
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

@@ -25,11 +25,12 @@ export default function Home() {
   if (status === "loading") {
     return <div>Cargando...</div>;
   }
+    console.log(status)
+    console.log(session)
 
   if (status === "authenticated") {
     // const userId = session?.user?.id;
     const userId = (session?.user as { id: string }).id;
-
     return (
       <MainContent>
         <div className="bg-primary-secondary text-text dark:bg-primary-secondary dark:text-text rounded-xl p-8">
