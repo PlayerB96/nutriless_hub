@@ -7,6 +7,7 @@ import { Check, Edit, X } from "lucide-react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable";
+import Image from "next/image";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -43,7 +44,21 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     fetchFoods();
   }, [id]);
 
-  // Limpia expandedId si el alimento expandido ya no está en la página visible
+  const filteredFoods = useMemo(() => {
+    return foods.filter((food) =>
+      food.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [foods, searchTerm]);
+
+  const totalPages = Math.ceil(filteredFoods.length / itemsPerPage);
+
+  const paginatedFoods = useMemo(() => {
+    return filteredFoods.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
+  }, [filteredFoods, currentPage, itemsPerPage]);
+
   useEffect(() => {
     if (
       expandedId !== null &&
@@ -51,7 +66,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     ) {
       setExpandedId(null);
     }
-  }, [expandedId, searchTerm, currentPage, foods]); // dependencias que afectan paginación y filtrado
+  }, [expandedId, paginatedFoods]);
 
   const toggleExpand = (id: number) => {
     setExpandedId((prev) => (prev === id ? null : id));
@@ -74,11 +89,8 @@ export default function DashboardUserFoodsPage({ params }: Props) {
       })
     );
   };
-  const [categorias, setCategorias] = useState<{ id: number; name: string }[]>(
-    []
-  ); // O carga tus categorías
-
-  const [categoriaFiltro, setCategoriaFiltro] = useState("");
+  const [categorias] = useState<{ id: number; name: string }[]>([]);
+  const [categoriaFiltro] = useState("");
 
   const categoriasFiltradas = useMemo(() => {
     if (!categoriaFiltro) return categorias;
@@ -129,20 +141,6 @@ export default function DashboardUserFoodsPage({ params }: Props) {
 
     doc.save("alimentos.pdf");
   };
-
-  const filteredFoods = useMemo(() => {
-    return foods.filter((food) =>
-      food.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [foods, searchTerm]);
-  const totalPages = Math.ceil(filteredFoods.length / itemsPerPage);
-
-  const paginatedFoods = useMemo(() => {
-    return filteredFoods.slice(
-      (currentPage - 1) * itemsPerPage,
-      currentPage * itemsPerPage
-    );
-  }, [filteredFoods, currentPage, itemsPerPage]);
 
   return (
     <main className="p-8">
@@ -269,10 +267,12 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                   </td>
                   <td className="border px-4 py-2">
                     {food.imageUrl ? (
-                      <img
+                      <Image
                         src={`https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev/${food.imageUrl}`}
                         alt={food.name}
-                        className="w-16 h-16 object-cover rounded"
+                        width={64} // w-16 = 4rem = 64px
+                        height={64} // h-16 = 4rem = 64px
+                        className="object-cover rounded"
                       />
                     ) : (
                       <span>No hay imagen</span>

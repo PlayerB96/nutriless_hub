@@ -6,6 +6,7 @@ import { ThemeProvider } from "next-themes";
 import "../globals.css";
 import { useState } from "react";
 import SideNav from "@/components/layout/Sidenav";
+import { Session } from "next-auth";
 
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "react-hot-toast"; // <-- Importa Toaster
@@ -15,7 +16,7 @@ export default function RootLayout({
   session,
 }: {
   children: React.ReactNode;
-  session?: any;
+  session?: Session | null;
 }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);

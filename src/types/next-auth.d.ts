@@ -1,17 +1,21 @@
-import NextAuth from "next-auth";
-
 declare module "next-auth" {
   interface Session {
+    expires: string;
+
     user: {
-      id: string; // <-- agrega esta propiedad
+      id: string; // tu propiedad extra
       name?: string | null;
       email?: string | null;
       image?: string | null;
     };
   }
 
-  // Si usas JWT y quieres que también tenga `sub` como string:
+  interface User {
+    id: string; // extensión para el usuario en general
+  }
+
   interface JWT {
+    id?: string; // <-- Extiendes para que JWT tenga id
     sub?: string;
   }
 }

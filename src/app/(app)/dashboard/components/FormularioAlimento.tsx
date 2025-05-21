@@ -1,9 +1,10 @@
 "use client";
 
-import { ImageUp, Share2 } from "lucide-react";
+import { ImageUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 type Categoria = {
   id: number;
@@ -29,7 +30,8 @@ export default function FormularioAlimento({
   onCancel,
 }: FormularioAlimentoProps) {
   const { data: session } = useSession();
-  const userId = session?.user?.id;
+  // const userId = session?.user?.id;
+  const userId = (session?.user as { id: string }).id;
 
   const [nombre, setNombre] = useState("");
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -379,10 +381,12 @@ export default function FormularioAlimento({
 
         {imagen && (
           <div className="mt-4">
-            <img
+            <Image
               src={URL.createObjectURL(imagen)}
               alt="Imagen subida"
-              className="max-w-full h-auto rounded-md border border-gray-300 shadow-sm"
+              width={500} // Debes definir un ancho fijo o relativo
+              height={300} // Debes definir una altura fija o relativa
+              className="rounded-md border border-gray-300 shadow-sm"
             />
           </div>
         )}

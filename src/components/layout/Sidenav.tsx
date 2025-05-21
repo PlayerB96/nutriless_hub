@@ -3,7 +3,7 @@
 import { BarChart2, Home, Settings, Menu, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 interface SideNavProps {

@@ -14,6 +14,11 @@ const s3Client = new S3Client({
     secretAccessKey: R2_SECRET_ACCESS_KEY,
   },
 });
+type HouseholdMeasure = {
+  description: string;
+  quantity: string | number;
+  weightGrams: string | number;
+};
 
 export async function POST(req: Request) {
   try {
@@ -92,10 +97,10 @@ export async function POST(req: Request) {
         },
         householdMeasures: {
           create:
-            householdMeasures?.map((item: any) => ({
+            householdMeasures?.map((item: HouseholdMeasure) => ({
               description: item.description,
-              quantity: parseFloat(item.quantity),
-              weightGrams: parseFloat(item.weightGrams),
+              quantity: parseFloat(item.quantity.toString()),
+              weightGrams: parseFloat(item.weightGrams.toString()),
             })) || [],
         },
       },

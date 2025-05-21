@@ -27,7 +27,8 @@ export default function Home() {
   }
 
   if (status === "authenticated") {
-    const userId = session?.user?.id;
+    // const userId = session?.user?.id;
+    const userId = (session?.user as { id: string }).id;
 
     return (
       <MainContent>

@@ -1,9 +1,7 @@
 import { prisma } from "@/lib/prisma";
+type tParams = Promise<{ id: string }>;
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(req: Request, { params }: { params: tParams }) {
   const resolvedParams = await params;
   const userId = Number(resolvedParams.id);
 
@@ -27,7 +25,7 @@ export async function GET(
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch (error) {
+  } catch {
     return new Response(JSON.stringify({ message: "Error interno" }), {
       status: 500,
     });
