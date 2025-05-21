@@ -19,7 +19,17 @@ type HouseholdMeasure = {
   quantity: string | number;
   weightGrams: string | number;
 };
-
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*", // O pon el dominio que necesites permitir, ej: "https://nutriless-hub.vercel.app"
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
 export async function POST(req: Request) {
   try {
     // 1. Obtener formData
@@ -126,7 +136,10 @@ export async function POST(req: Request) {
           ? `https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev/${imageFilename}`
           : null,
       }),
-      { status: 201, headers: { "Content-Type": "application/json" } }
+      {
+        status: 201,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
     );
   } catch (error) {
     console.error("Error al registrar alimento:", error);
