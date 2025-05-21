@@ -19,7 +19,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   const { id } = React.use(params);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
+  const itemsPerPage = 10;
   const [editFoodId, setEditFoodId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editCategoria, setEditCategoria] = useState("");
