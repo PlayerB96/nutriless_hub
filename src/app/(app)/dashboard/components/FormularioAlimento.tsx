@@ -10,12 +10,6 @@ type Categoria = {
   name: string;
 };
 
-// const categorias: Categoria[] = [
-//   { id: 1, nombre: "Alimentos Infantiles" },
-//   { id: 2, nombre: "Aperitivos" },
-//   { id: 3, nombre: "Bebidas" },
-// ];
-
 const nutrientesOpcionales = ["Calcio", "Vitamina A", "Hierro", "Magnesio"];
 
 const camposNutricionalesIniciales = [

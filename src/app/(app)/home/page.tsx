@@ -61,7 +61,7 @@ export default function SettingsPage() {
   if (status === "authenticated") {
     return (
       <MainContent>
-        <h1 className="text-4xl font-bold mb-6 text-primary">Configuración</h1>
+        <h1 className="text-4xl font-bold mb-6 text-primary">Inicio</h1>
 
         <section className="space-y-4">
           <div>
@@ -69,8 +69,7 @@ export default function SettingsPage() {
               Otras opciones
             </h2>
             <p className="text-muted dark:text-muted-secondary">
-              Aquí puedes agregar más opciones de configuración según tus
-              necesidades.
+              Aquí puedes se agregaran opciones del usuario.
             </p>
           </div>
         </section>

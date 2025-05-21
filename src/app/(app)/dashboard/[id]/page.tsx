@@ -1,39 +1,29 @@
-// dashboard/[id]/page.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { Food } from "@/domain/models/food";
+import React, { useEffect, useMemo, useState } from "react";
+import FoodDetails from "./components/FoodDetails";
+import { Check, Edit, X } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
-type NutritionDetail = {
-  id: number;
-  nutrient: string;
-  value: number;
-  unit: string;
-};
-
-type HouseholdMeasure = {
-  id: number;
-  description: string;
-  quantity: number;
-  weightGrams: number;
-};
-
-type Food = {
-  id: number;
-  name: string;
-  category: string;
-  createdAt: string;
-  imageUrl?: string | null;
-  nutritionDetails: NutritionDetail[];
-  householdMeasures: HouseholdMeasure[];
-};
 type Props = {
-  params: Promise<{ id: string }>; // params es ahora una Promise
+  params: Promise<{ id: string }>;
 };
 
 export default function DashboardUserFoodsPage({ params }: Props) {
   const [foods, setFoods] = useState<Food[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const { id } = React.use(params);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 2;
+  const [editFoodId, setEditFoodId] = useState<number | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editCategoria, setEditCategoria] = useState("");
+  const [dropdownCategoriaAbierto, setDropdownCategoriaAbierto] =
+    useState(false);
 
   useEffect(() => {
     const fetchFoods = async () => {
@@ -53,13 +43,145 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     fetchFoods();
   }, [id]);
 
+  // Limpia expandedId si el alimento expandido ya no está en la página visible
+  useEffect(() => {
+    if (
+      expandedId !== null &&
+      !paginatedFoods.some((food) => food.id === expandedId)
+    ) {
+      setExpandedId(null);
+    }
+  }, [expandedId, searchTerm, currentPage, foods]); // dependencias que afectan paginación y filtrado
+
   const toggleExpand = (id: number) => {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
+  const handleNutritionValueChange = (
+    foodId: number,
+    nutritionId: number,
+    newValue: number
+  ) => {
+    setFoods((prevFoods) =>
+      prevFoods.map((food) => {
+        if (food.id !== foodId) return food;
+        return {
+          ...food,
+          nutritionDetails: food.nutritionDetails.map((n) =>
+            n.id === nutritionId ? { ...n, value: newValue } : n
+          ),
+        };
+      })
+    );
+  };
+  const [categorias, setCategorias] = useState<{ id: number; name: string }[]>(
+    []
+  ); // O carga tus categorías
+
+  const [categoriaFiltro, setCategoriaFiltro] = useState("");
+
+  const categoriasFiltradas = useMemo(() => {
+    if (!categoriaFiltro) return categorias;
+    return categorias.filter((cat) =>
+      cat.name.toLowerCase().includes(categoriaFiltro.toLowerCase())
+    );
+  }, [categoriaFiltro, categorias]);
+
+  const handleSave = (foodId: number) => {
+    setFoods((prevFoods) =>
+      prevFoods.map((food) =>
+        food.id === foodId
+          ? { ...food, name: editName, category: editCategoria }
+          : food
+      )
+    );
+    setEditFoodId(null);
+    setDropdownCategoriaAbierto(false);
+  };
+  const filteredFoods = foods.filter((food) =>
+    food.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const generatePdf = () => {
+    const doc = new jsPDF();
+
+    doc.text("Listado de Alimentos", 14, 22);
+
+    const columns = [
+      { header: "Nombre", dataKey: "name" },
+      { header: "Categoría", dataKey: "category" },
+      { header: "Fecha Creación", dataKey: "createdAt" },
+      { header: "Imagen", dataKey: "imageUrl" },
+    ];
+
+    const rows = paginatedFoods.map((food) => ({
+      name: food.name,
+      category: food.category,
+      createdAt: new Date(food.createdAt).toLocaleDateString(),
+      imageUrl: food.imageUrl ? "Sí" : "No",
+    }));
+
+    // Aquí llamas a autoTable PASANDO la instancia doc
+    autoTable(doc, {
+      startY: 30,
+      columns,
+      body: rows,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [22, 160, 133] },
+    });
+
+    doc.save("alimentos.pdf");
+  };
+
+  const totalPages = Math.ceil(filteredFoods.length / itemsPerPage);
+  const paginatedFoods = filteredFoods.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <main className="p-8">
       <h1 className="text-2xl font-bold mb-6">Alimentos</h1>
+      <div className="flex justify-between items-center mb-4">
+        <input
+          type="text"
+          placeholder="Buscar alimento..."
+          className="border px-3 py-2 rounded w-64 text-gray-700 dark:text-gray-200"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+        />
+        <div className="mb-4">
+          <button
+            onClick={generatePdf}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Exportar PDF
+          </button>
+        </div>
+        <div className="space-x-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Anterior
+          </button>
+          <span>
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border rounded disabled:opacity-50"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
 
       {foods.length === 0 ? (
         <p>No se encontraron alimentos.</p>
@@ -74,14 +196,68 @@ export default function DashboardUserFoodsPage({ params }: Props) {
             </tr>
           </thead>
           <tbody>
-            {foods.map((food) => (
+            {paginatedFoods.map((food) => (
               <React.Fragment key={food.id}>
                 <tr
                   className="hover:bg-gray-200 dark:hover:bg-slate-900 cursor-pointer"
                   onClick={() => toggleExpand(food.id)}
                 >
-                  <td className="border px-4 py-2">{food.name}</td>
-                  <td className="border px-4 py-2">{food.category}</td>
+                  <td className="border px-4 py-2">
+                    {editFoodId === food.id ? (
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="border rounded px-2 py-1"
+                      />
+                    ) : (
+                      food.name
+                    )}
+                  </td>
+                  <td className="border px-4 py-2 relative">
+                    {editFoodId === food.id ? (
+                      <>
+                        <input
+                          type="text"
+                          id="categoria"
+                          value={editCategoria}
+                          onChange={(e) => {
+                            setEditCategoria(e.target.value);
+                            setDropdownCategoriaAbierto(true);
+                          }}
+                          onFocus={() => setDropdownCategoriaAbierto(true)}
+                          className="w-full border border-gray-300 rounded-md p-2 bg-bg"
+                          placeholder="Seleccione o busque categoría"
+                          autoComplete="off"
+                          required
+                        />
+                        {dropdownCategoriaAbierto && (
+                          <ul className="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-md border border-gray-300 shadow-lg bg-primary">
+                            {categoriasFiltradas.length > 0 ? (
+                              categoriasFiltradas.map((cat) => (
+                                <li
+                                  key={cat.id}
+                                  onClick={() => {
+                                    setEditCategoria(cat.name);
+                                    setDropdownCategoriaAbierto(false);
+                                  }}
+                                  className="cursor-pointer px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                >
+                                  {cat.name}
+                                </li>
+                              ))
+                            ) : (
+                              <li className="px-4 py-2 text-gray-500">
+                                No hay coincidencias
+                              </li>
+                            )}
+                          </ul>
+                        )}
+                      </>
+                    ) : (
+                      food.category
+                    )}
+                  </td>
                   <td className="border px-4 py-2">
                     {new Date(food.createdAt).toLocaleDateString()}
                   </td>
@@ -96,58 +272,56 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                       <span>No hay imagen</span>
                     )}
                   </td>
+                  <td className="border px-4 py-2">
+                    {editFoodId === food.id ? (
+                      <>
+                        <button
+                          className="mr-2 p-1 bg-green-500 text-white rounded hover:bg-green-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSave(food.id);
+                          }}
+                          aria-label="Guardar cambios"
+                          title="Guardar"
+                        >
+                          <Check size={20} />
+                        </button>
+
+                        <button
+                          className="p-1 bg-gray-400 rounded hover:bg-gray-500"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditFoodId(null);
+                            setDropdownCategoriaAbierto(false);
+                          }}
+                          aria-label="Cancelar edición"
+                          title="Cancelar"
+                        >
+                          <X size={20} />
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        className="p-1 text-blue-500 hover:text-blue-700 rounded"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditFoodId(food.id);
+                          setEditName(food.name);
+                          setEditCategoria(food.category);
+                        }}
+                        aria-label="Editar alimento"
+                        title="Editar"
+                      >
+                        <Edit size={20} />
+                      </button>
+                    )}
+                  </td>
                 </tr>
-
                 {expandedId === food.id && (
-                  <tr className="hover:bg-gray-200 dark:hover:bg-slate-900 text-sm">
-                    <td
-                      colSpan={4}
-                      className="px-6 py-4 border-t text-gray-700 dark:text-gray-200"
-                    >
-                      <div className="space-y-3">
-                        {/* DETALLES NUTRICIONALES */}
-                        <div>
-                          <h4 className="font-semibold mb-1">
-                            🧬 Detalles nutricionales:
-                          </h4>
-                          {food.nutritionDetails.length > 0 ? (
-                            <ul className="list-disc list-inside">
-                              {food.nutritionDetails.map((n) => (
-                                <li key={n.id}>
-                                  {n.nutrient}: {n.value} {n.unit}
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="text-gray-500">
-                              Sin información nutricional.
-                            </p>
-                          )}
-                        </div>
-
-                        {/* MEDIDAS CASERAS */}
-                        <div>
-                          <h4 className="font-semibold mb-1">
-                            🥄 Medidas caseras:
-                          </h4>
-                          {food.householdMeasures.length > 0 ? (
-                            <ul className="list-disc list-inside">
-                              {food.householdMeasures.map((m) => (
-                                <li key={m.id}>
-                                  {m.description} = {m.quantity} unidad(es) ≈{" "}
-                                  {m.weightGrams} g
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="text-gray-500">
-                              Sin medidas caseras disponibles.
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
+                  <FoodDetails
+                    food={food}
+                    onNutritionValueChange={handleNutritionValueChange}
+                  />
                 )}
               </React.Fragment>
             ))}

@@ -41,12 +41,12 @@ export default function RootLayout({
               )}
 
               <div
-                className={`flex-1 min-h-screen transition-all duration-300
+                className={`flex-1 flex flex-col transition-all duration-300
                 ${isCollapsed ? "md:pl-16" : "md:pl-64"}
               `}
               >
                 <Navbar setIsMobileOpen={setIsMobileOpen} />
-                <main className="p-4">{children}</main>
+                <main className="flex-1 p-4">{children}</main>
                 <Footer />
               </div>
             </div>
