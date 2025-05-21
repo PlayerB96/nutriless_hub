@@ -98,9 +98,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     setEditFoodId(null);
     setDropdownCategoriaAbierto(false);
   };
-  const filteredFoods = foods.filter((food) =>
-    food.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
   const generatePdf = () => {
     const doc = new jsPDF();
 
@@ -132,11 +130,19 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     doc.save("alimentos.pdf");
   };
 
+  const filteredFoods = useMemo(() => {
+    return foods.filter((food) =>
+      food.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [foods, searchTerm]);
   const totalPages = Math.ceil(filteredFoods.length / itemsPerPage);
-  const paginatedFoods = filteredFoods.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+
+  const paginatedFoods = useMemo(() => {
+    return filteredFoods.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
+  }, [filteredFoods, currentPage, itemsPerPage]);
 
   return (
     <main className="p-8">
