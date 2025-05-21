@@ -3,7 +3,7 @@
 import { Food } from "@/domain/models/food";
 import React, { useEffect, useMemo, useState } from "react";
 import FoodDetails from "./components/FoodDetails";
-import { Check, Edit, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Edit, X } from "lucide-react";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable";
@@ -145,32 +145,35 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   return (
     <main className="p-8">
       <h1 className="text-2xl font-bold mb-6">Alimentos</h1>
-      <div className="flex justify-between items-center mb-4">
-        <input
-          type="text"
-          placeholder="Buscar alimento..."
-          className="border px-3 py-2 rounded w-64 text-gray-700 dark:text-gray-200"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }}
-        />
-        <div className="mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+        {/* Buscador y botón de exportar agrupados */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <input
+            type="text"
+            placeholder="Buscar alimento..."
+            className="border px-3 py-2 rounded w-64 text-gray-700 dark:text-gray-200"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
           <button
             onClick={generatePdf}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
           >
             Exportar PDF
           </button>
         </div>
-        <div className="space-x-2">
+
+        {/* Paginación */}
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
             className="px-3 py-1 border rounded disabled:opacity-50"
           >
-            Anterior
+            <ChevronLeft className="w-5 h-5" />
           </button>
           <span>
             Página {currentPage} de {totalPages}
@@ -182,7 +185,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
             disabled={currentPage === totalPages}
             className="px-3 py-1 border rounded disabled:opacity-50"
           >
-            Siguiente
+            <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -309,12 +312,12 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                     ) : (
                       <button
                         className="p-1 text-blue-500 hover:text-blue-700 rounded"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditFoodId(food.id);
-                          setEditName(food.name);
-                          setEditCategoria(food.category);
-                        }}
+                        // onClick={(e) => {
+                        //   e.stopPropagation();
+                        //   setEditFoodId(food.id);
+                        //   setEditName(food.name);
+                        //   setEditCategoria(food.category);
+                        // }}
                         aria-label="Editar alimento"
                         title="Editar"
                       >
