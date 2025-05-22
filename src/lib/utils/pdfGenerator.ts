@@ -59,7 +59,6 @@ export const generatePdf = async (
     if (food.imageUrl) {
       try {
         const imageUrl = `https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev/${food.imageUrl}`;
-        console.log(imageUrl);
         const base64Image = await loadImageAsBase64(imageUrl);
         doc.addImage(base64Image, "PNG", 14, y, 50, 50);
         y += 60;

@@ -170,7 +170,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
           />
           <button
             onClick={() => generatePdf(paginatedFoods, selectedFoods)}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={selectedFoods.length === 0}
           >
             Generar PDF 
