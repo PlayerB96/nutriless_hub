@@ -193,149 +193,151 @@ export default function DashboardUserFoodsPage({ params }: Props) {
       {foods.length === 0 ? (
         <p>No se encontraron alimentos.</p>
       ) : (
-        <table className="min-w-full border border-gray-300 bg-bg">
-          <thead className="bg-primary">
-            <tr>
-              <th className="border px-4 py-2 text-left">Nombre</th>
-              <th className="border px-4 py-2 text-left">Categoría</th>
-              <th className="border px-4 py-2 text-left">Fecha Creación</th>
-              <th className="border px-4 py-2 text-left">Imagen</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedFoods.map((food) => (
-              <React.Fragment key={food.id}>
-                <tr
-                  className="hover:bg-gray-200 dark:hover:bg-slate-900 cursor-pointer"
-                  onClick={() => toggleExpand(food.id)}
-                >
-                  <td className="border px-4 py-2">
-                    {editFoodId === food.id ? (
-                      <input
-                        type="text"
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="border rounded px-2 py-1"
-                      />
-                    ) : (
-                      food.name
-                    )}
-                  </td>
-                  <td className="border px-4 py-2 relative">
-                    {editFoodId === food.id ? (
-                      <>
+        <div className="w-full overflow-x-auto sm:overflow-visible">
+          <table className="min-w-full border border-gray-300 bg-bg text-sm sm:text-base">
+            <thead className="bg-primary">
+              <tr>
+                <th className="border px-4 py-2 text-left">Nombre</th>
+                <th className="border px-4 py-2 text-left">Categoría</th>
+                <th className="border px-4 py-2 text-left">Fecha Creación</th>
+                <th className="border px-4 py-2 text-left">Imagen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedFoods.map((food) => (
+                <React.Fragment key={food.id}>
+                  <tr
+                    className="hover:bg-gray-200 dark:hover:bg-slate-900 cursor-pointer"
+                    onClick={() => toggleExpand(food.id)}
+                  >
+                    <td className="border px-4 py-2">
+                      {editFoodId === food.id ? (
                         <input
                           type="text"
-                          id="categoria"
-                          value={editCategoria}
-                          onChange={(e) => {
-                            setEditCategoria(e.target.value);
-                            setDropdownCategoriaAbierto(true);
-                          }}
-                          onFocus={() => setDropdownCategoriaAbierto(true)}
-                          className="w-full border border-gray-300 rounded-md p-2 bg-bg"
-                          placeholder="Seleccione o busque categoría"
-                          autoComplete="off"
-                          required
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="border rounded px-2 py-1"
                         />
-                        {dropdownCategoriaAbierto && (
-                          <ul className="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-md border border-gray-300 shadow-lg bg-primary">
-                            {categoriasFiltradas.length > 0 ? (
-                              categoriasFiltradas.map((cat) => (
-                                <li
-                                  key={cat.id}
-                                  onClick={() => {
-                                    setEditCategoria(cat.name);
-                                    setDropdownCategoriaAbierto(false);
-                                  }}
-                                  className="cursor-pointer px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700"
-                                >
-                                  {cat.name}
+                      ) : (
+                        food.name
+                      )}
+                    </td>
+                    <td className="border px-4 py-2 relative">
+                      {editFoodId === food.id ? (
+                        <>
+                          <input
+                            type="text"
+                            id="categoria"
+                            value={editCategoria}
+                            onChange={(e) => {
+                              setEditCategoria(e.target.value);
+                              setDropdownCategoriaAbierto(true);
+                            }}
+                            onFocus={() => setDropdownCategoriaAbierto(true)}
+                            className="w-full border border-gray-300 rounded-md p-2 bg-bg"
+                            placeholder="Seleccione o busque categoría"
+                            autoComplete="off"
+                            required
+                          />
+                          {dropdownCategoriaAbierto && (
+                            <ul className="absolute z-10 mt-1 max-h-40 w-full overflow-auto rounded-md border border-gray-300 shadow-lg bg-primary">
+                              {categoriasFiltradas.length > 0 ? (
+                                categoriasFiltradas.map((cat) => (
+                                  <li
+                                    key={cat.id}
+                                    onClick={() => {
+                                      setEditCategoria(cat.name);
+                                      setDropdownCategoriaAbierto(false);
+                                    }}
+                                    className="cursor-pointer px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                  >
+                                    {cat.name}
+                                  </li>
+                                ))
+                              ) : (
+                                <li className="px-4 py-2 text-gray-500">
+                                  No hay coincidencias
                                 </li>
-                              ))
-                            ) : (
-                              <li className="px-4 py-2 text-gray-500">
-                                No hay coincidencias
-                              </li>
-                            )}
-                          </ul>
-                        )}
-                      </>
-                    ) : (
-                      food.category
-                    )}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {new Date(food.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {food.imageUrl ? (
-                      <Image
-                        src={`https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev/${food.imageUrl}`}
-                        alt={food.name}
-                        width={64} // w-16 = 4rem = 64px
-                        height={64} // h-16 = 4rem = 64px
-                        className="object-cover rounded"
-                      />
-                    ) : (
-                      <span>No hay imagen</span>
-                    )}
-                  </td>
-                  <td className="border px-4 py-2">
-                    {editFoodId === food.id ? (
-                      <>
-                        <button
-                          className="mr-2 p-1 bg-green-500 text-white rounded hover:bg-green-600"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSave(food.id);
-                          }}
-                          aria-label="Guardar cambios"
-                          title="Guardar"
-                        >
-                          <Check size={20} />
-                        </button>
+                              )}
+                            </ul>
+                          )}
+                        </>
+                      ) : (
+                        food.category
+                      )}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {new Date(food.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {food.imageUrl ? (
+                        <Image
+                          src={`https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev/${food.imageUrl}`}
+                          alt={food.name}
+                          width={64} // w-16 = 4rem = 64px
+                          height={64} // h-16 = 4rem = 64px
+                          className="object-cover rounded"
+                        />
+                      ) : (
+                        <span>No hay imagen</span>
+                      )}
+                    </td>
+                    <td className="border px-4 py-2">
+                      {editFoodId === food.id ? (
+                        <>
+                          <button
+                            className="mr-2 p-1 bg-green-500 text-white rounded hover:bg-green-600"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSave(food.id);
+                            }}
+                            aria-label="Guardar cambios"
+                            title="Guardar"
+                          >
+                            <Check size={20} />
+                          </button>
 
+                          <button
+                            className="p-1 bg-gray-400 rounded hover:bg-gray-500"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditFoodId(null);
+                              setDropdownCategoriaAbierto(false);
+                            }}
+                            aria-label="Cancelar edición"
+                            title="Cancelar"
+                          >
+                            <X size={20} />
+                          </button>
+                        </>
+                      ) : (
                         <button
-                          className="p-1 bg-gray-400 rounded hover:bg-gray-500"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditFoodId(null);
-                            setDropdownCategoriaAbierto(false);
-                          }}
-                          aria-label="Cancelar edición"
-                          title="Cancelar"
+                          className="p-1 text-blue-500 hover:text-blue-700 rounded"
+                          // onClick={(e) => {
+                          //   e.stopPropagation();
+                          //   setEditFoodId(food.id);
+                          //   setEditName(food.name);
+                          //   setEditCategoria(food.category);
+                          // }}
+                          aria-label="Editar alimento"
+                          title="Editar"
                         >
-                          <X size={20} />
+                          <Edit size={20} />
                         </button>
-                      </>
-                    ) : (
-                      <button
-                        className="p-1 text-blue-500 hover:text-blue-700 rounded"
-                        // onClick={(e) => {
-                        //   e.stopPropagation();
-                        //   setEditFoodId(food.id);
-                        //   setEditName(food.name);
-                        //   setEditCategoria(food.category);
-                        // }}
-                        aria-label="Editar alimento"
-                        title="Editar"
-                      >
-                        <Edit size={20} />
-                      </button>
-                    )}
-                  </td>
-                </tr>
-                {expandedId === food.id && (
-                  <FoodDetails
-                    food={food}
-                    onNutritionValueChange={handleNutritionValueChange}
-                  />
-                )}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
+                      )}
+                    </td>
+                  </tr>
+                  {expandedId === food.id && (
+                    <FoodDetails
+                      food={food}
+                      onNutritionValueChange={handleNutritionValueChange}
+                    />
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </main>
   );

@@ -11,7 +11,7 @@ type Categoria = {
   name: string;
 };
 
-const nutrientesOpcionales = ["Calcio", "Vitamina A", "Hierro", "Magnesio"];
+// const nutrientesOpcionales = ["Calcio", "Vitamina A", "Hierro", "Magnesio"];
 
 const camposNutricionalesIniciales = [
   { key: "gramos", label: "por Cada (gramos)" },
@@ -43,7 +43,26 @@ export default function FormularioAlimento({
   const [dropdownCategoriaAbierto, setDropdownCategoriaAbierto] =
     useState(false);
 
+  const [nutrientesOpcionales, setNutrientesOpcionales] = useState<string[]>(
+    []
+  );
   const [nutrienteFiltro, setNutrienteFiltro] = useState("");
+  const [nutrientesExtras, setNutrientesExtras] = useState<string[]>([]); // o tu estado actual
+
+  // Cargar nutrientes opcionales desde API al montar el componente
+  useEffect(() => {
+    async function fetchNutrients() {
+      try {
+        const res = await fetch("/api/nutrients-optional");
+        const data = await res.json();
+        setNutrientesOpcionales(data);
+      } catch (error) {
+        console.error("Error cargando nutrientes opcionales", error);
+      }
+    }
+    fetchNutrients();
+  }, []);
+
   const [dropdownNutrienteAbierto, setDropdownNutrienteAbierto] =
     useState(false);
 
@@ -56,8 +75,6 @@ export default function FormularioAlimento({
     carbohidratos: "",
     grasas: "",
   });
-
-  const [nutrientesExtras, setNutrientesExtras] = useState<string[]>([]);
 
   const refCategoria = useRef<HTMLDivElement>(null);
   const refNutriente = useRef<HTMLDivElement>(null);
@@ -182,7 +199,7 @@ export default function FormularioAlimento({
     return nutrientesOpcionales
       .filter((n) => !nutrientesExtras.includes(n))
       .filter((n) => n.toLowerCase().includes(nutrienteFiltro.toLowerCase()));
-  }, [nutrienteFiltro, nutrientesExtras]);
+  }, [nutrienteFiltro, nutrientesExtras, nutrientesOpcionales]);
 
   const handleDetalleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -424,7 +441,7 @@ export default function FormularioAlimento({
             />
           </svg>
         ) : (
-          "Ingresar"
+          "Registrar"
         )}
       </button>
     </form>

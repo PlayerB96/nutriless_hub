@@ -1,26 +1,28 @@
+// prisma/seed.ts
+
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-async function main() {
-  const adminEmail = "player.b.1996@gmail.com";
+async function seedAdmin() {
+  const email = "player.b.1996@gmail.com";
+  const password = await bcrypt.hash("123", 10);
 
-  const hashedPassword = await bcrypt.hash("123", 10); // contrasena real
-
-  const admin = await prisma.user.upsert({
-    where: { email: adminEmail },
+  await prisma.user.upsert({
+    where: { email },
     update: {},
     create: {
       name: "Bryan Rafael Andia",
-      email: adminEmail,
-      password: hashedPassword, // ahora sí está hasheada
+      email,
+      password,
     },
   });
 
-  console.log("Seed data usuario cargada!");
+  console.log("✅ Usuario admin cargado.");
+}
 
-  // Lista de categorías que quieres asegurar existan
+async function seedCategorias() {
   const categorias = [
     "Alimentos Infantiles",
     "Alimentos preparados",
@@ -58,15 +60,47 @@ async function main() {
     "Verduras, hortalizas y derivados",
   ];
 
-  for (const nombre of categorias) {
+  for (const name of categorias) {
     await prisma.categoryFood.upsert({
-      where: { name: nombre },
-      update: {}, // no hace nada si ya existe
-      create: { name: nombre },
+      where: { name },
+      update: {},
+      create: { name },
     });
   }
 
-  console.log("Seed data categorias cargada!");
+  console.log("✅ Categorías cargadas.");
+}
+
+async function seedOptionalNutrients() {
+  const nutrients = [
+    "Calcium",
+    "Vitamin A",
+    "Iron",
+    "Magnesium",
+    "Grasas Totales(gr)",
+    "Grasas Saturadas(gr)",
+    "Grasas Trans(gr)",
+    "Colesterol(gr)",
+    "Colesterol(mg)",
+    "Azúcares(gr)",
+    "Sodio(mg)",
+  ];
+
+  for (const name of nutrients) {
+    await prisma.optionalNutrient.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+  }
+
+  console.log("✅ Nutrientes opcionales cargados.");
+}
+
+async function main() {
+  // await seedAdmin();
+  // await seedCategorias();
+  // await seedOptionalNutrients();
 }
 
 main()
