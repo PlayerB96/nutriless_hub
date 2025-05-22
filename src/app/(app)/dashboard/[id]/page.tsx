@@ -4,10 +4,10 @@ import { Food } from "@/domain/models/food";
 import React, { useEffect, useMemo, useState } from "react";
 import FoodDetails from "./components/FoodDetails";
 import { Check, ChevronLeft, ChevronRight, Edit, X } from "lucide-react";
-import jsPDF from "jspdf";
 import "jspdf-autotable";
-import autoTable from "jspdf-autotable";
+
 import Image from "next/image";
+import { generatePdf } from "@/lib/utils/pdfGenerator";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -25,6 +25,8 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   const [editCategoria, setEditCategoria] = useState("");
   const [dropdownCategoriaAbierto, setDropdownCategoriaAbierto] =
     useState(false);
+
+  const [selectedFoods, setSelectedFoods] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchFoods = async () => {
@@ -111,35 +113,43 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     setDropdownCategoriaAbierto(false);
   };
 
-  const generatePdf = () => {
-    const doc = new jsPDF();
+  // const generatePdf = () => {
+  //   const doc = new jsPDF();
 
-    doc.text("Listado de Alimentos", 14, 22);
+  //   doc.text("Listado de Alimentos Seleccionados", 14, 22);
 
-    const columns = [
-      { header: "Nombre", dataKey: "name" },
-      { header: "Categoría", dataKey: "category" },
-      { header: "Fecha Creación", dataKey: "createdAt" },
-      { header: "Imagen", dataKey: "imageUrl" },
-    ];
+  //   const columns = [
+  //     { header: "Nombre", dataKey: "name" },
+  //     { header: "Categoría", dataKey: "category" },
+  //     { header: "Fecha Creación", dataKey: "createdAt" },
+  //     { header: "Imagen", dataKey: "imageUrl" },
+  //   ];
 
-    const rows = paginatedFoods.map((food) => ({
-      name: food.name,
-      category: food.category,
-      createdAt: new Date(food.createdAt).toLocaleDateString(),
-      imageUrl: food.imageUrl ? "Sí" : "No",
-    }));
+  //   // Filtrar solo los alimentos seleccionados
+  //   const selectedRows = paginatedFoods
+  //     .filter((food) => selectedFoods.includes(food.id))
+  //     .map((food) => ({
+  //       name: food.name,
+  //       category: food.category,
+  //       createdAt: new Date(food.createdAt).toLocaleDateString(),
+  //       imageUrl: food.imageUrl ? "Sí" : "No",
+  //     }));
 
-    // Aquí llamas a autoTable PASANDO la instancia doc
-    autoTable(doc, {
-      startY: 30,
-      columns,
-      body: rows,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [22, 160, 133] },
-    });
+  //   autoTable(doc, {
+  //     startY: 30,
+  //     columns,
+  //     body: selectedRows,
+  //     styles: { fontSize: 10 },
+  //     headStyles: { fillColor: [22, 160, 133] },
+  //   });
 
-    doc.save("alimentos.pdf");
+  //   doc.save("alimentos.pdf");
+  // };
+
+  const toggleSelect = (id: number) => {
+    setSelectedFoods((prev) =>
+      prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
+    );
   };
 
   return (
@@ -159,10 +169,11 @@ export default function DashboardUserFoodsPage({ params }: Props) {
             }}
           />
           <button
-            onClick={generatePdf}
+            onClick={() => generatePdf(paginatedFoods, selectedFoods)}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer"
+            disabled={selectedFoods.length === 0}
           >
-            Exportar PDF
+            Generar PDF 
           </button>
         </div>
 
@@ -197,10 +208,14 @@ export default function DashboardUserFoodsPage({ params }: Props) {
           <table className="min-w-full border border-gray-300 bg-bg text-sm sm:text-base">
             <thead className="bg-primary">
               <tr>
+                <th className="border px-4 py-2 text-left">
+                  {/* Puedes añadir un checkbox para seleccionar todos también */}
+                </th>
                 <th className="border px-4 py-2 text-left">Nombre</th>
                 <th className="border px-4 py-2 text-left">Categoría</th>
                 <th className="border px-4 py-2 text-left">Fecha Creación</th>
                 <th className="border px-4 py-2 text-left">Imagen</th>
+                <th className="border px-4 py-2 text-left">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -210,6 +225,19 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                     className="hover:bg-gray-200 dark:hover:bg-slate-900 cursor-pointer"
                     onClick={() => toggleExpand(food.id)}
                   >
+                    {/* ✅ Checkbox de selección */}
+                    <td
+                      className="border px-4 py-2 text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedFoods.includes(food.id)}
+                        onChange={() => toggleSelect(food.id)}
+                      />
+                    </td>
+
+                    {/* El resto de las celdas igual que antes */}
                     <td className="border px-4 py-2">
                       {editFoodId === food.id ? (
                         <input
@@ -222,6 +250,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                         food.name
                       )}
                     </td>
+
                     <td className="border px-4 py-2 relative">
                       {editFoodId === food.id ? (
                         <>
@@ -266,22 +295,25 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                         food.category
                       )}
                     </td>
+
                     <td className="border px-4 py-2">
                       {new Date(food.createdAt).toLocaleDateString()}
                     </td>
+
                     <td className="border px-4 py-2">
                       {food.imageUrl ? (
                         <Image
                           src={`https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev/${food.imageUrl}`}
                           alt={food.name}
-                          width={64} // w-16 = 4rem = 64px
-                          height={64} // h-16 = 4rem = 64px
-                          className="object-cover rounded"
+                          width={64}
+                          height={64}
+                          className="w-16 h-16 object-cover rounded"
                         />
                       ) : (
                         <span>No hay imagen</span>
                       )}
                     </td>
+
                     <td className="border px-4 py-2">
                       {editFoodId === food.id ? (
                         <>
@@ -313,12 +345,6 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                       ) : (
                         <button
                           className="p-1 text-blue-500 hover:text-blue-700 rounded"
-                          // onClick={(e) => {
-                          //   e.stopPropagation();
-                          //   setEditFoodId(food.id);
-                          //   setEditName(food.name);
-                          //   setEditCategoria(food.category);
-                          // }}
                           aria-label="Editar alimento"
                           title="Editar"
                         >
@@ -327,6 +353,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                       )}
                     </td>
                   </tr>
+
                   {expandedId === food.id && (
                     <FoodDetails
                       food={food}

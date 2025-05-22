@@ -3,7 +3,13 @@
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { Sun, Moon, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Sun,
+  Moon,
+  ChevronDown,
+  ChevronUp,
+  Menu,
+} from "lucide-react";
 import { signOut } from "next-auth/react";
 
 interface NavbarProps {
@@ -52,13 +58,11 @@ export default function Navbar({ setIsMobileOpen }: NavbarProps) {
             onClick={() => setIsMobileOpen(true)}
             aria-label="Abrir menú lateral"
           >
-            ☰
+            <Menu size={24} />
           </button>
 
-          <button className="bg-accent text-white px-4 py-2 rounded hover:opacity-90 text-sm md:text-base">
-            Mejorar Plan
-          </button>
         </div>
+
 
         {/* Derecha: Botón de tema + perfil */}
         <div className="flex items-center space-x-4">

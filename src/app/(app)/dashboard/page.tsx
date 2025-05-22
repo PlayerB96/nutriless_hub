@@ -38,14 +38,14 @@ export default function Home() {
             Bienvenido{session?.user?.name ? `, ${session.user.name}` : ""}
           </h1>
           <p className="mb-6">
-            Esta es tu plataforma con soporte para modo claro y oscuro.
+            Esta es tu plataforma para poder registrar alimentos y generar dietas.
           </p>
 
           <button
             className="bg-secondary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-secondary-secondary transition mr-4"
             onClick={() => setModalOpen(true)}
           >
-            Abrir Modal
+            Agregar Alimento
           </button>
 
           {userId && (

@@ -43,7 +43,7 @@ export default function RootLayout({
 
               <div
                 className={`flex-1 flex flex-col transition-all duration-300
-                ${isCollapsed ? "md:pl-16" : "md:pl-64"}
+                ${isCollapsed ? "md:pl-16" : "md:pl-56"}
               `}
               >
                 <Navbar setIsMobileOpen={setIsMobileOpen} />

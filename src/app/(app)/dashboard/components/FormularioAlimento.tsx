@@ -27,7 +27,7 @@ interface FormularioAlimentoProps {
 
 export default function FormularioAlimento({
   onSubmitSuccess,
-  onCancel,
+  // onCancel,
 }: FormularioAlimentoProps) {
   const { data: session } = useSession();
   // const userId = session?.user?.id;
@@ -123,8 +123,7 @@ export default function FormularioAlimento({
       });
 
       if (res.ok) {
-        const data = await res.json();
-        console.log("Alimento creado:", data);
+
         onSubmitSuccess?.(); // cerrar modal, limpiar, etc.
         toast.success("Alimento agregado correctamente ✅");
       } else {
@@ -146,7 +145,6 @@ export default function FormularioAlimento({
         const res = await fetch("/api/categories");
         if (!res.ok) throw new Error("Error al cargar categorías");
         const data = await res.json();
-        console.log("Categorías recibidas en cliente:", data); // <- ESTE DEBERÍAS VER EN TU NAVEGADOR
         setCategorias(data);
       } catch (error) {
         console.error("Error en fetchCategorias:", error);
@@ -409,13 +407,10 @@ export default function FormularioAlimento({
         )}
       </section>
 
-      <button type="button" onClick={onCancel}>
-        Cancelar
-      </button>
       <button
         type="submit"
         disabled={loadingButton}
-        className={`w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition flex justify-center items-center ${
+        className={`w-full cursor-pointer bg-primary text-white  px-4 py-2 rounded-md hover:bg-primary/90 transition flex justify-center items-center ${
           loadingButton ? "cursor-not-allowed opacity-70" : ""
         }`}
       >

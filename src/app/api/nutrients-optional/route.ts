@@ -7,5 +7,5 @@ export async function GET() {
   const nutrients = await prisma.optionalNutrient.findMany({
     select: { name: true },
   });
-  return NextResponse.json(nutrients.map((n) => n.name));
+  return NextResponse.json(nutrients.map((n) => n.name)); 
 }

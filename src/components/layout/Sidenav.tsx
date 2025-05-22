@@ -42,7 +42,7 @@ export default function SideNav({
       {/* Sidebar para desktop */}
       <aside
         className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-40 bg-gray-900 text-white transition-all duration-300 ${
-          isCollapsed ? "w-16" : "w-64"
+          isCollapsed ? "w-16" : "w-56"
         }`}
       >
         <div className="p-4 relative">
