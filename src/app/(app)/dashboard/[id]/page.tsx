@@ -3,7 +3,7 @@
 import { Food } from "@/domain/models/food";
 import React, { useEffect, useMemo, useState } from "react";
 import FoodDetails from "./components/FoodDetails";
-import { Check, ChevronLeft, ChevronRight, Edit, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Edit,  LoaderCircle, X } from "lucide-react";
 import "jspdf-autotable";
 
 import Image from "next/image";
@@ -27,6 +27,8 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     useState(false);
 
   const [selectedFoods, setSelectedFoods] = useState<number[]>([]);
+
+  const [loadingButton, setLoadingButton] = useState(false);
 
   useEffect(() => {
     const fetchFoods = async () => {
@@ -113,39 +115,6 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     setDropdownCategoriaAbierto(false);
   };
 
-  // const generatePdf = () => {
-  //   const doc = new jsPDF();
-
-  //   doc.text("Listado de Alimentos Seleccionados", 14, 22);
-
-  //   const columns = [
-  //     { header: "Nombre", dataKey: "name" },
-  //     { header: "Categoría", dataKey: "category" },
-  //     { header: "Fecha Creación", dataKey: "createdAt" },
-  //     { header: "Imagen", dataKey: "imageUrl" },
-  //   ];
-
-  //   // Filtrar solo los alimentos seleccionados
-  //   const selectedRows = paginatedFoods
-  //     .filter((food) => selectedFoods.includes(food.id))
-  //     .map((food) => ({
-  //       name: food.name,
-  //       category: food.category,
-  //       createdAt: new Date(food.createdAt).toLocaleDateString(),
-  //       imageUrl: food.imageUrl ? "Sí" : "No",
-  //     }));
-
-  //   autoTable(doc, {
-  //     startY: 30,
-  //     columns,
-  //     body: selectedRows,
-  //     styles: { fontSize: 10 },
-  //     headStyles: { fillColor: [22, 160, 133] },
-  //   });
-
-  //   doc.save("alimentos.pdf");
-  // };
-
   const toggleSelect = (id: number) => {
     setSelectedFoods((prev) =>
       prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
@@ -169,11 +138,26 @@ export default function DashboardUserFoodsPage({ params }: Props) {
             }}
           />
           <button
-            onClick={() => generatePdf(paginatedFoods, selectedFoods)}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={selectedFoods.length === 0}
+            onClick={async () => {
+              setLoadingButton(true);
+              try {
+                await generatePdf(paginatedFoods, selectedFoods);
+              } catch (error) {
+                console.error("Error al generar el PDF:", error);
+              } finally {
+                setLoadingButton(false);
+              }
+            }}
+            className={`w-full cursor-pointer bg-primary text-white  px-4 py-2 rounded-md hover:bg-primary/90 transition flex justify-center items-center ${
+              loadingButton ? "cursor-not-allowed opacity-70" : ""
+            }`}
+            disabled={selectedFoods.length === 0 || loadingButton}
           >
-            Generar PDF 
+            {loadingButton ? (
+              <LoaderCircle  className="animate-spin w-5 h-5 text-white" />
+            ) : (
+              "Generar PDF"
+            )}
           </button>
         </div>
 
@@ -204,18 +188,38 @@ export default function DashboardUserFoodsPage({ params }: Props) {
       {foods.length === 0 ? (
         <p>No se encontraron alimentos.</p>
       ) : (
-        <div className="w-full overflow-x-auto sm:overflow-visible">
-          <table className="min-w-full border border-gray-300 bg-bg text-sm sm:text-base">
+        <div className="w-full overflow-x-auto sm:overflow-visible rounded-lg border border-gray-900">
+          <table className="min-w-full border-collapse bg-bg text-sm sm:text-base rounded-lg overflow-hidden">
             <thead className="bg-primary">
               <tr>
-                <th className="border px-4 py-2 text-left">
-                  {/* Puedes añadir un checkbox para seleccionar todos también */}
+                <th className=" px-4 py-2 text-left">
+                  <input
+                    type="checkbox"
+                    checked={
+                      paginatedFoods.length > 0 &&
+                      paginatedFoods.every((f) => selectedFoods.includes(f.id))
+                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const nuevosIds = paginatedFoods.map((f) => f.id);
+                        setSelectedFoods((prev) =>
+                          Array.from(new Set([...prev, ...nuevosIds]))
+                        );
+                      } else {
+                        const idsPaginaActual = paginatedFoods.map((f) => f.id);
+                        setSelectedFoods((prev) =>
+                          prev.filter((id) => !idsPaginaActual.includes(id))
+                        );
+                      }
+                    }}
+                  />
                 </th>
-                <th className="border px-4 py-2 text-left">Nombre</th>
-                <th className="border px-4 py-2 text-left">Categoría</th>
-                <th className="border px-4 py-2 text-left">Fecha Creación</th>
-                <th className="border px-4 py-2 text-left">Imagen</th>
-                <th className="border px-4 py-2 text-left">Acciones</th>
+
+                <th className=" px-4 py-2 text-left">Nombre</th>
+                <th className=" px-4 py-2 text-left">Categoría</th>
+                <th className=" px-4 py-2 text-left">Fecha Creación</th>
+                <th className=" px-4 py-2 text-left">Imagen</th>
+                <th className=" px-4 py-2 text-left">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -227,7 +231,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                   >
                     {/* ✅ Checkbox de selección */}
                     <td
-                      className="border px-4 py-2 text-center"
+                      className=" px-4 py-2 text-center"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <input
@@ -238,20 +242,20 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                     </td>
 
                     {/* El resto de las celdas igual que antes */}
-                    <td className="border px-4 py-2">
+                    <td className=" px-4 py-2">
                       {editFoodId === food.id ? (
                         <input
                           type="text"
                           value={editName}
                           onChange={(e) => setEditName(e.target.value)}
-                          className="border rounded px-2 py-1"
+                          className=" rounded px-2 py-1"
                         />
                       ) : (
                         food.name
                       )}
                     </td>
 
-                    <td className="border px-4 py-2 relative">
+                    <td className=" px-4 py-2 relative">
                       {editFoodId === food.id ? (
                         <>
                           <input
@@ -296,11 +300,14 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                       )}
                     </td>
 
-                    <td className="border px-4 py-2">
-                      {new Date(food.createdAt).toLocaleDateString()}
+                    <td className=" px-4 py-2">
+                      {new Date(food.createdAt).toLocaleDateString("es-ES", {
+                        day: "numeric",
+                        month: "long",
+                      })}
                     </td>
 
-                    <td className="border px-4 py-2">
+                    <td className=" px-4 py-2">
                       {food.imageUrl ? (
                         <Image
                           src={`https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev/${food.imageUrl}`}
@@ -314,7 +321,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                       )}
                     </td>
 
-                    <td className="border px-4 py-2">
+                    <td className=" px-4 py-2">
                       {editFoodId === food.id ? (
                         <>
                           <button

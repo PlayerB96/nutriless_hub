@@ -1,6 +1,6 @@
 "use client";
 
-import { ImageUp } from "lucide-react";
+import { ImageUp, LoaderCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -27,8 +27,8 @@ interface FormularioAlimentoProps {
 
 export default function FormularioAlimento({
   onSubmitSuccess,
-  // onCancel,
-}: FormularioAlimentoProps) {
+}: // onCancel,
+FormularioAlimentoProps) {
   const { data: session } = useSession();
   // const userId = session?.user?.id;
   const userId = (session?.user as { id: string }).id;
@@ -123,7 +123,6 @@ export default function FormularioAlimento({
       });
 
       if (res.ok) {
-
         onSubmitSuccess?.(); // cerrar modal, limpiar, etc.
         toast.success("Alimento agregado correctamente ✅");
       } else {
@@ -415,26 +414,7 @@ export default function FormularioAlimento({
         }`}
       >
         {loadingButton ? (
-          <svg
-            className="animate-spin h-5 w-5 text-white"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8H4z"
-            />
-          </svg>
+          <LoaderCircle className="animate-spin w-5 h-5 text-white" />
         ) : (
           "Registrar"
         )}
