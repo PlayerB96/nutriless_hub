@@ -3,7 +3,14 @@
 import { Food } from "@/domain/models/food";
 import React, { useEffect, useMemo, useState } from "react";
 import FoodDetails from "./components/FoodDetails";
-import { Check, ChevronLeft, ChevronRight, Edit,  LoaderCircle, X } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  LoaderCircle,
+  X,
+} from "lucide-react";
 import "jspdf-autotable";
 
 import Image from "next/image";
@@ -148,13 +155,16 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                 setLoadingButton(false);
               }
             }}
-            className={`w-full cursor-pointer bg-primary text-white  px-4 py-2 rounded-md hover:bg-primary/90 transition flex justify-center items-center ${
-              loadingButton ? "cursor-not-allowed opacity-70" : ""
-            }`}
+            className={`w-full px-4 py-2 rounded-md transition flex justify-center items-center 
+              ${
+                loadingButton || selectedFoods.length === 0
+                  ? " text-gray-200 cursor-not-allowed"
+                  : "bg-secondary text-white hover:bg-primary/90 cursor-pointer"
+              }`}
             disabled={selectedFoods.length === 0 || loadingButton}
           >
             {loadingButton ? (
-              <LoaderCircle  className="animate-spin w-5 h-5 text-white" />
+              <LoaderCircle className="animate-spin w-5 h-5 text-white" />
             ) : (
               "Generar PDF"
             )}
