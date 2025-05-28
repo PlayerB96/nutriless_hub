@@ -84,7 +84,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loadingButton}
-          className={`w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition flex justify-center items-center ${
+          className={`w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition flex justify-center  cursor-pointer items-center ${
             loadingButton ? "cursor-not-allowed opacity-70" : ""
           }`}
         >

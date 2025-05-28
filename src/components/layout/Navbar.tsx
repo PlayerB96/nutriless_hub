@@ -9,14 +9,22 @@ import {
   ChevronDown,
   ChevronUp,
   Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 interface NavbarProps {
+  isCollapsed: boolean;
+  setIsCollapsed: (value: boolean) => void;
   setIsMobileOpen: (open: boolean) => void;
 }
 
-export default function Navbar({ setIsMobileOpen }: NavbarProps) {
+export default function Navbar({
+  isCollapsed,
+  setIsCollapsed,
+  setIsMobileOpen,
+}: NavbarProps) {
   const { theme, setTheme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -50,7 +58,7 @@ export default function Navbar({ setIsMobileOpen }: NavbarProps) {
   return (
     <nav className="bg-primary text-text dark:bg-primary dark:text-text shadow p-4">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        {/* Izquierda: Botón hamburguesa móvil + Mejorar plan */}
+        {/* Izquierda: Botón hamburguesa móvil + botón colapsar sidebar */}
         <div className="flex items-center space-x-4">
           {/* Botón hamburguesa solo en móvil */}
           <button
@@ -61,8 +69,21 @@ export default function Navbar({ setIsMobileOpen }: NavbarProps) {
             <Menu size={24} />
           </button>
 
+          {/* Botón para colapsar / expandir sidebar (visible en md+) */}
+          <button
+            className="hidden md:inline-flex text-text px-2 py-1 rounded hover:bg-muted/80 focus:outline-none"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            aria-label={
+              isCollapsed ? "Expandir menú lateral" : "Colapsar menú lateral"
+            }
+          >
+            {isCollapsed === true ? (
+              <PanelLeftOpen className="cursor-pointer" size={24} />
+            ) : (
+              <PanelLeftClose className="cursor-pointer" size={24} />
+            )}
+          </button>
         </div>
-
 
         {/* Derecha: Botón de tema + perfil */}
         <div className="flex items-center space-x-4">

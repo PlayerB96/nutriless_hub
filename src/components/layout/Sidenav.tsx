@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart2, Home, Settings, Menu, X } from "lucide-react";
+import { BarChart2, Home, Settings,  X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect } from "react";
@@ -15,7 +15,6 @@ interface SideNavProps {
 
 export default function SideNav({
   isCollapsed,
-  setIsCollapsed,
   isMobileOpen,
   setIsMobileOpen,
 }: SideNavProps) {
@@ -41,7 +40,7 @@ export default function SideNav({
     <>
       {/* Sidebar para desktop */}
       <aside
-        className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-40 bg-gray-900 text-white transition-all duration-300 ${
+        className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-40 bg-primary text-white  ${
           isCollapsed ? "w-16" : "w-56"
         }`}
       >
@@ -56,13 +55,7 @@ export default function SideNav({
               className="mx-auto"
             />
           )}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="text-white focus:outline-none absolute top-4 right-4 cursor-pointer"
-            title={isCollapsed ? "Expandir" : "Colapsar"}
-          >
-            {isCollapsed ? <Menu size={24} /> : <X size={24} />}
-          </button>
+         
         </div>
 
         <nav className="flex-1 px-2 pt-8 space-y-2">

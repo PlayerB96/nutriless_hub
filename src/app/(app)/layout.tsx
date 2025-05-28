@@ -10,7 +10,7 @@ import { Session } from "next-auth";
 
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "react-hot-toast"; // <-- Importa Toaster
-
+// RootLayout.tsx (igual que tienes ahora)
 export default function RootLayout({
   children,
   session,
@@ -46,7 +46,12 @@ export default function RootLayout({
                 ${isCollapsed ? "md:pl-16" : "md:pl-56"}
               `}
               >
-                <Navbar setIsMobileOpen={setIsMobileOpen} />
+                {/* Aquí paso el setter y el estado */}
+                <Navbar
+                  isCollapsed={isCollapsed}
+                  setIsCollapsed={setIsCollapsed}
+                  setIsMobileOpen={setIsMobileOpen}
+                />
                 <main className="flex-1 p-4">{children}</main>
                 <Footer />
               </div>

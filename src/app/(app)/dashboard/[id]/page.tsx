@@ -15,6 +15,7 @@ import "jspdf-autotable";
 
 import Image from "next/image";
 import { generatePdf } from "@/lib/utils/pdfGenerator";
+import Modal from "@/components/ui/Modal";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -28,7 +29,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [editFoodId, setEditFoodId] = useState<number | null>(null);
-  const [editName, setEditName] = useState("");
+  const [editName] = useState("");
   const [editCategoria, setEditCategoria] = useState("");
   const [dropdownCategoriaAbierto, setDropdownCategoriaAbierto] =
     useState(false);
@@ -127,6 +128,10 @@ export default function DashboardUserFoodsPage({ params }: Props) {
       prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
     );
   };
+
+  // Abrir Modal de edición
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [selectedFood, setSelectedFood] = React.useState<Food | null>(null);
 
   return (
     <main className="p-8">
@@ -252,18 +257,8 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                     </td>
 
                     {/* El resto de las celdas igual que antes */}
-                    <td className=" px-4 py-2">
-                      {editFoodId === food.id ? (
-                        <input
-                          type="text"
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          className=" rounded px-2 py-1"
-                        />
-                      ) : (
-                        food.name
-                      )}
-                    </td>
+                    {/* Nombre del alimento (solo texto) */}
+                    <td className="px-4 py-2">{food.name}</td>
 
                     <td className=" px-4 py-2 relative">
                       {editFoodId === food.id ? (
@@ -365,12 +360,82 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                           aria-label="Editar alimento"
                           title="Editar"
                         >
-                          <Edit size={20} />
+                          <button
+                            className="p-1 text-blue-500 hover:text-blue-700 rounded"
+                            aria-label="Editar alimento"
+                            title="Editar"
+                            onClick={(e) => {
+                              e.stopPropagation(); // para que no dispare toggleExpand
+                              setSelectedFood(food);
+                              setModalOpen(true);
+                            }}
+                          >
+                            <Edit size={20} />
+                          </button>
                         </button>
                       )}
                     </td>
                   </tr>
+                  <Modal
+                    isOpen={modalOpen}
+                    onClose={() => setModalOpen(false)}
+                    title={selectedFood?.name || "Detalles del alimento"}
+                    width="max-w-3xl"
+                    showCloseButton={true}
+                  >
+                    {selectedFood && (
+                      <div className="space-y-4">
+                        <p>
+                          <strong>Nombre:</strong> {selectedFood.name}
+                        </p>
+                        <p>
+                          <strong>Categoría:</strong> {selectedFood.category}
+                        </p>
+                        <p>
+                          <strong>Descripción:</strong>{" "}
+                          {selectedFood.category || "No disponible"}
+                        </p>
+                        <p>
+                          <strong>Fecha de creación:</strong>{" "}
+                          {new Date(selectedFood.createdAt).toLocaleDateString(
+                            "es-ES"
+                          )}
+                        </p>
 
+                        {selectedFood.imageUrl ? (
+                          <Image
+                            src={`https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev/${selectedFood.imageUrl}`}
+                            alt={selectedFood.name}
+                            width={192} // 48 * 4 px (tailwind w-48 equivale a 12rem = 192px)
+                            height={192} // igual que width para mantener la proporción cuadrada
+                            className="object-cover rounded"
+                          />
+                        ) : (
+                          <p>No hay imagen disponible</p>
+                        )}
+
+                        {selectedFood.nutritionDetails ? (
+                          <div>
+                            <h3 className="font-semibold mt-4">
+                              Detalles Nutricionales
+                            </h3>
+                            <ul className="list-disc ml-5">
+                              {Object.entries(
+                                selectedFood.nutritionDetails
+                              ).map(([key, value]) => (
+                                <li key={key}>
+                                  <strong>{key}:</strong>{" "}
+                                  {JSON.stringify(value)}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ) : (
+                          <p>No hay detalles nutricionales disponibles.</p>
+                        )}
+                      </div>
+                    )}
+                  </Modal>
                   {expandedId === food.id && (
                     <FoodDetails
                       food={food}

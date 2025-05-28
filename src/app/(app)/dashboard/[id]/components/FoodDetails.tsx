@@ -1,5 +1,6 @@
 import React from "react";
 import { Food } from "@/domain/models/food";
+import { Salad } from "lucide-react";
 
 type Props = {
   food: Food;
@@ -20,7 +21,11 @@ export default function FoodDetails({ food, onNutritionValueChange }: Props) {
         <div className="space-y-3">
           {/* DETALLES NUTRICIONALES */}
           <div>
-            <h4 className="font-semibold mb-1">🧬 Detalles nutricionales:</h4>
+            <h4 className="font-semibold mb-1 flex items-center gap-2">
+              <Salad size={16} />
+              Detalles nutricionales:
+            </h4>
+
             {food.nutritionDetails.length > 0 ? (
               <ul className="list-disc list-inside space-y-1">
                 {food.nutritionDetails.map((n) => (

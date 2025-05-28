@@ -1,7 +1,6 @@
-// prisma/seed.ts
-
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
+/* eslint-disable @typescript-eslint/no-require-imports */
+const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
 
 const prisma = new PrismaClient();
 
@@ -58,6 +57,8 @@ async function seedCategorias() {
     "Tubérculos, raíces y derivados",
     "Vegetales",
     "Verduras, hortalizas y derivados",
+    "Alimentos en Conserva",
+    "Bebidas vegetales"
   ];
 
   for (const name of categorias) {
@@ -99,7 +100,7 @@ async function seedOptionalNutrients() {
 
 async function main() {
   // await seedAdmin();
-  // await seedCategorias();
+  await seedCategorias();
   // await seedOptionalNutrients();
 }
 
