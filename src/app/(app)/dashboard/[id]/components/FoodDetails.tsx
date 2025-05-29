@@ -4,14 +4,10 @@ import { Salad } from "lucide-react";
 
 type Props = {
   food: Food;
-  onNutritionValueChange: (
-    foodId: number,
-    nutritionId: number,
-    newValue: number
-  ) => void;
+
 };
 
-export default function FoodDetails({ food, onNutritionValueChange }: Props) {
+export default function FoodDetails({ food }: Props) {
   return (
     <tr className="hover:bg-gray-200 dark:hover:bg-slate-900 text-sm">
       <td
@@ -31,18 +27,10 @@ export default function FoodDetails({ food, onNutritionValueChange }: Props) {
                 {food.nutritionDetails.map((n) => (
                   <li key={n.id} className="flex items-center gap-2">
                     <span>{n.nutrient}:</span>
-                    <input
-                      type="number"
-                      className="w-20 px-2 py-1 border rounded text-gray-700 dark:text-gray-200"
-                      value={n.value}
-                      onChange={(e) =>
-                        onNutritionValueChange(
-                          food.id,
-                          n.id,
-                          parseFloat(e.target.value)
-                        )
-                      }
-                    />
+                    <span>
+                      {n.value}
+                    </span>
+
                     <span>{n.unit}</span>
                   </li>
                 ))}

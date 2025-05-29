@@ -99,9 +99,9 @@ async function seedOptionalNutrients() {
 }
 
 async function main() {
-  // await seedAdmin();
+  await seedAdmin();
   await seedCategorias();
-  // await seedOptionalNutrients();
+  await seedOptionalNutrients();
 }
 
 main()

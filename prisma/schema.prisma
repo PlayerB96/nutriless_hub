@@ -2,7 +2,8 @@
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL_DEV")
 }
 
 generator client {
@@ -87,6 +88,8 @@ model NutritionDetail {
   nutrient String // Ejemplo: "Vitamina C", "Zinc", "Calorías"
   value    Float // cantidad, ej: 10.5
   unit     String // ej: "mg", "kcal", "µg"
+
+  @@unique([foodId, nutrient], name: "foodId_nutrient")
 }
 
 // Medidas caseras
@@ -100,7 +103,7 @@ model HouseholdMeasure {
 }
 
 model CategoryFood {
-  id   Int    @id @default(autoincrement()) 
+  id   Int    @id @default(autoincrement())
   name String @unique
 }
 

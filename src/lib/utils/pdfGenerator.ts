@@ -103,10 +103,10 @@ export const generatePdf = async (
       centeredText(doc, `${food.name}`, y, 14);
       y += 8;
 
-
       if (food.imageUrl) {
         try {
-          const imageUrl = `https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev/${food.imageUrl}`;
+          const imageUrl = `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${food.imageUrl}`;
+
           const base64Image = await loadImageAsBase64(imageUrl);
 
           const img = new Image();

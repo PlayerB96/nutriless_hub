@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ModalProps {
@@ -22,6 +22,18 @@ export default function Modal({
   width = "w-full max-w-md",
   showCloseButton = true,
 }: ModalProps) {
+    // 👇 Evita el scroll de fondo
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
+  }, [isOpen]);
   return (
     <AnimatePresence>
       {isOpen && (

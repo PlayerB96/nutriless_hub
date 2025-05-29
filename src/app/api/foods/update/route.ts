@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
+
 import { v4 as uuidv4 } from "uuid";
 const R2_BUCKET = process.env.R2_BUCKET!;
 const R2_ENDPOINT = process.env.R2_ENDPOINT!;
@@ -19,8 +24,15 @@ type HouseholdMeasure = {
   quantity: string | number;
   weightGrams: string | number;
 };
+
+type NutritionDetailInput = {
+  nutrient: string;
+  value: number | string;
+  unit?: string;
+};
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*", // O pon el dominio que necesites permitir, ej: "https://nutriless-hub.vercel.app"
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
@@ -30,11 +42,14 @@ export async function OPTIONS() {
     headers: corsHeaders,
   });
 }
+
 export async function POST(req: Request) {
   try {
     // 1. Obtener formData
     const formData = await req.formData();
+
     // 2. Extraer campos
+    const idStr = formData.get("id")?.toString() || "";
     const name = formData.get("name")?.toString() || "";
     const category = formData.get("category")?.toString() || "";
     const userIdStr = formData.get("userId")?.toString() || "";
@@ -42,68 +57,94 @@ export async function POST(req: Request) {
       formData.get("nutritionDetails")?.toString() || "{}";
     const householdMeasuresStr =
       formData.get("householdMeasures")?.toString() || "[]";
-    if (!name || !category || !userIdStr) {
+
+    if (!idStr || !name || !category || !userIdStr) {
       return new Response(
         JSON.stringify({ message: "Faltan campos obligatorios" }),
         { status: 400 }
       );
     }
+
+    const id = Number(idStr);
     const userId = Number(userIdStr);
-    if (isNaN(userId)) {
-      return new Response(JSON.stringify({ message: "userId inválido" }), {
+    if (isNaN(id) || isNaN(userId)) {
+      return new Response(JSON.stringify({ message: "ID inválido" }), {
         status: 400,
       });
     }
-    // 3. Parsear JSON de nutritionDetails y householdMeasures
+
+    // 3. Parsear JSON
     const nutritionDetails = JSON.parse(nutritionDetailsStr);
     const householdMeasures = JSON.parse(householdMeasuresStr);
-    
-    // 4. Obtener archivo de imagen (suponiendo que el campo del form es "image")
+
+    // 4. Buscar el alimento existente
+    const existingFood = await prisma.food.findUnique({ where: { id } });
+    if (!existingFood) {
+      return new Response(
+        JSON.stringify({ message: "Alimento no encontrado" }),
+        { status: 404 }
+      );
+    }
+
+    // 5. Procesar imagen (si se proporciona una nueva)
     const imageFile = formData.get("image") as File | null;
-    let imageFilename = null;
+    let imageFilename = existingFood.imageUrl;
+
     if (imageFile && imageFile.size > 0) {
-      // Generar nombre único para la imagen
       const extension = imageFile.name.split(".").pop();
       imageFilename = `${uuidv4()}.${extension}`;
-      // Leer contenido del archivo como ArrayBuffer y luego Buffer
       const arrayBuffer = await imageFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      // Subir a Cloudflare R2 con AWS SDK
+
       await s3Client.send(
         new PutObjectCommand({
           Bucket: R2_BUCKET,
           Key: imageFilename,
           Body: buffer,
           ContentType: imageFile.type,
-          ACL: "public-read", // Opcional según configuración de R2
+          ACL: "public-read",
         })
       );
-    }
-    // 5. Transformar nutritionDetails para prisma
-    const transformedNutritionDetails = Object.entries(nutritionDetails).map(
-      ([key, value]) => ({
-        nutrient: key,
-        value: parseFloat(value as string),
-        unit: "g",
-      })
-    );
 
-    
-    // 6. Crear el registro en la DB con prisma
-    const newFood = await prisma.food.create({
+      if (existingFood.imageUrl) {
+        try {
+          await s3Client.send(
+            new DeleteObjectCommand({
+              Bucket: R2_BUCKET,
+              Key: existingFood.imageUrl,
+            })
+          );
+        } catch (error) {
+          console.error("Error al borrar imagen antigua en R2:", error);
+        }
+      }
+    }
+
+    // 6. Transformar nutritionDetails
+    const transformedNutritionDetails = (
+      nutritionDetails as NutritionDetailInput[]
+    ).map((item) => ({
+      nutrient: item.nutrient,
+      value: parseFloat(item.value.toString()),
+      unit: item.unit || "g",
+    }));
+
+    // 7. Actualizar alimento en DB
+    const updatedFood = await prisma.food.update({
+      where: { id },
       data: {
         name,
         category,
         userId,
-        imageUrl: imageFilename, // Guarda solo el nombre de la imagen
+        imageUrl: imageFilename,
         nutritionDetails: {
+          deleteMany: {},
           create: transformedNutritionDetails,
         },
-        
         householdMeasures: {
+          deleteMany: {},
           create:
             householdMeasures?.map((item: HouseholdMeasure) => ({
-                
               description: item.description,
               quantity: parseFloat(item.quantity.toString()),
               weightGrams: parseFloat(item.weightGrams.toString()),
@@ -115,28 +156,25 @@ export async function POST(req: Request) {
         householdMeasures: true,
       },
     });
-    // 7. Relacionar con userFood si hace falta
-    await prisma.userFood.create({
-      data: {
-        userId,
-        foodId: newFood.id,
-      },
-    });
+
     return new Response(
       JSON.stringify({
-        message: "Alimento registrado correctamente",
-        food: newFood,
+        message: "Alimento actualizado correctamente",
+        food: updatedFood,
         imageUrlPublic: imageFilename
           ? `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${imageFilename}`
           : null,
       }),
       {
-        status: 201,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
       }
     );
   } catch (error) {
-    console.error("Error al registrar alimento:", error);
+    console.error("Error al actualizar alimento:", error);
     return new Response(
       JSON.stringify({ message: "Error interno del servidor" }),
       { status: 500 }

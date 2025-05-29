@@ -56,7 +56,7 @@ export default function Navbar({
   const currentTheme = theme === "system" ? systemTheme : theme;
 
   return (
-    <nav className="bg-primary text-text dark:bg-primary dark:text-text shadow p-4">
+    <nav className="bg-primary text-text dark:bg-primary dark:text-text shadow p-4 w-full overflow-x-auto sm:overflow-visible ">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         {/* Izquierda: Botón hamburguesa móvil + botón colapsar sidebar */}
         <div className="flex items-center space-x-4">

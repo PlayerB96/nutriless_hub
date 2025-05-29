@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart2, Home, Settings,  X } from "lucide-react";
+import { BarChart2, Home, Settings, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect } from "react";
@@ -53,9 +53,9 @@ export default function SideNav({
               height={40}
               priority
               className="mx-auto"
+              style={{ height: "auto" }}
             />
           )}
-         
         </div>
 
         <nav className="flex-1 px-2 pt-8 space-y-2">
@@ -96,10 +96,13 @@ export default function SideNav({
             <Image
               src="/images/logonutri.png"
               alt="Logo Nutri"
-              width={80}
-              height={20}
+              width={120}
+              height={40}
               priority
+              className="mx-auto"
+              style={{ height: "auto" }}
             />
+
             <button
               onClick={() => setIsMobileOpen(false)}
               className="text-white focus:outline-none"

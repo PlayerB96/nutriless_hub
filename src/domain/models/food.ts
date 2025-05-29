@@ -9,4 +9,5 @@ export type Food = {
   imageUrl?: string | null;
   nutritionDetails: NutritionDetail[];
   householdMeasures: HouseholdMeasure[];
+  userId: number;
 };

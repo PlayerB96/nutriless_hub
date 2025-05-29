@@ -16,6 +16,7 @@ import "jspdf-autotable";
 import Image from "next/image";
 import { generatePdf } from "@/lib/utils/pdfGenerator";
 import Modal from "@/components/ui/Modal";
+import EditFood from "./components/EditFood";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -84,23 +85,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
-  const handleNutritionValueChange = (
-    foodId: number,
-    nutritionId: number,
-    newValue: number
-  ) => {
-    setFoods((prevFoods) =>
-      prevFoods.map((food) => {
-        if (food.id !== foodId) return food;
-        return {
-          ...food,
-          nutritionDetails: food.nutritionDetails.map((n) =>
-            n.id === nutritionId ? { ...n, value: newValue } : n
-          ),
-        };
-      })
-    );
-  };
+ 
   const [categorias] = useState<{ id: number; name: string }[]>([]);
   const [categoriaFiltro] = useState("");
 
@@ -134,9 +119,9 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   const [selectedFood, setSelectedFood] = React.useState<Food | null>(null);
 
   return (
-    <main className="p-8">
+    <main className="p-1 w-full overflow-x-auto sm:overflow-visible">
       <h1 className="text-2xl font-bold mb-6">Alimentos</h1>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4 ">
         {/* Buscador y botón de exportar agrupados */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <input
@@ -203,7 +188,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
       {foods.length === 0 ? (
         <p>No se encontraron alimentos.</p>
       ) : (
-        <div className="w-full overflow-x-auto sm:overflow-visible rounded-lg border border-gray-900">
+        <div className="rounded-lg border border-gray-900">
           <table className="min-w-full border-collapse bg-bg text-sm sm:text-base rounded-lg overflow-hidden">
             <thead className="bg-primary">
               <tr>
@@ -231,9 +216,16 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                 </th>
 
                 <th className=" px-4 py-2 text-left">Nombre</th>
-                <th className=" px-4 py-2 text-left">Categoría</th>
-                <th className=" px-4 py-2 text-left">Fecha Creación</th>
-                <th className=" px-4 py-2 text-left">Imagen</th>
+                {/* Ocultar en móvil */}
+                <th className="hidden sm:table-cell px-4 py-2 text-left">
+                  Categoría
+                </th>
+                <th className="hidden sm:table-cell px-4 py-2 text-left">
+                  Fecha Creación
+                </th>
+                <th className="hidden sm:table-cell px-4 py-2 text-left">
+                  Imagen
+                </th>
                 <th className=" px-4 py-2 text-left">Acciones</th>
               </tr>
             </thead>
@@ -260,7 +252,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                     {/* Nombre del alimento (solo texto) */}
                     <td className="px-4 py-2">{food.name}</td>
 
-                    <td className=" px-4 py-2 relative">
+                    <td className="hidden sm:table-cell px-4 py-2 text-left">
                       {editFoodId === food.id ? (
                         <>
                           <input
@@ -305,17 +297,17 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                       )}
                     </td>
 
-                    <td className=" px-4 py-2">
+                    <td className="hidden sm:table-cell px-4 py-2 text-left">
                       {new Date(food.createdAt).toLocaleDateString("es-ES", {
                         day: "numeric",
                         month: "long",
                       })}
                     </td>
 
-                    <td className=" px-4 py-2">
+                    <td className="hidden sm:table-cell px-4 py-2 text-left">
                       {food.imageUrl ? (
                         <Image
-                          src={`https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev/${food.imageUrl}`}
+                          src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${food.imageUrl}`}
                           alt={food.name}
                           width={64}
                           height={64}
@@ -359,93 +351,36 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                           className="p-1 text-blue-500 hover:text-blue-700 rounded"
                           aria-label="Editar alimento"
                           title="Editar"
+                          onClick={(e) => {
+                            e.stopPropagation(); // para que no dispare toggleExpand
+                            setSelectedFood(food);
+                            setModalOpen(true);
+                          }}
                         >
-                          <button
-                            className="p-1 text-blue-500 hover:text-blue-700 rounded"
-                            aria-label="Editar alimento"
-                            title="Editar"
-                            onClick={(e) => {
-                              e.stopPropagation(); // para que no dispare toggleExpand
-                              setSelectedFood(food);
-                              setModalOpen(true);
-                            }}
-                          >
-                            <Edit size={20} />
-                          </button>
+                          <Edit size={20} />
                         </button>
                       )}
                     </td>
                   </tr>
-                  <Modal
-                    isOpen={modalOpen}
-                    onClose={() => setModalOpen(false)}
-                    title={selectedFood?.name || "Detalles del alimento"}
-                    width="max-w-3xl"
-                    showCloseButton={true}
-                  >
-                    {selectedFood && (
-                      <div className="space-y-4">
-                        <p>
-                          <strong>Nombre:</strong> {selectedFood.name}
-                        </p>
-                        <p>
-                          <strong>Categoría:</strong> {selectedFood.category}
-                        </p>
-                        <p>
-                          <strong>Descripción:</strong>{" "}
-                          {selectedFood.category || "No disponible"}
-                        </p>
-                        <p>
-                          <strong>Fecha de creación:</strong>{" "}
-                          {new Date(selectedFood.createdAt).toLocaleDateString(
-                            "es-ES"
-                          )}
-                        </p>
 
-                        {selectedFood.imageUrl ? (
-                          <Image
-                            src={`https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev/${selectedFood.imageUrl}`}
-                            alt={selectedFood.name}
-                            width={192} // 48 * 4 px (tailwind w-48 equivale a 12rem = 192px)
-                            height={192} // igual que width para mantener la proporción cuadrada
-                            className="object-cover rounded"
-                          />
-                        ) : (
-                          <p>No hay imagen disponible</p>
-                        )}
-
-                        {selectedFood.nutritionDetails ? (
-                          <div>
-                            <h3 className="font-semibold mt-4">
-                              Detalles Nutricionales
-                            </h3>
-                            <ul className="list-disc ml-5">
-                              {Object.entries(
-                                selectedFood.nutritionDetails
-                              ).map(([key, value]) => (
-                                <li key={key}>
-                                  <strong>{key}:</strong>{" "}
-                                  {JSON.stringify(value)}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ) : (
-                          <p>No hay detalles nutricionales disponibles.</p>
-                        )}
-                      </div>
-                    )}
-                  </Modal>
                   {expandedId === food.id && (
                     <FoodDetails
                       food={food}
-                      onNutritionValueChange={handleNutritionValueChange}
                     />
                   )}
                 </React.Fragment>
               ))}
             </tbody>
           </table>
+          <Modal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            title={selectedFood?.name || "Detalles del alimento"}
+            width="max-w-3xl"
+            showCloseButton={true}
+          >
+            <EditFood selectedFood={selectedFood} />
+          </Modal>
         </div>
       )}
     </main>
