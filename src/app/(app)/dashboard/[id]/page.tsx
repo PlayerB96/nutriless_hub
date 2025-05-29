@@ -85,7 +85,6 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
- 
   const [categorias] = useState<{ id: number; name: string }[]>([]);
   const [categoriaFiltro] = useState("");
 
@@ -305,16 +304,23 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                     </td>
 
                     <td className="hidden sm:table-cell px-4 py-2 text-left">
-                      {food.imageUrl ? (
+                      {food.imageUrl && typeof food.imageUrl === "string" ? (
                         <Image
-                          src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${food.imageUrl}`}
-                          alt={food.name}
+                          src={
+                            food.imageUrl.startsWith("blob:")
+                              ? food.imageUrl
+                              : `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${food.imageUrl}`
+                          }
+                          alt={food.name || "Imagen del alimento"}
                           width={64}
                           height={64}
                           className="w-16 h-16 object-cover rounded"
+                          unoptimized // Desactiva optimización para evitar errores en producción
                         />
                       ) : (
-                        <span>No hay imagen</span>
+                        <span className="text-gray-400 italic">
+                          No hay imagen
+                        </span>
                       )}
                     </td>
 
@@ -363,11 +369,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                     </td>
                   </tr>
 
-                  {expandedId === food.id && (
-                    <FoodDetails
-                      food={food}
-                    />
-                  )}
+                  {expandedId === food.id && <FoodDetails food={food} />}
                 </React.Fragment>
               ))}
             </tbody>

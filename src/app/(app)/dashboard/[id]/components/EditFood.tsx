@@ -174,18 +174,18 @@ export default function EditFood({ selectedFood }: EditFoodProps) {
           htmlFor="fileInput"
           className="cursor-pointer flex flex-col items-center justify-center border-2 border-dashed border-gray-400 rounded-lg p-4 hover:border-blue-500 transition-colors"
         >
-          {formData.imageUrl ? (
+          {formData.imageUrl && typeof formData.imageUrl === "string" ? (
             <Image
               src={
                 formData.imageUrl.startsWith("blob:")
                   ? formData.imageUrl
                   : `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${formData.imageUrl}`
               }
-              alt={formData.name}
+              alt={formData.name || "Imagen"}
               width={192}
               height={192}
               className="object-cover rounded"
-              unoptimized
+              unoptimized // Desactiva la optimización para evitar errores en blob/R2
             />
           ) : (
             <>
@@ -193,6 +193,7 @@ export default function EditFood({ selectedFood }: EditFoodProps) {
               <span className="text-gray-500">Selecciona una imagen</span>
             </>
           )}
+
           <input
             id="fileInput"
             type="file"
