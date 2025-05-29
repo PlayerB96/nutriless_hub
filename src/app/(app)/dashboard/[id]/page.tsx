@@ -306,11 +306,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                     <td className="hidden sm:table-cell px-4 py-2 text-left">
                       {food.imageUrl && typeof food.imageUrl === "string" ? (
                         <Image
-                          src={
-                            food.imageUrl.startsWith("blob:")
-                              ? food.imageUrl
-                              : `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${food.imageUrl}`
-                          }
+                          src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${food.imageUrl}`}
                           alt={food.name || "Imagen del alimento"}
                           width={64}
                           height={64}

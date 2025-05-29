@@ -176,11 +176,7 @@ export default function EditFood({ selectedFood }: EditFoodProps) {
         >
           {formData.imageUrl && typeof formData.imageUrl === "string" ? (
             <Image
-              src={
-                formData.imageUrl.startsWith("blob:")
-                  ? formData.imageUrl
-                  : `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${formData.imageUrl}`
-              }
+              src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${formData.imageUrl}`}
               alt={formData.name || "Imagen"}
               width={192}
               height={192}
