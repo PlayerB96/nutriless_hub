@@ -78,9 +78,9 @@ export default function Navbar({
             }
           >
             {isCollapsed === true ? (
-              <PanelLeftOpen className="cursor-pointer" size={24} />
+              <PanelLeftOpen className="cursor-pointer text-white" size={24} />
             ) : (
-              <PanelLeftClose className="cursor-pointer" size={24} />
+              <PanelLeftClose className="cursor-pointer text-white" size={24} />
             )}
           </button>
         </div>

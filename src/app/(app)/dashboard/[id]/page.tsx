@@ -1,7 +1,7 @@
 "use client";
 
 import { Food } from "@/domain/models/food";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import FoodDetails from "./components/FoodDetails";
 import {
   Check,
@@ -36,25 +36,20 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     useState(false);
 
   const [selectedFoods, setSelectedFoods] = useState<number[]>([]);
-
   const [loadingButton, setLoadingButton] = useState(false);
 
-  useEffect(() => {
-    const fetchFoods = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${id}/foods`,
-          { cache: "no-store" }
-        );
-        if (!res.ok) throw new Error("Error al obtener los alimentos");
-        const data = await res.json();
-        setFoods(data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    fetchFoods();
+  const fetchFoods = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${id}/foods`,
+        { cache: "no-store" }
+      );
+      if (!res.ok) throw new Error("Error al obtener los alimentos");
+      const data = await res.json();
+      setFoods(data);
+    } catch (err) {
+      console.error(err);
+    }
   }, [id]);
 
   const filteredFoods = useMemo(() => {
@@ -71,6 +66,10 @@ export default function DashboardUserFoodsPage({ params }: Props) {
       currentPage * itemsPerPage
     );
   }, [filteredFoods, currentPage, itemsPerPage]);
+
+  useEffect(() => {
+    fetchFoods();
+  }, [fetchFoods]);
 
   useEffect(() => {
     if (
@@ -116,6 +115,12 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   // Abrir Modal de edición
   const [modalOpen, setModalOpen] = React.useState(false);
   const [selectedFood, setSelectedFood] = React.useState<Food | null>(null);
+
+  // Padre
+  const handleSubmitSuccess = () => {
+    fetchFoods();
+    setModalOpen(false);
+  };
 
   return (
     <main className="p-1 w-full overflow-x-auto sm:overflow-visible">
@@ -377,7 +382,12 @@ export default function DashboardUserFoodsPage({ params }: Props) {
             width="max-w-3xl"
             showCloseButton={true}
           >
-            <EditFood selectedFood={selectedFood} />
+            {selectedFood && (
+              <EditFood
+                onSubmitSuccess={handleSubmitSuccess}
+                selectedFood={selectedFood}
+              />
+            )}
           </Modal>
         </div>
       )}

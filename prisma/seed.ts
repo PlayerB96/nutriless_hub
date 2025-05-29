@@ -74,6 +74,11 @@ async function seedCategorias() {
 
 async function seedOptionalNutrients() {
   const nutrients = [
+    "gramos",
+    "calorias",
+    "proteinas",
+    "carbohidratos",
+    "grasas",
     "Calcium",
     "Vitamin A",
     "Iron",
@@ -99,8 +104,8 @@ async function seedOptionalNutrients() {
 }
 
 async function main() {
-  await seedAdmin();
-  await seedCategorias();
+  // await seedAdmin();
+  // await seedCategorias();
   await seedOptionalNutrients();
 }
 
