@@ -185,6 +185,7 @@ export default function EditFood({ selectedFood }: EditFoodProps) {
               width={192}
               height={192}
               className="object-cover rounded"
+              unoptimized
             />
           ) : (
             <>
