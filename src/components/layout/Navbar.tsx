@@ -57,7 +57,7 @@ export default function Navbar({
 
   return (
     <nav className="text-text dark:bg-primary dark:text-text shadow-xs p-4 w-full overflow-x-auto sm:overflow-visible ">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <div className="w-full flex justify-between items-center">
         {/* Izquierda: Botón hamburguesa móvil + botón colapsar sidebar */}
         <div className="flex items-center space-x-4">
           {/* Botón hamburguesa solo en móvil */}
@@ -78,9 +78,9 @@ export default function Navbar({
             }
           >
             {isCollapsed === true ? (
-              <PanelLeftOpen className="cursor-pointer text-black" size={24} />
+              <PanelLeftOpen className="cursor-pointer text-black dark:text-white" size={24} />
             ) : (
-              <PanelLeftClose className="cursor-pointer text-black" size={24} />
+              <PanelLeftClose className="cursor-pointer text-black dark:text-white" size={24} />
             )}
           </button>
         </div>

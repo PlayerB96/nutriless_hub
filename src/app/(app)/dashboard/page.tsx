@@ -50,7 +50,7 @@ export default function Home() {
 
           {userId && (
             <button
-              className="bg-primary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition"
+              className="bg-primary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition my-4 md:my-0"
               onClick={() => router.push(`/dashboard/${userId}`)}
             >
               Ver mis alimentos
