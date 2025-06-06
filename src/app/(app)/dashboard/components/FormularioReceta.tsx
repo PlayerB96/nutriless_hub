@@ -8,10 +8,8 @@ import toast from "react-hot-toast";
 
 export default function FormularioReceta({
   onSubmitSuccess,
-  onCancel,
 }: {
   onSubmitSuccess: () => void;
-  onCancel: () => void;
 }) {
   const etiquetasDisponibles = [
     "Desayuno",

@@ -96,10 +96,7 @@ export default function Home() {
           title="Crea Nuevo Alimento"
           width="w-full max-w-4xl"
         >
-          <FormularioAlimento
-            onSubmitSuccess={handleSubmitSuccess}
-            onCancel={() => setOpenModal(null)}
-          />
+          <FormularioAlimento onSubmitSuccess={handleSubmitSuccess} />
         </Modal>
 
         {/* Modal para Receta (ejemplo, agrega el componente de receta aquí) */}
@@ -110,10 +107,7 @@ export default function Home() {
           width="w-full max-w-4xl"
         >
           {/* Aquí puedes poner el formulario de receta, por ejemplo: */}
-          <FormularioReceta
-            onSubmitSuccess={handleSubmitSuccess}
-            onCancel={() => setOpenModal(null)}
-          />
+          <FormularioReceta onSubmitSuccess={handleSubmitSuccess} />
         </Modal>
       </MainContent>
     );

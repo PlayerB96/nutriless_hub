@@ -4,21 +4,9 @@
 import { TraditionalFood } from "@/domain/models/traditional-food";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Edit,
-  LoaderCircle,
-  X,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
 import "jspdf-autotable";
 
-import Image from "next/image";
-import { generatePdf } from "@/lib/utils/pdfGenerator";
-import Modal from "@/components/ui/Modal";
-import FoodDetails from "../components/FoodDetails";
-import EditFood from "../components/EditFood";
 import TraditionFoodDetails from "./components/TraditionFoodDetails";
 
 type Props = {
@@ -32,11 +20,6 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const [editFoodId, setEditFoodId] = useState<number | null>(null);
-  const [editName] = useState("");
-  const [editCategoria, setEditCategoria] = useState("");
-  const [dropdownCategoriaAbierto, setDropdownCategoriaAbierto] =
-    useState(false);
 
   const [selectedFoods, setSelectedFoods] = useState<number[]>([]);
   const [loadingButton, setLoadingButton] = useState(false);
@@ -87,43 +70,10 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
-  const [categorias] = useState<{ id: number; name: string }[]>([]);
-  const [categoriaFiltro] = useState("");
-
-  const categoriasFiltradas = useMemo(() => {
-    if (!categoriaFiltro) return categorias;
-    return categorias.filter((cat) =>
-      cat.name.toLowerCase().includes(categoriaFiltro.toLowerCase())
-    );
-  }, [categoriaFiltro, categorias]);
-
-  const handleSave = (foodId: number) => {
-    setFoods((prevFoods) =>
-      prevFoods.map((food) =>
-        food.id === foodId
-          ? { ...food, name: editName, category: editCategoria }
-          : food
-      )
-    );
-    setEditFoodId(null);
-    setDropdownCategoriaAbierto(false);
-  };
-
   const toggleSelect = (id: number) => {
     setSelectedFoods((prev) =>
       prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
     );
-  };
-
-  // Abrir Modal de edición
-  const [modalOpen, setModalOpen] = React.useState(false);
-  const [selectedFood, setSelectedFood] =
-    React.useState<TraditionalFood | null>(null);
-
-  // Padre
-  const handleSubmitSuccess = () => {
-    fetchTraditionalFoods();
-    setModalOpen(false);
   };
 
   return (
@@ -269,20 +219,6 @@ export default function DashboardUserFoodsPage({ params }: Props) {
               ))}
             </tbody>
           </table>
-          {/* <Modal
-            isOpen={modalOpen}
-            onClose={() => setModalOpen(false)}
-            title={selectedFood?.name || "Detalles del alimento"}
-            width="max-w-3xl"
-            showCloseButton={true}
-          >
-            {selectedFood && (
-              <EditFood
-                onSubmitSuccess={handleSubmitSuccess}
-                selectedFood={selectedFood}
-              />
-            )}
-          </Modal> */}
         </div>
       )}
     </main>

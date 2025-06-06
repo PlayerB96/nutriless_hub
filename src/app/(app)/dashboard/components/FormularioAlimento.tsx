@@ -23,10 +23,8 @@ const camposNutricionalesIniciales = [
 
 export default function FormularioAlimento({
   onSubmitSuccess,
-  onCancel,
 }: {
   onSubmitSuccess: () => void;
-  onCancel: () => void;
 }) {
   const { data: session } = useSession();
   // const userId = session?.user?.id;

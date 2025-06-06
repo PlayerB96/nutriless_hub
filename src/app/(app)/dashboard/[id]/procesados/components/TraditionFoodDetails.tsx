@@ -1,6 +1,7 @@
 import React from "react";
 import { Salad } from "lucide-react";
 import { TraditionalFood } from "@/domain/models/traditional-food";
+import Image from "next/image";
 
 type Props = {
   food: TraditionalFood;
@@ -49,10 +50,12 @@ export default function TraditionFoodDetails({ food }: Props) {
           {food.imageUrl && (
             <div>
               <h4 className="font-semibold mb-1">🖼️ Imagen:</h4>
-              <img
+              <Image
                 src={food.imageUrl}
                 alt={`Imagen de ${food.name}`}
-                className="w-32 h-auto rounded border"
+                width={128} // o el tamaño que quieras
+                height={128} // o el tamaño que quieras
+                className="rounded border"
               />
             </div>
           )}
