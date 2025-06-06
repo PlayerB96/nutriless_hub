@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     // 3. Parsear JSON de nutritionDetails y householdMeasures
     const nutritionDetails = JSON.parse(nutritionDetailsStr);
     const householdMeasures = JSON.parse(householdMeasuresStr);
-    
+
     // 4. Obtener archivo de imagen (suponiendo que el campo del form es "image")
     const imageFile = formData.get("image") as File | null;
     let imageFilename = null;
@@ -88,7 +88,6 @@ export async function POST(req: Request) {
       })
     );
 
-    
     // 6. Crear el registro en la DB con prisma
     const newFood = await prisma.food.create({
       data: {
@@ -99,11 +98,10 @@ export async function POST(req: Request) {
         nutritionDetails: {
           create: transformedNutritionDetails,
         },
-        
+
         householdMeasures: {
           create:
             householdMeasures?.map((item: HouseholdMeasure) => ({
-                
               description: item.description,
               quantity: parseFloat(item.quantity.toString()),
               weightGrams: parseFloat(item.weightGrams.toString()),

@@ -20,15 +20,14 @@ const camposNutricionalesIniciales = [
   { key: "carbohidratos", label: "Carbohidratos (gr)" },
   { key: "grasas", label: "Grasas (gr)" },
 ];
-interface FormularioAlimentoProps {
-  onSubmitSuccess: () => void;
-  onCancel?: () => void; // opcional si quieres
-}
 
 export default function FormularioAlimento({
   onSubmitSuccess,
-}: // onCancel,
-FormularioAlimentoProps) {
+  onCancel,
+}: {
+  onSubmitSuccess: () => void;
+  onCancel: () => void;
+}) {
   const { data: session } = useSession();
   // const userId = session?.user?.id;
   const userId = (session?.user as { id: string }).id;
@@ -96,32 +95,25 @@ FormularioAlimentoProps) {
       alert("Por favor selecciona una categoría.");
       return;
     }
-
     setLoadingButton(true); // inicia animación
-
     try {
       const formData = new FormData();
 
       formData.append("name", nombre);
       formData.append("category", categoriaSeleccionada.name);
       formData.append("userId", String(userId));
-
       // Detalle nutricional (objeto) lo convertimos a JSON string
       formData.append("nutritionDetails", JSON.stringify(detalleNutricional));
-
       // Medidas del hogar (array), lo convertimos a JSON string también
       formData.append("householdMeasures", JSON.stringify([])); // Cambia si tienes medidas reales
-
       // Imagen (File)
       if (imagen) {
         formData.append("image", imagen); // aquí 'imagen' debe ser un File
       }
-
       const res = await fetch("/api/foods", {
         method: "POST",
         body: formData, // aquí no pones headers con content-type, el browser lo asigna
       });
-
       if (res.ok) {
         onSubmitSuccess?.(); // cerrar modal, limpiar, etc.
         toast.success("Alimento agregado correctamente ✅");
@@ -406,19 +398,21 @@ FormularioAlimentoProps) {
         )}
       </section>
 
-      <button
-        type="submit"
-        disabled={loadingButton}
-        className={`w-full cursor-pointer bg-primary text-white  px-4 py-2 rounded-md hover:bg-primary/90 transition flex justify-center items-center ${
-          loadingButton ? "cursor-not-allowed opacity-70" : ""
-        }`}
-      >
-        {loadingButton ? (
-          <LoaderCircle className="animate-spin w-5 h-5 text-white" />
-        ) : (
-          "Registrar"
-        )}
-      </button>
+      <div className="flex justify-end gap-4 pt-4">
+        <button
+          type="submit"
+          disabled={loadingButton}
+          className={` cursor-pointer bg-primary text-white  px-4 py-2 rounded-md hover:bg-primary/90 transition  ${
+            loadingButton ? "cursor-not-allowed opacity-70" : ""
+          }`}
+        >
+          {loadingButton ? (
+            <LoaderCircle className="animate-spin w-5 h-5 text-white" />
+          ) : (
+            "Registrar"
+          )}
+        </button>
+      </div>
     </form>
   );
 }

@@ -114,22 +114,34 @@ model OptionalNutrient {
 }
 
 model TraditionalFood {
-  id         Int                 @id @default(autoincrement())
-  name       String              // Ej: "Papa", "Camote"
-  category   String              // Ej: "Tubérculo"
-  origin     String?             // Ej: "Sierra"
-  imageUrl   String?             // Opcional
-  createdAt  DateTime            @default(now())
+  id        Int      @id @default(autoincrement())
+  name      String // Ej: "Papa", "Camote"
+  category  String // Ej: "Tubérculo"
+  origin    String? // Ej: "Sierra"
+  imageUrl  String? // Opcional
+  createdAt DateTime @default(now())
 
   // Relación con nutrientes
-  nutrients  TraditionalNutrient[]
+  nutrients TraditionalNutrient[]
 }
 
 model TraditionalNutrient {
-  id          Int              @id @default(autoincrement())
-  food        TraditionalFood  @relation(fields: [foodId], references: [id])
-  foodId      Int
-  nutrient    String           // Ej: "Vitamina C", "Zinc"
-  value       Float            // Ej: 12.5
-  unit        String           // Ej: "mg", "g", "kcal"
+  id       Int             @id @default(autoincrement())
+  food     TraditionalFood @relation(fields: [foodId], references: [id])
+  foodId   Int
+  nutrient String // Ej: "Vitamina C", "Zinc"
+  value    Float // Ej: 12.5
+  unit     String // Ej: "mg", "g", "kcal"
+}
+
+model Recipe {
+  id         Int      @id @default(autoincrement())
+  name       String
+  tags       String[] // etiquetas : almuerzo, cena , lunch
+  portions   Int // cantidad de porciones por persona
+  prepTime   Int // tiempo de preparación en minutos
+  cookTime   Int? // opcional: puede ser null
+  difficulty String
+  isPublic   Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }

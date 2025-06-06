@@ -1,0 +1,290 @@
+"use client";
+
+// import { Food } from "@/domain/models/food";
+import { TraditionalFood } from "@/domain/models/traditional-food";
+
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  LoaderCircle,
+  X,
+} from "lucide-react";
+import "jspdf-autotable";
+
+import Image from "next/image";
+import { generatePdf } from "@/lib/utils/pdfGenerator";
+import Modal from "@/components/ui/Modal";
+import FoodDetails from "../components/FoodDetails";
+import EditFood from "../components/EditFood";
+import TraditionFoodDetails from "./components/TraditionFoodDetails";
+
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export default function DashboardUserFoodsPage({ params }: Props) {
+  const [foods, setFoods] = useState<TraditionalFood[]>([]);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const { id } = React.use(params);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const [editFoodId, setEditFoodId] = useState<number | null>(null);
+  const [editName] = useState("");
+  const [editCategoria, setEditCategoria] = useState("");
+  const [dropdownCategoriaAbierto, setDropdownCategoriaAbierto] =
+    useState(false);
+
+  const [selectedFoods, setSelectedFoods] = useState<number[]>([]);
+  const [loadingButton, setLoadingButton] = useState(false);
+
+  const fetchTraditionalFoods = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${id}/foods/organicos`,
+        { cache: "no-store" }
+      );
+      if (!res.ok) throw new Error("Error al obtener los alimentos");
+      const data = await res.json();
+      setFoods(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [id]);
+
+  const filteredFoods = useMemo(() => {
+    return foods.filter((food) =>
+      food.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [foods, searchTerm]);
+
+  const totalPages = Math.ceil(filteredFoods.length / itemsPerPage);
+
+  const paginatedFoods = useMemo(() => {
+    return filteredFoods.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
+  }, [filteredFoods, currentPage, itemsPerPage]);
+
+  useEffect(() => {
+    fetchTraditionalFoods();
+  }, [fetchTraditionalFoods]);
+
+  useEffect(() => {
+    if (
+      expandedId !== null &&
+      !paginatedFoods.some((food) => food.id === expandedId)
+    ) {
+      setExpandedId(null);
+    }
+  }, [expandedId, paginatedFoods]);
+
+  const toggleExpand = (id: number) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
+  const [categorias] = useState<{ id: number; name: string }[]>([]);
+  const [categoriaFiltro] = useState("");
+
+  const categoriasFiltradas = useMemo(() => {
+    if (!categoriaFiltro) return categorias;
+    return categorias.filter((cat) =>
+      cat.name.toLowerCase().includes(categoriaFiltro.toLowerCase())
+    );
+  }, [categoriaFiltro, categorias]);
+
+  const handleSave = (foodId: number) => {
+    setFoods((prevFoods) =>
+      prevFoods.map((food) =>
+        food.id === foodId
+          ? { ...food, name: editName, category: editCategoria }
+          : food
+      )
+    );
+    setEditFoodId(null);
+    setDropdownCategoriaAbierto(false);
+  };
+
+  const toggleSelect = (id: number) => {
+    setSelectedFoods((prev) =>
+      prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
+    );
+  };
+
+  // Abrir Modal de edición
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [selectedFood, setSelectedFood] =
+    React.useState<TraditionalFood | null>(null);
+
+  // Padre
+  const handleSubmitSuccess = () => {
+    fetchTraditionalFoods();
+    setModalOpen(false);
+  };
+
+  return (
+    <main className="p-1 w-full overflow-x-auto sm:overflow-visible">
+      <h1 className="text-2xl font-bold mb-6">Alimentos Orgánicos</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4 ">
+        {/* Buscador y botón de exportar agrupados */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <input
+            type="text"
+            placeholder="Buscar alimento..."
+            className="border px-3 py-2 rounded w-64 text-gray-700 dark:text-gray-200"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+          <button
+            onClick={async () => {
+              setLoadingButton(true);
+              try {
+                // await generatePdf(paginatedFoods, selectedFoods);
+              } catch (error) {
+                console.error("Error al generar el PDF:", error);
+              } finally {
+                setLoadingButton(false);
+              }
+            }}
+            className={`w-full px-4 py-2 rounded-md transition flex justify-center items-center 
+              ${
+                loadingButton || selectedFoods.length === 0
+                  ? " text-gray-200 cursor-not-allowed"
+                  : "bg-secondary text-white hover:bg-primary/90 cursor-pointer"
+              }`}
+            disabled={selectedFoods.length === 0 || loadingButton}
+          >
+            {loadingButton ? (
+              <LoaderCircle className="animate-spin w-5 h-5 text-white" />
+            ) : (
+              "Generar PDF"
+            )}
+          </button>
+        </div>
+
+        {/* Paginación */}
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <span>
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border rounded disabled:opacity-50 cursor-pointer"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {foods.length === 0 ? (
+        <p>No se encontraron alimentos.</p>
+      ) : (
+        <div className="rounded-lg border border-gray-900">
+          <table className="min-w-full border-collapse bg-bg text-sm sm:text-base rounded-lg overflow-hidden">
+            <thead className="bg-primary">
+              <tr>
+                <th className=" px-4 py-2 text-left">
+                  <input
+                    type="checkbox"
+                    checked={
+                      paginatedFoods.length > 0 &&
+                      paginatedFoods.every((f) => selectedFoods.includes(f.id))
+                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const nuevosIds = paginatedFoods.map((f) => f.id);
+                        setSelectedFoods((prev) =>
+                          Array.from(new Set([...prev, ...nuevosIds]))
+                        );
+                      } else {
+                        const idsPaginaActual = paginatedFoods.map((f) => f.id);
+                        setSelectedFoods((prev) =>
+                          prev.filter((id) => !idsPaginaActual.includes(id))
+                        );
+                      }
+                    }}
+                  />
+                </th>
+
+                <th className=" px-4 py-2 text-left">Nombre</th>
+                {/* Ocultar en móvil */}
+                <th className="hidden sm:table-cell px-4 py-2 text-left">
+                  Fecha Creación
+                </th>
+
+                <th className=" px-4 py-2 text-left">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedFoods.map((food) => (
+                <React.Fragment key={food.id}>
+                  <tr
+                    className="hover:bg-gray-200 dark:hover:bg-slate-900 cursor-pointer"
+                    onClick={() => toggleExpand(food.id)}
+                  >
+                    {/* ✅ Checkbox de selección */}
+                    <td
+                      className=" px-4 py-2 text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedFoods.includes(food.id)}
+                        onChange={() => toggleSelect(food.id)}
+                      />
+                    </td>
+
+                    {/* El resto de las celdas igual que antes */}
+                    <td className="px-4 py-2">{food.name}</td>
+
+                    <td className="hidden sm:table-cell px-4 py-2 text-left">
+                      {new Date(food.createdAt).toLocaleDateString("es-ES", {
+                        day: "numeric",
+                        month: "long",
+                      })}
+                    </td>
+                  </tr>
+
+                  {expandedId === food.id && (
+                    <TraditionFoodDetails food={food} />
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+          {/* <Modal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            title={selectedFood?.name || "Detalles del alimento"}
+            width="max-w-3xl"
+            showCloseButton={true}
+          >
+            {selectedFood && (
+              <EditFood
+                onSubmitSuccess={handleSubmitSuccess}
+                selectedFood={selectedFood}
+              />
+            )}
+          </Modal> */}
+        </div>
+      )}
+    </main>
+  );
+}
