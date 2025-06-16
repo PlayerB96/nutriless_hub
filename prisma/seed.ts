@@ -58,7 +58,7 @@ async function seedCategorias() {
     "Vegetales",
     "Verduras, hortalizas y derivados",
     "Alimentos en Conserva",
-    "Bebidas vegetales"
+    "Bebidas vegetales",
   ];
 
   for (const name of categorias) {
@@ -103,10 +103,44 @@ async function seedOptionalNutrients() {
   console.log("✅ Nutrientes opcionales cargados.");
 }
 
+async function seedRecipeWithDetail() {
+  const recipe = await prisma.recipe.create({
+    data: {
+      name: "Arroz Blanco Clásico",
+      tags: ["Desayuno"],
+      userId: 1, // ID del usuario autenticado
+      portions: 4,
+      prepTime: 10,
+      cookTime: 15,
+      difficulty: "facil",
+      isPublic: true,
+      detail: {
+        create: {
+          ingredients: ["1 taza de arroz", "2 tazas de agua", "Sal al gusto"],
+          instructions: [
+            "Lava el arroz bajo agua fría.",
+            "Hierve las 2 tazas de agua.",
+            "Agrega el arroz y la sal.",
+            "Reduce el fuego y cocina por 15 minutos.",
+            "Apaga y deja reposar 5 minutos antes de servir.",
+          ],
+        },
+      },
+    },
+    include: {
+      detail: true,
+    },
+  });
+
+  console.log("✅ Receta creada con ID:", recipe.id);
+  console.log("📝 Detalle de receta:", recipe.detail);
+}
+
 async function main() {
   // await seedAdmin();
   // await seedCategorias();
-  await seedOptionalNutrients();
+  // await seedOptionalNutrients();
+  await seedRecipeWithDetail();
 }
 
 main()

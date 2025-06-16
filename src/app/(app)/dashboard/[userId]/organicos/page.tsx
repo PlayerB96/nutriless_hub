@@ -10,13 +10,13 @@ import "jspdf-autotable";
 import TraditionFoodDetails from "./components/TraditionFoodDetails";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ userId: string }>;
 };
 
 export default function DashboardUserFoodsPage({ params }: Props) {
   const [foods, setFoods] = useState<TraditionalFood[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const { id } = React.use(params);
+  const { userId } = React.use(params);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -26,17 +26,21 @@ export default function DashboardUserFoodsPage({ params }: Props) {
 
   const fetchTraditionalFoods = useCallback(async () => {
     try {
+      console.log("#####111");
+
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${id}/foods/organicos`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods/organicos`,
         { cache: "no-store" }
       );
+      console.log(res);
+      console.log("#####222");
       if (!res.ok) throw new Error("Error al obtener los alimentos");
       const data = await res.json();
       setFoods(data);
     } catch (err) {
       console.error(err);
     }
-  }, [id]);
+  }, [userId]);
 
   const filteredFoods = useMemo(() => {
     return foods.filter((food) =>
@@ -92,31 +96,6 @@ export default function DashboardUserFoodsPage({ params }: Props) {
               setCurrentPage(1);
             }}
           />
-          <button
-            onClick={async () => {
-              setLoadingButton(true);
-              try {
-                // await generatePdf(paginatedFoods, selectedFoods);
-              } catch (error) {
-                console.error("Error al generar el PDF:", error);
-              } finally {
-                setLoadingButton(false);
-              }
-            }}
-            className={`w-full px-4 py-2 rounded-md transition flex justify-center items-center 
-              ${
-                loadingButton || selectedFoods.length === 0
-                  ? " text-gray-200 cursor-not-allowed"
-                  : "bg-secondary text-white hover:bg-primary/90 cursor-pointer"
-              }`}
-            disabled={selectedFoods.length === 0 || loadingButton}
-          >
-            {loadingButton ? (
-              <LoaderCircle className="animate-spin w-5 h-5 text-white" />
-            ) : (
-              "Generar PDF"
-            )}
-          </button>
         </div>
 
         {/* Paginación */}

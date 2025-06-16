@@ -19,13 +19,13 @@ import Modal from "@/components/ui/Modal";
 import EditFood from "./components/EditFood";
 
 type Props = {
-  params: Promise<{ id: string }>;
+  params: Promise<{ userId: string }>;
 };
 
 export default function DashboardUserFoodsPage({ params }: Props) {
   const [foods, setFoods] = useState<Food[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const { id } = React.use(params);
+  const { userId } = React.use(params);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -41,7 +41,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   const fetchFoods = useCallback(async () => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${id}/foods`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods`,
         { cache: "no-store" }
       );
       if (!res.ok) throw new Error("Error al obtener los alimentos");
@@ -50,7 +50,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     } catch (err) {
       console.error(err);
     }
-  }, [id]);
+  }, [userId]);
 
   const filteredFoods = useMemo(() => {
     return foods.filter((food) =>
@@ -124,7 +124,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
 
   return (
     <main className="p-1 w-full overflow-x-auto sm:overflow-visible">
-      <h1 className="text-2xl font-bold mb-6">Alimentos</h1>
+      <h1 className="text-2xl font-bold mb-6">Alimentos Procesados</h1>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4 ">
         {/* Buscador y botón de exportar agrupados */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">

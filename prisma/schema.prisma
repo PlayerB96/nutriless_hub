@@ -20,6 +20,7 @@ model User {
   // Relaciones con NextAuth
   accounts Account[]
   sessions Session[]
+  recipes  Recipe[] // Relación uno-a-muchos (1 usuario → muchas recetas)
 }
 
 model Account {
@@ -135,13 +136,24 @@ model TraditionalNutrient {
 }
 
 model Recipe {
-  id         Int      @id @default(autoincrement())
+  id         Int           @id @default(autoincrement())
   name       String
   tags       String[] // etiquetas : almuerzo, cena , lunch
   portions   Int // cantidad de porciones por persona
   prepTime   Int // tiempo de preparación en minutos
   cookTime   Int? // opcional: puede ser null
   difficulty String
-  isPublic   Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  isPublic   Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  detail     RecipeDetail? // Relación uno-a-uno
+  User       User?         @relation(fields: [userId], references: [id])
+  userId     Int?
+}
+
+model RecipeDetail {
+  id           Int      @id @default(autoincrement())
+  recipeId     Int      @unique
+  ingredients  String[] // Lista de ingredientes
+  instructions String[] // Lista de instrucciones paso a paso
+  recipe       Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
 }

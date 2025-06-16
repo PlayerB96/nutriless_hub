@@ -6,7 +6,7 @@ import Modal from "@/components/ui/Modal";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import FormularioAlimento from "./components/FormularioAlimento";
-import { BookOpen, Leaf, Package, PlusCircle } from "lucide-react";
+import { BookOpen, Leaf, NotebookPen, Package, PlusCircle } from "lucide-react";
 import FormularioReceta from "./components/FormularioReceta";
 
 export default function Home() {
@@ -57,7 +57,7 @@ export default function Home() {
             {userId && (
               <button
                 className="flex items-center gap-2 bg-primary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition"
-                onClick={() => router.push(`/dashboard/${userId}`)}
+                onClick={() => router.push(`/dashboard/${userId}/procesados`)}
               >
                 <Package size={20} />
                 Alimentos Procesados
@@ -67,7 +67,7 @@ export default function Home() {
             {userId && (
               <button
                 className="flex items-center gap-2 bg-primary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition"
-                onClick={() => router.push(`/dashboard/${userId}/procesados`)}
+                onClick={() => router.push(`/dashboard/${userId}/organicos`)}
               >
                 <Leaf size={20} />
                 Alimentos Orgánicos
@@ -82,8 +82,16 @@ export default function Home() {
                 className="flex items-center gap-2 bg-secondary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
                 onClick={() => setOpenModal("receta")}
               >
-                <BookOpen size={20} />
+                <NotebookPen size={20} />
                 Agregar Receta
+              </button>
+
+              <button
+                className="flex items-center gap-2 bg-primary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition"
+                onClick={() => router.push(`/dashboard/${userId}/recetas`)}
+              >
+                <BookOpen size={20} />
+                Lista de Recetas
               </button>
             </div>
           )}

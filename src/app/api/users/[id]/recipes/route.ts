@@ -15,9 +15,6 @@ export async function GET(req: Request, { params }: { params: tParams }) {
   try {
     const recipes = await prisma.recipe.findMany({
       orderBy: { createdAt: "desc" },
-      // where: {
-      //   userId: userId, // 👈 esto filtra solo las recetas de ese usuario
-      // },
       include: {
         detail: true, // 👈 Esto carga ingredients e instructions
       },
