@@ -5,12 +5,13 @@ import { useRouter, useParams } from "next/navigation";
 import { Recipe } from "@/domain/models/recipe";
 import { Pencil, Eye, List, ListOrdered, ImageIcon } from "lucide-react";
 import EditRecipe from "./components/EditRecipe";
+import Image from "next/image";
 
 const difficulties = ["Fácil", "Media", "Difícil"];
 const DEFAULT_IMAGE = "/images/logonutri.png";
 
 export default function EditRecipePage() {
-  const { userId, recipeId } = useParams();
+  const { recipeId } = useParams();
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
@@ -25,7 +26,7 @@ export default function EditRecipePage() {
 
         if (!res.ok) throw new Error("Error al cargar receta");
         const data = await res.json();
-        setRecipe(data[0]);
+        setRecipe(data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -64,20 +65,47 @@ export default function EditRecipePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!recipe) {
+      alert("Los datos de la receta no están cargados.");
+      return;
+    }
+
+    // Validaciones mínimas
+    if (!recipe.name || !recipe.portions || !recipe.prepTime) {
+      alert("Por favor, completa todos los campos requeridos");
+      return;
+    }
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/${recipeId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(recipe),
+          body: JSON.stringify({
+            ...recipe,
+            portions: Number(recipe.portions),
+            prepTime: Number(recipe.prepTime),
+            cookTime: recipe.cookTime ? Number(recipe.cookTime) : null,
+          }),
         }
       );
-      if (!res.ok) throw new Error("Error al actualizar receta");
-      router.push(`/dashboard/${userId}`);
-    } catch (err) {
-      console.error(err);
-      alert("Error al actualizar receta");
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Error al actualizar receta");
+      }
+
+      router.push(`/dashboard`);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("❌ Error en handleSubmit:", err);
+        alert(err.message);
+      } else {
+        console.error("❌ Error desconocido:", err);
+        alert("Error inesperado");
+      }
     }
   };
 
@@ -165,9 +193,11 @@ export default function EditRecipePage() {
               Imagen de la receta
             </label>
             <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-300 dark:border-slate-700 shadow-sm mb-3">
-              <img
+              <Image
                 src={recipe.imageUrl || DEFAULT_IMAGE}
-                alt="Imagen de la receta"
+                alt={`Imagen de ${recipe.imageUrl}`}
+                width={128} // o el tamaño que quieras
+                height={128} // o el tamaño que quieras
                 className="object-cover w-full h-full"
               />
             </div>

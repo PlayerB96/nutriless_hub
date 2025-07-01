@@ -11,9 +11,7 @@ import {
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
+
 
 const DEFAULT_IMAGE = "/images/logonutri.png";
 
@@ -31,30 +29,30 @@ export interface Recipe {
   origin?: string;
 }
 
-export default function DashboardUserRecipesPage({ params }: Props) {
+export default function DashboardUserRecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   // const { id } = React.use(params);
-  const { userId, recipeId } = useParams();
+  const { userId,  } = useParams();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
-  const [selectedRecipes, setSelectedRecipes] = useState<number[]>([]);
   const router = useRouter();
 
-  const fetchRecipes = useCallback(async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/${userId}`,
-        { cache: "no-store" }
-      );
-      if (!res.ok) throw new Error("Error al obtener las recetas");
-      const data = await res.json();
-      setRecipes(data);
-    } catch (err) {
-      console.error(err);
-    }
-  }, [userId]);
+ const fetchRecipes = useCallback(async () => {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes?userId=${userId}`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) throw new Error("Error al obtener las recetas");
+    const data = await res.json();
+    setRecipes(data);
+  } catch (err) {
+    console.error(err);
+  }
+}, [userId]);
+
 
   useEffect(() => {
     fetchRecipes();
@@ -75,11 +73,7 @@ export default function DashboardUserRecipesPage({ params }: Props) {
     );
   }, [filteredRecipes, currentPage]);
 
-  const toggleSelect = (id: number) => {
-    setSelectedRecipes((prev) =>
-      prev.includes(id) ? prev.filter((rid) => rid !== id) : [...prev, id]
-    );
-  };
+ 
 
   return (
     <main className="p-4">

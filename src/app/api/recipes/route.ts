@@ -13,61 +13,76 @@ export async function OPTIONS() {
   });
 }
 
+// ⬇️ GET: listar todas las recetas del usuario
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const userId = Number(searchParams.get("userId"));
+
+  if (isNaN(userId)) {
+    return new Response(JSON.stringify({ message: "ID de usuario inválido" }), {
+      status: 400,
+      headers: corsHeaders,
+    });
+  }
+
+  try {
+    const recipes = await prisma.recipe.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      include: {
+        detail: true,
+      },
+    });
+
+    return new Response(JSON.stringify(recipes), {
+      status: 200,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
+  } catch (error) {
+    console.error("Error al obtener recetas:", error);
+    return new Response(JSON.stringify({ message: "Error interno" }), {
+      status: 500,
+      headers: corsHeaders,
+    });
+  }
+}
+
+// ⬇️ POST: registrar una receta nueva
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
 
-    // Extraer campos del formulario
     const name = formData.get("name")?.toString().trim() || "";
     const tagsStr = formData.get("tags")?.toString().trim() || "";
-    const portionsStr = formData.get("portions")?.toString().trim() || "";
-    const prepTimeStr = formData.get("prepTime")?.toString().trim() || "";
+    const portions = Number(formData.get("portions")?.toString() || "0");
+    const prepTime = Number(formData.get("prepTime")?.toString() || "0");
     const cookTimeStr = formData.get("cookTime")?.toString().trim() || "";
     const difficulty = formData.get("difficulty")?.toString().trim() || "";
-    const isPublicStr = formData.get("isPublic")?.toString().trim() || "";
+    const isPublic = formData.get("isPublic") === "true";
+    const userId = Number(formData.get("userId") || "0");
 
-    // Validaciones básicas
-    if (!name || !tagsStr || !portionsStr || !prepTimeStr || !difficulty) {
-      return new Response(
-        JSON.stringify({ message: "Faltan campos requeridos" }),
-        {
-          status: 400,
-          headers: corsHeaders,
-        }
-      );
-    }
-
-    // Convertir tags (string separado por comas) a array de strings
     const tags = tagsStr
       .split(",")
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
-    if (tags.length === 0) {
-      return new Response(
-        JSON.stringify({ message: "Debe proporcionar al menos un tag válido" }),
-        {
-          status: 400,
-          headers: corsHeaders,
-        }
-      );
+    if (!name || tags.length === 0 || !difficulty || isNaN(userId)) {
+      return new Response(JSON.stringify({ message: "Campos inválidos" }), {
+        status: 400,
+        headers: corsHeaders,
+      });
     }
 
-    const portions = Number(portionsStr);
-    const prepTime = Number(prepTimeStr);
-    const cookTime = cookTimeStr ? Number(cookTimeStr) : null;
-    const isPublic = isPublicStr === "true";
-
-    // Crear la receta en base de datos
     const newRecipe = await prisma.recipe.create({
       data: {
         name,
         tags,
         portions,
         prepTime,
-        cookTime,
+        cookTime: cookTimeStr ? Number(cookTimeStr) : null,
         difficulty,
         isPublic,
+        userId,
       },
     });
 
@@ -83,12 +98,9 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     console.error("Error al registrar receta:", error);
-    return new Response(
-      JSON.stringify({ message: "Error interno del servidor" }),
-      {
-        status: 500,
-        headers: corsHeaders,
-      }
-    );
+    return new Response(JSON.stringify({ message: "Error interno" }), {
+      status: 500,
+      headers: corsHeaders,
+    });
   }
 }
