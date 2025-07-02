@@ -114,46 +114,51 @@ model OptionalNutrient {
   updatedAt DateTime @updatedAt
 }
 
-model TraditionalFood {
-  id        Int      @id @default(autoincrement())
-  name      String // Ej: "Papa", "Camote"
-  category  String // Ej: "Tubérculo"
-  origin    String? // Ej: "Sierra"
-  imageUrl  String? // Opcional
-  createdAt DateTime @default(now())
-
-  // Relación con nutrientes
-  nutrients TraditionalNutrient[]
-}
-
-model TraditionalNutrient {
-  id       Int             @id @default(autoincrement())
-  food     TraditionalFood @relation(fields: [foodId], references: [id])
-  foodId   Int
-  nutrient String // Ej: "Vitamina C", "Zinc"
-  value    Float // Ej: 12.5
-  unit     String // Ej: "mg", "g", "kcal"
-}
-
 model Recipe {
   id         Int           @id @default(autoincrement())
   name       String
-  tags       String[] // etiquetas : almuerzo, cena , lunch
-  portions   Int // cantidad de porciones por persona
-  prepTime   Int // tiempo de preparación en minutos
-  cookTime   Int? // opcional: puede ser null
+  tags       String[]
+  portions   Int
+  prepTime   Int
+  cookTime   Int?
   difficulty String
   isPublic   Boolean       @default(false)
   createdAt  DateTime      @default(now())
-  detail     RecipeDetail? // Relación uno-a-uno
+  detail     RecipeDetail?
+  image      String?
   User       User?         @relation(fields: [userId], references: [id])
   userId     Int?
 }
 
 model RecipeDetail {
-  id           Int      @id @default(autoincrement())
-  recipeId     Int      @unique
-  ingredients  String[] // Lista de ingredientes
-  instructions String[] // Lista de instrucciones paso a paso
-  recipe       Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  recipeId Int    @unique
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  ingredients  TraditionalFood[] // ✅ Relación a alimentos, no nutrientes
+  instructions String[]
+}
+
+model TraditionalFood {
+  id        Int      @id @default(autoincrement())
+  name      String
+  category  String
+  origin    String?
+  imageUrl  String?
+  createdAt DateTime @default(now())
+
+  nutrients TraditionalNutrient[]
+
+  // Inverso de ingredientes en recetas
+  recipeDetails RecipeDetail[] // opcional si quieres acceder desde el otro lado
+}
+
+model TraditionalNutrient {
+  id        Int             @id @default(autoincrement())
+  food      TraditionalFood @relation(fields: [foodId], references: [id])
+  foodId    Int
+  nutrient  String
+  value     Float
+  unit      String
+  createdAt DateTime        @default(now())
 }

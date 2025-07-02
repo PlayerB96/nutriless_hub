@@ -4,8 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Recipe } from "@/domain/models/recipe";
 import { Pencil, Eye, List, ListOrdered, ImageIcon } from "lucide-react";
-import EditRecipe from "./components/EditRecipe";
 import Image from "next/image";
+import { TraditionalFood } from "@/domain/models/traditional-food";
+import EditableTextList from "./components/EditableTextList";
+import IngredientSelectorList from "./components/IngredientSelectorList";
 
 const difficulties = ["Fácil", "Media", "Difícil"];
 const DEFAULT_IMAGE = "/images/logonutri.png";
@@ -16,6 +18,22 @@ export default function EditRecipePage() {
 
   const [loading, setLoading] = useState(true);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
+
+  const [availableFoods, setAvailableFoods] = useState<TraditionalFood[]>([]);
+  const { userId } = useParams();
+
+  useEffect(() => {
+    const fetchFoods = async () => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods/organicos`
+      );
+      const data = await res.json();
+      console.log("Available foods:", data);
+      setAvailableFoods(data);
+    };
+
+    fetchFoods();
+  }, []);
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -43,7 +61,7 @@ export default function EditRecipePage() {
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setRecipe({ ...recipe, imageUrl: reader.result as string });
+      setRecipe({ ...recipe, image: reader.result as string });
     };
     reader.readAsDataURL(file);
   };
@@ -111,11 +129,20 @@ export default function EditRecipePage() {
 
   const addIngredient = () => {
     if (!recipe) return;
+
+    const newIngredient: TraditionalFood = {
+      id: 0,
+      name: "",
+      category: "",
+      createdAt: new Date().toISOString(),
+      nutrients: [], // ✅ requerido por el tipo
+    };
+
     setRecipe({
       ...recipe,
       detail: {
         ...recipe.detail!,
-        ingredients: [...(recipe.detail?.ingredients || []), ""],
+        ingredients: [...(recipe.detail?.ingredients || []), newIngredient],
       },
     });
   };
@@ -126,17 +153,23 @@ export default function EditRecipePage() {
     updated.splice(index, 1);
     setRecipe({
       ...recipe,
-      detail: { ...recipe.detail!, ingredients: updated },
+      detail: {
+        ...recipe.detail!,
+        ingredients: updated,
+      },
     });
   };
 
-  const updateIngredient = (index: number, value: string) => {
+  const updateIngredient = (index: number, value: TraditionalFood) => {
     if (!recipe) return;
     const updated = [...(recipe.detail?.ingredients || [])];
     updated[index] = value;
     setRecipe({
       ...recipe,
-      detail: { ...recipe.detail!, ingredients: updated },
+      detail: {
+        ...recipe.detail!,
+        ingredients: updated,
+      },
     });
   };
 
@@ -194,8 +227,8 @@ export default function EditRecipePage() {
             </label>
             <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-300 dark:border-slate-700 shadow-sm mb-3">
               <Image
-                src={recipe.imageUrl || DEFAULT_IMAGE}
-                alt={`Imagen de ${recipe.imageUrl}`}
+                src={recipe.image || DEFAULT_IMAGE}
+                alt={`Imagen de ${recipe.image}`}
                 width={128} // o el tamaño que quieras
                 height={128} // o el tamaño que quieras
                 className="object-cover w-full h-full"
@@ -214,17 +247,18 @@ export default function EditRecipePage() {
           </div>
 
           {/* Ingredientes */}
-          <EditRecipe
+          <IngredientSelectorList
             title="Ingredientes"
             icon={<List className="w-5 h-5" />}
             items={recipe.detail?.ingredients || []}
             onAdd={addIngredient}
             onRemove={removeIngredient}
             onUpdate={updateIngredient}
+            availableFoods={availableFoods}
           />
 
           {/* Instrucciones */}
-          <EditRecipe
+          <EditableTextList
             title="Instrucciones"
             icon={<ListOrdered className="w-5 h-5" />}
             items={recipe.detail?.instructions || []}

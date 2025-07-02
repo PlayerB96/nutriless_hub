@@ -10,49 +10,33 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-
-
+import { Recipe } from "@/domain/models/recipe";
 
 const DEFAULT_IMAGE = "/images/logonutri.png";
-
-export interface Recipe {
-  id: number;
-  name: string;
-  tags: string[];
-  portions: number;
-  prepTime: number;
-  cookTime?: number | null;
-  difficulty: string;
-  isPublic: boolean;
-  createdAt: string;
-  imageUrl?: string;
-  origin?: string;
-}
 
 export default function DashboardUserRecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   // const { id } = React.use(params);
-  const { userId,  } = useParams();
+  const { userId } = useParams();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
   const router = useRouter();
 
- const fetchRecipes = useCallback(async () => {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes?userId=${userId}`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) throw new Error("Error al obtener las recetas");
-    const data = await res.json();
-    setRecipes(data);
-  } catch (err) {
-    console.error(err);
-  }
-}, [userId]);
-
+  const fetchRecipes = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes?userId=${userId}`,
+        { cache: "no-store" }
+      );
+      if (!res.ok) throw new Error("Error al obtener las recetas");
+      const data = await res.json();
+      setRecipes(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [userId]);
 
   useEffect(() => {
     fetchRecipes();
@@ -72,8 +56,6 @@ export default function DashboardUserRecipesPage() {
       currentPage * itemsPerPage
     );
   }, [filteredRecipes, currentPage]);
-
- 
 
   return (
     <main className="p-4">
@@ -129,7 +111,7 @@ export default function DashboardUserRecipesPage() {
               className="relative border rounded-lg shadow transition-transform duration-300 hover:scale-[1.02] hover:shadow-lg overflow-hidden group"
             >
               <Image
-                src={recipe.imageUrl || DEFAULT_IMAGE}
+                src={recipe.image || DEFAULT_IMAGE}
                 alt={`Imagen de ${recipe.name}`}
                 width={400}
                 height={200}

@@ -67,6 +67,7 @@ export async function PUT(
         prepTime: body.prepTime,
         cookTime: body.cookTime,
         difficulty: body.difficulty,
+        image: body.image,
         isPublic: body.isPublic,
       },
     });
@@ -77,7 +78,7 @@ export async function PUT(
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("❌ Error al actualizar receta:", error);
     return new Response(

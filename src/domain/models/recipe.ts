@@ -1,8 +1,11 @@
+import { TraditionalFood } from "./traditional-food";
+
 export interface RecipeDetail {
-  ingredients: string[];
+  id: number;
+  recipeId: number;
+  ingredients: TraditionalFood[]; // ✅ antes: string[]
   instructions: string[];
 }
-
 export interface Recipe {
   id: number;
   name: string;
@@ -13,7 +16,7 @@ export interface Recipe {
   difficulty: string;
   isPublic: boolean;
   createdAt: string; // o Date
-  imageUrl?: string;
+  image?: string;
 
   detail?: RecipeDetail | null; // ← nuevo campo
 }

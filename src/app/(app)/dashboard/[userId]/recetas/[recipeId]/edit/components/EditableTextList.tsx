@@ -1,10 +1,10 @@
-// components/EditableList.tsx
+// components/EditableTextList.tsx
 "use client";
 
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
 
-interface EditRecipe {
+interface Props {
   title: string;
   icon: React.ReactNode;
   items: string[];
@@ -14,7 +14,7 @@ interface EditRecipe {
   isTextarea?: boolean;
 }
 
-export default function EditableList({
+export default function EditableTextList({
   title,
   icon,
   items,
@@ -22,7 +22,7 @@ export default function EditableList({
   onRemove,
   onUpdate,
   isTextarea = false,
-}: EditRecipe) {
+}: Props) {
   return (
     <div>
       <h2 className="text-lg font-semibold flex items-center gap-2 mb-2">
@@ -35,6 +35,7 @@ export default function EditableList({
           <Plus className="w-4 h-4" /> Agregar
         </button>
       </h2>
+
       <ul className="space-y-2">
         {items.map((item, idx) => (
           <li key={idx} className="flex gap-2 items-start">
