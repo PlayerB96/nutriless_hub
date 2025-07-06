@@ -17,7 +17,20 @@ export async function GET(req: Request, { params }: { params: tParams }) {
     const recipe = await prisma.recipe.findUnique({
       where: { id: recipeId },
       include: {
-        detail: true,
+        detail: {
+          include: {
+            recipeIngredients: {
+              include: {
+                food: {
+                  include: {
+                    householdMeasures: true,
+                  },
+                },
+                medida: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -26,8 +39,26 @@ export async function GET(req: Request, { params }: { params: tParams }) {
         status: 404,
       });
     }
+    // 🛠️ AQUI: reconstruir tipoMedida y cantidad desde householdMeasures
+    // ejemplo: asumiendo que tú sabes qué medida usar (puede venir del primer elemento por ahora)
+    const enrichedIngredients =
+      recipe.detail?.recipeIngredients.map((ri) => {
+        return {
+          ...ri.food,
+          cantidad: ri.cantidad,
+          tipoMedida: ri.medidaId,
+        };
+      }) ?? [];
 
-    return new Response(JSON.stringify(recipe), {
+    const enrichedRecipe = {
+      ...recipe,
+      detail: {
+        ...recipe.detail,
+        ingredients: enrichedIngredients,
+      },
+    };
+    console.log("📦 Receta enriquecida:", enrichedRecipe);
+    return new Response(JSON.stringify(enrichedRecipe), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
@@ -36,56 +67,5 @@ export async function GET(req: Request, { params }: { params: tParams }) {
     return new Response(JSON.stringify({ message: "Error interno" }), {
       status: 500,
     });
-  }
-}
-
-// Actualizar una receta por ID
-export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const recipeId = Number(params.id);
-  console.log("⏳ PUT /api/recipes/[id] llamado con ID:", recipeId);
-
-  if (isNaN(recipeId)) {
-    console.warn("❌ ID inválido:", params.id);
-    return new Response(JSON.stringify({ message: "ID inválido" }), {
-      status: 400,
-    });
-  }
-
-  try {
-    const body = await req.json();
-    console.log("📦 Body recibido:", body);
-
-    const updatedRecipe = await prisma.recipe.update({
-      where: { id: recipeId },
-      data: {
-        name: body.name,
-        tags: body.tags,
-        portions: body.portions,
-        prepTime: body.prepTime,
-        cookTime: body.cookTime,
-        difficulty: body.difficulty,
-        image: body.image,
-        isPublic: body.isPublic,
-      },
-    });
-
-    console.log("✅ Receta actualizada:", updatedRecipe);
-
-    return new Response(JSON.stringify(updatedRecipe), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.error("❌ Error al actualizar receta:", error);
-    return new Response(
-      JSON.stringify({ message: "Error interno", error: error.message }),
-      {
-        status: 500,
-      }
-    );
   }
 }

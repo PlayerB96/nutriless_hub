@@ -13,8 +13,8 @@
   --text-alt: #556b58;         /* verde grisáceo, texto secundario */
 
   /* Colores principales */
-  --primary: #a7c7ea;          /* azul pastel */
-  --primary-secondary: #ffedff;/* azul muy claro pastel */
+  --primary: #ffedff;          /* azul pastel */
+  --primary-secondary: #a7c7ea;/* azul muy claro pastel */
 
   /* Colores secundarios */
   --secondary: #ffb5df;        /* melocotón pastel */

@@ -3,7 +3,18 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Recipe } from "@/domain/models/recipe";
-import { Pencil, Eye, List, ListOrdered, ImageIcon } from "lucide-react";
+import {
+  Pencil,
+  Eye,
+  List,
+  ListOrdered,
+  ImageIcon,
+  ClipboardSignature,
+  Timer,
+  UtensilsCrossed,
+  Users,
+  GaugeCircle,
+} from "lucide-react";
 import Image from "next/image";
 import { TraditionalFood } from "@/domain/models/traditional-food";
 import EditableTextList from "./components/EditableTextList";
@@ -28,12 +39,15 @@ export default function EditRecipePage() {
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods/organicos`
       );
       const data = await res.json();
-      console.log("Available foods:", data);
+      const alimento225 = data.find((food: TraditionalFood) => food.id === 225);
+      console.log("🔎 Alimento con ID 225:", alimento225);
       setAvailableFoods(data);
     };
 
-    fetchFoods();
-  }, []);
+    if (userId) {
+      fetchFoods();
+    }
+  }, [userId]); // ✅ incluir userId
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -44,6 +58,8 @@ export default function EditRecipePage() {
 
         if (!res.ok) throw new Error("Error al cargar receta");
         const data = await res.json();
+        console.log("📦 Receta enriquecida:", data);
+
         setRecipe(data);
       } catch (err) {
         console.error(err);
@@ -83,29 +99,30 @@ export default function EditRecipePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!recipe) {
       alert("Los datos de la receta no están cargados.");
       return;
     }
-
     // Validaciones mínimas
     if (!recipe.name || !recipe.portions || !recipe.prepTime) {
       alert("Por favor, completa todos los campos requeridos");
       return;
     }
-
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/${recipeId}`,
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/update`,
         {
-          method: "PUT",
+          method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ...recipe,
             portions: Number(recipe.portions),
             prepTime: Number(recipe.prepTime),
             cookTime: recipe.cookTime ? Number(recipe.cookTime) : null,
+            detail: {
+              ingredients: recipe.detail?.ingredients || [],
+              instructions: recipe.detail?.instructions || [],
+            },
           }),
         }
       );
@@ -208,9 +225,9 @@ export default function EditRecipePage() {
   if (!recipe) return <p className="p-4">No se encontró la receta.</p>;
 
   return (
-    <main className=" mx-auto p-6 bg-primary shadow rounded-2xl">
+    <main className="mx-auto p-6 bg-primary shadow rounded-2xl">
       <h1 className="text-3xl font-bold mb-8 flex items-center gap-2">
-        <Pencil className="w-6 h-6 " />
+        <Pencil className="w-6 h-6" />
         Editar Receta
       </h1>
 
@@ -222,9 +239,7 @@ export default function EditRecipePage() {
         <div className="space-y-6">
           {/* Imagen */}
           <div>
-            <label className="block text-sm font-medium ">
-              Imagen de la receta
-            </label>
+            <label className=" text-sm font-medium ">Imagen de la receta</label>
             <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-300 dark:border-slate-700 shadow-sm mb-3">
               <Image
                 src={recipe.image || DEFAULT_IMAGE}
@@ -270,75 +285,79 @@ export default function EditRecipePage() {
         </div>
 
         {/* Columna derecha */}
-        <div className="space-y-6">
+        <div className="space-y-6 p-6 rounded-xl shadow-sm border border-slate-200">
           <div>
-            <label className="block font-medium mb-1">Nombre</label>
+            <label className=" text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-1">
+              <ClipboardSignature className="w-4 h-4" />
+              Nombre de la receta
+            </label>
             <input
               name="name"
               value={recipe.name}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className="w-full border border-slate-300 dark:border-slate-600 px-3 py-2 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white placeholder:text-slate-400"
+              placeholder="Ej: Tacu Tacu"
               required
             />
           </div>
 
-          {/* <div>
-            <label className="block font-medium mb-1">Etiquetas</label>
-            <input
-              name="tags"
-              value={recipe.tags.join(", ")}
-              onChange={(e) =>
-                setRecipe({
-                  ...recipe,
-                  tags: e.target.value.split(",").map((t) => t.trim()),
-                })
-              }
-              className="w-full border px-3 py-2 rounded"
-            />
-          </div> */}
-
           <div>
-            <label className="block font-medium mb-1">Porciones</label>
+            <label className=" text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-1">
+              <Users className="w-4 h-4" />
+              Porciones
+            </label>
             <input
               type="number"
               name="portions"
               value={recipe.portions}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className="w-full border border-slate-300 dark:border-slate-600 px-3 py-2 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+              placeholder="Ej: 4"
               required
             />
           </div>
 
           <div>
-            <label className="block font-medium mb-1">Tiempo preparación</label>
+            <label className=" text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-1">
+              <Timer className="w-4 h-4" />
+              Tiempo de preparación (min)
+            </label>
             <input
               type="number"
               name="prepTime"
               value={recipe.prepTime}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className="w-full border border-slate-300 dark:border-slate-600 px-3 py-2 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+              placeholder="Ej: 15"
               required
             />
           </div>
 
           <div>
-            <label className="block font-medium mb-1">Tiempo cocción</label>
+            <label className=" text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-1">
+              <UtensilsCrossed className="w-4 h-4" />
+              Tiempo de cocción (min)
+            </label>
             <input
               type="number"
               name="cookTime"
               value={recipe.cookTime || ""}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className="w-full border border-slate-300 dark:border-slate-600 px-3 py-2 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
+              placeholder="Ej: 30"
             />
           </div>
 
           <div>
-            <label className="block font-medium mb-1">Dificultad</label>
+            <label className=" text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-1">
+              <GaugeCircle className="w-4 h-4" />
+              Dificultad
+            </label>
             <select
               name="difficulty"
               value={recipe.difficulty}
               onChange={handleChange}
-              className="w-full border px-3 py-2 rounded"
+              className="w-full border border-slate-300 dark:border-slate-600 px-3 py-2 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-white"
             >
               {difficulties.map((diff) => (
                 <option key={diff} value={diff}>
@@ -348,23 +367,24 @@ export default function EditRecipePage() {
             </select>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3 mt-4">
             <input
               type="checkbox"
               name="isPublic"
               checked={recipe.isPublic}
               onChange={handleChange}
-              className="h-5 w-5"
+              className="h-5 w-5 accent-secondary"
             />
-            <label className="font-medium flex items-center gap-1 text-slate-700 dark:text-white">
-              <Eye className="w-4 h-4" /> Hacer receta pública
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200 flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              Hacer receta pública
             </label>
           </div>
 
-          <div>
+          <div className="pt-4">
             <button
               type="submit"
-              className="bg-secondary text-white cursor-pointer px-6 py-3 rounded-lg hover:bg-primary-dark transition w-full"
+              className="w-full bg-secondary hover:bg-secondary/80 transition text-white font-semibold py-3 px-4 rounded-xl shadow-sm"
             >
               Guardar cambios
             </button>

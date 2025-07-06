@@ -7,10 +7,27 @@ export type TraditionalNutrient = {
 
 export type TraditionalFood = {
   id: number;
-  name: string; // Ej: "Papa", "Camote"
-  category: string; // Ej: "Tubérculo"
+  name: string;
+  category: string;
   origin?: string | null;
   imageUrl?: string | null;
-  createdAt: string; // ISO format (lo puedes convertir a Date si necesitas)
+  createdAt: string;
   nutrients: TraditionalNutrient[];
+
+  cantidad?: number;
+  tipoMedida?: number;
+
+  // 🆕 Relación opcional para medidas caseras reales
+  householdMeasures?: {
+    id: number;
+    description: string; // Ej: "1 taza"
+    quantity: number; // Ej: 0.5, 1, etc.
+    weightGrams: number; // Ej: 120
+  }[];
+};
+
+export type IngredientInput = {
+  id: number;
+  tipoMedida: number;
+  cantidad: number;
 };

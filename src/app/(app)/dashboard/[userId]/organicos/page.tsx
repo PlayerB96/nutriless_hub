@@ -4,7 +4,7 @@
 import { TraditionalFood } from "@/domain/models/traditional-food";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import "jspdf-autotable";
 
 import TraditionFoodDetails from "./components/TraditionFoodDetails";
@@ -22,7 +22,6 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   const itemsPerPage = 10;
 
   const [selectedFoods, setSelectedFoods] = useState<number[]>([]);
-  const [loadingButton, setLoadingButton] = useState(false);
 
   const fetchTraditionalFoods = useCallback(async () => {
     try {

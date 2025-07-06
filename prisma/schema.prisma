@@ -1,4 +1,4 @@
-// schema.prisma
+// ░░░ DATOS DE CONEXIÓN Y GENERADOR ░░░
 
 datasource db {
   provider = "postgresql"
@@ -9,18 +9,19 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// 🧍 MODELOS DE AUTENTICACIÓN Y USUARIO 
 model User {
-  id        Int        @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
-  email     String     @unique
+  email     String   @unique
   password  String
-  createdAt DateTime   @default(now())
-  UserFood  UserFood[]
+  createdAt DateTime @default(now())
 
-  // Relaciones con NextAuth
+  // Relaciones del usuario
+  UserFood UserFood[] // Alimentos creados por el usuario
   accounts Account[]
   sessions Session[]
-  recipes  Recipe[] // Relación uno-a-muchos (1 usuario → muchas recetas)
+  recipes  Recipe[] // Recetas creadas por el usuario
 }
 
 model Account {
@@ -59,13 +60,16 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// 🍽️ ALIMENTOS CREADOS POR USUARIO 
 model Food {
-  id                Int                @id @default(autoincrement())
-  name              String
-  category          String
-  createdAt         DateTime           @default(now())
-  userId            Int
-  imageUrl          String? // <- Asegúrate de agregar esta línea
+  id        Int      @id @default(autoincrement())
+  name      String
+  category  String
+  createdAt DateTime @default(now())
+  userId    Int
+  imageUrl  String?
+
+  // Relaciones
   nutritionDetails  NutritionDetail[]
   householdMeasures HouseholdMeasure[]
   UserFood          UserFood[]
@@ -76,32 +80,34 @@ model UserFood {
   userId Int
   foodId Int
   date   DateTime @default(now())
-  user   User     @relation(fields: [userId], references: [id])
-  food   Food     @relation(fields: [foodId], references: [id])
+
+  user User @relation(fields: [userId], references: [id])
+  food Food @relation(fields: [foodId], references: [id])
 }
 
-// Detalle Nutricional
 model NutritionDetail {
   id       Int    @id @default(autoincrement())
   foodId   Int
-  food     Food   @relation(fields: [foodId], references: [id])
-  nutrient String // Ejemplo: "Vitamina C", "Zinc", "Calorías"
-  value    Float // cantidad, ej: 10.5
-  unit     String // ej: "mg", "kcal", "µg"
+  nutrient String
+  value    Float
+  unit     String
+
+  food Food @relation(fields: [foodId], references: [id])
 
   @@unique([foodId, nutrient], name: "foodId_nutrient")
 }
 
-// Medidas caseras
 model HouseholdMeasure {
   id          Int    @id @default(autoincrement())
   foodId      Int
-  food        Food   @relation(fields: [foodId], references: [id])
-  description String // Ej: "1 taza", "1 cucharada", "1 rebanada"
-  quantity    Float // Cantidad en esa medida (ej: 1 o 2.5)
-  weightGrams Float // Peso en gramos equivalente a esa cantidad
+  description String
+  quantity    Float
+  weightGrams Float
+
+  food Food @relation(fields: [foodId], references: [id])
 }
 
+// 📚 CATEGORÍAS Y NUTRIENTES OPCIONALES
 model CategoryFood {
   id   Int    @id @default(autoincrement())
   name String @unique
@@ -114,6 +120,7 @@ model OptionalNutrient {
   updatedAt DateTime @updatedAt
 }
 
+// 📖 RECETAS Y DETALLES
 model Recipe {
   id         Int           @id @default(autoincrement())
   name       String
@@ -125,20 +132,25 @@ model Recipe {
   isPublic   Boolean       @default(false)
   createdAt  DateTime      @default(now())
   detail     RecipeDetail?
-  image      String?
-  User       User?         @relation(fields: [userId], references: [id])
-  userId     Int?
+
+  image  String?
+  userId Int?
+  User   User?   @relation(fields: [userId], references: [id])
 }
 
 model RecipeDetail {
-  id       Int    @id @default(autoincrement())
-  recipeId Int    @unique
-  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-
-  ingredients  TraditionalFood[] // ✅ Relación a alimentos, no nutrientes
+  id           Int      @id @default(autoincrement())
+  recipeId     Int      @unique
   instructions String[]
+
+  recipeIngredients RecipeIngredient[]
+
+  recipe            Recipe           @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  TraditionalFood   TraditionalFood? @relation(fields: [traditionalFoodId], references: [id])
+  traditionalFoodId Int?
 }
 
+// 🧾 ALIMENTOS TRADICIONALES DEL SISTEMA
 model TraditionalFood {
   id        Int      @id @default(autoincrement())
   name      String
@@ -147,18 +159,46 @@ model TraditionalFood {
   imageUrl  String?
   createdAt DateTime @default(now())
 
-  nutrients TraditionalNutrient[]
-
-  // Inverso de ingredientes en recetas
-  recipeDetails RecipeDetail[] // opcional si quieres acceder desde el otro lado
+  nutrients         TraditionalNutrient[]
+  recipeDetails     RecipeDetail[]
+  householdMeasures TraditionalHouseholdMeasure[]
+  RecipeIngredient  RecipeIngredient[]
 }
 
 model TraditionalNutrient {
-  id        Int             @id @default(autoincrement())
-  food      TraditionalFood @relation(fields: [foodId], references: [id])
+  id        Int      @id @default(autoincrement())
   foodId    Int
   nutrient  String
   value     Float
   unit      String
-  createdAt DateTime        @default(now())
+  createdAt DateTime @default(now())
+
+  food TraditionalFood @relation(fields: [foodId], references: [id])
+}
+
+model TraditionalHouseholdMeasure {
+  id          Int    @id @default(autoincrement())
+  foodId      Int
+  description String
+  quantity    Float
+  weightGrams Float
+
+  food             TraditionalFood    @relation(fields: [foodId], references: [id])
+  RecipeIngredient RecipeIngredient[]
+
+  @@unique([foodId, description, quantity])
+}
+
+model RecipeIngredient {
+  id             Int   @id @default(autoincrement())
+  recipeDetailId Int
+  foodId         Int
+  medidaId       Int
+  cantidad       Float
+
+  recipeDetail RecipeDetail                @relation(fields: [recipeDetailId], references: [id])
+  food         TraditionalFood             @relation(fields: [foodId], references: [id])
+  medida       TraditionalHouseholdMeasure @relation(fields: [medidaId], references: [id])
+
+  @@unique([recipeDetailId, foodId])
 }

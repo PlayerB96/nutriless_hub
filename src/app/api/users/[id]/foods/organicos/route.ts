@@ -16,6 +16,7 @@ export async function GET(req: Request, { params }: { params: tParams }) {
       orderBy: { createdAt: "desc" },
       include: {
         nutrients: true,
+        householdMeasures: true,
       },
     });
 

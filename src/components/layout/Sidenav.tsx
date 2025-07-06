@@ -40,7 +40,7 @@ export default function SideNav({
     <>
       {/* Sidebar para desktop */}
       <aside
-        className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-40 bg-primary text-white  ${
+        className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-40 bg-primary   ${
           isCollapsed ? "w-16" : "w-56"
         }`}
       >
@@ -66,10 +66,10 @@ export default function SideNav({
                 key={item.href}
                 href={item.href}
                 className={`
-                  flex items-center gap-3 rounded px-2 py-2 transition
-                  hover:bg-gray-800
-                  ${isActive ? "bg-gray-700" : ""}
-                `}
+                flex items-center gap-3 rounded px-2 py-2
+                focus:outline-none focus:ring-2 focus:ring-primary/50
+                ${isActive ? "bg-muted text-white" : "hover:bg-muted/50"}
+              `}
               >
                 <span className="text-xl">{item.icon}</span>
                 {!isCollapsed && <span className="text-sm">{item.label}</span>}
@@ -91,7 +91,7 @@ export default function SideNav({
           aria-hidden="true"
         />
 
-        <aside className="relative w-full h-full bg-gray-900 text-white p-4">
+        <aside className="relative w-full h-full bg-gray-900  p-4">
           <div className="mb-4 flex justify-between items-center">
             <Image
               src="/images/logonutri.png"
@@ -120,14 +120,19 @@ export default function SideNav({
                   key={item.href}
                   href={item.href}
                   className={`
-                    flex items-center gap-3 rounded px-2 py-2 transition
-                    hover:bg-gray-800
-                    ${isActive ? "bg-gray-700" : ""}
+                    flex items-center gap-3 rounded px-2 py-2 transition-colors
+                    hover:bg-gray-100 dark:hover:bg-gray-800
+                    ${
+                      isActive
+                        ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-red font-semibold"
+                        : "text-gray-900 dark:text-gray-100"
+                    }
                   `}
-                  onClick={() => setIsMobileOpen(false)}
                 >
                   <span className="text-xl">{item.icon}</span>
-                  <span className="text-sm">{item.label}</span>
+                  {!isCollapsed && (
+                    <span className="text-sm">{item.label}</span>
+                  )}
                 </Link>
               );
             })}

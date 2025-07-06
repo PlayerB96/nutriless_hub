@@ -116,7 +116,7 @@ async function seedRecipeWithDetail() {
       isPublic: true,
       detail: {
         create: {
-          ingredients: ["1 taza de arroz", "2 tazas de agua", "Sal al gusto"],
+          ingredients: [],
           instructions: [
             "Lava el arroz bajo agua fría.",
             "Hierve las 2 tazas de agua.",
@@ -136,11 +136,72 @@ async function seedRecipeWithDetail() {
   console.log("📝 Detalle de receta:", recipe.detail);
 }
 
+async function seedTraditionalHouseholdMeasures() {
+  const medidasBase = [
+    { description: "taza", quantity: 1.0, weightGrams: 150 },
+    { description: "taza", quantity: 0.5, weightGrams: 75 },
+    { description: "unidad", quantity: 1.0, weightGrams: 130 },
+    { description: "cucharada", quantity: 1.0, weightGrams: 10 },
+  ];
+
+  // Obtener todos los alimentos
+  const allFoods = await prisma.traditionalFood.findMany({
+    select: { id: true, name: true },
+  });
+
+  // Obtener todas las medidas existentes en una sola consulta
+  const existingMeasures = await prisma.traditionalHouseholdMeasure.findMany({
+    select: {
+      foodId: true,
+      description: true,
+      quantity: true,
+    },
+  });
+
+  // Crear un set con claves únicas existentes: `${foodId}-${description}-${quantity}`
+  const existingSet = new Set(
+    existingMeasures.map(
+      (m: { foodId: number; description: string; quantity: number }) =>
+        `${m.foodId}-${m.description}-${m.quantity}`
+    )
+  );
+
+  // Construir las combinaciones nuevas a insertar
+  const toInsert = [];
+
+  for (const food of allFoods) {
+    for (const medida of medidasBase) {
+      const key = `${food.id}-${medida.description}-${medida.quantity}`;
+      if (!existingSet.has(key)) {
+        toInsert.push({
+          foodId: food.id,
+          description: medida.description,
+          quantity: medida.quantity,
+          weightGrams: medida.weightGrams,
+        });
+      }
+    }
+  }
+
+  // Inserta en batch de a 100 (recomendado para Prisma/PostgreSQL)
+  const chunkSize = 100;
+  for (let i = 0; i < toInsert.length; i += chunkSize) {
+    const chunk = toInsert.slice(i, i + chunkSize);
+    await prisma.traditionalHouseholdMeasure.createMany({
+      data: chunk,
+      skipDuplicates: true, // redundante pero seguro
+    });
+  }
+
+  console.log(`✅ Insertadas ${toInsert.length} medidas nuevas (si faltaban).`);
+}
+
 async function main() {
   // await seedAdmin();
   // await seedCategorias();
   // await seedOptionalNutrients();
-  await seedRecipeWithDetail();
+  // await seedRecipeWithDetail();
+  await seedTraditionalHouseholdMeasures();
 }
 
 main()

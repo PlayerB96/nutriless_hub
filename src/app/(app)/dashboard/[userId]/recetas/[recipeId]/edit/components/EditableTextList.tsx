@@ -1,4 +1,3 @@
-// components/EditableTextList.tsx
 "use client";
 
 import React from "react";
@@ -39,6 +38,12 @@ export default function EditableTextList({
       <ul className="space-y-2">
         {items.map((item, idx) => (
           <li key={idx} className="flex gap-2 items-start">
+            {/* Número iterativo */}
+            <div className="pt-2 text-gray-500 font-semibold w-6 text-right">
+              {idx + 1}.
+            </div>
+
+            {/* Input o Textarea */}
             {isTextarea ? (
               <textarea
                 value={item}
@@ -54,10 +59,12 @@ export default function EditableTextList({
                 className="flex-1 border px-3 py-1 rounded"
               />
             )}
+
+            {/* Botón eliminar */}
             <button
               type="button"
               onClick={() => onRemove(idx)}
-              className="text-red-500 hover:text-red-700"
+              className="text-red-500 hover:text-red-700 cursor-pointer"
             >
               <Trash2 className="w-4 h-4 mt-1" />
             </button>

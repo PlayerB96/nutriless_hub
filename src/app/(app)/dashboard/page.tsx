@@ -56,7 +56,7 @@ export default function Home() {
 
             {userId && (
               <button
-                className="flex items-center gap-2 bg-primary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition"
+                className="flex items-center gap-2 bg-primary cursor-pointer  px-4 py-2 rounded-lg hover:bg-primary-dark transition"
                 onClick={() => router.push(`/dashboard/${userId}/procesados`)}
               >
                 <Package size={20} />
@@ -66,7 +66,7 @@ export default function Home() {
 
             {userId && (
               <button
-                className="flex items-center gap-2 bg-primary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition"
+                className="flex items-center gap-2 bg-primary cursor-pointer  px-4 py-2 rounded-lg hover:bg-primary-dark transition"
                 onClick={() => router.push(`/dashboard/${userId}/organicos`)}
               >
                 <Leaf size={20} />
@@ -87,7 +87,7 @@ export default function Home() {
               </button>
 
               <button
-                className="flex items-center gap-2 bg-primary cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition"
+                className="flex items-center gap-2 bg-primary cursor-pointer  px-4 py-2 rounded-lg hover:bg-primary-dark transition"
                 onClick={() => router.push(`/dashboard/${userId}/recetas`)}
               >
                 <BookOpen size={20} />
