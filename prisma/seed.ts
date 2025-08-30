@@ -112,11 +112,10 @@ async function seedRecipeWithDetail() {
       portions: 4,
       prepTime: 10,
       cookTime: 15,
-      difficulty: "facil",
+      difficulty: "Fácil",
       isPublic: true,
       detail: {
         create: {
-          ingredients: [],
           instructions: [
             "Lava el arroz bajo agua fría.",
             "Hierve las 2 tazas de agua.",
@@ -195,12 +194,50 @@ async function seedTraditionalHouseholdMeasures() {
 
   console.log(`✅ Insertadas ${toInsert.length} medidas nuevas (si faltaban).`);
 }
+async function seedHouseholdMeasures() {
+  // Medidas base que quieres insertar
+  const medidasBase = [
+    { description: "taza", quantity: 1.0, weightGrams: 150 },
+    { description: "taza", quantity: 0.5, weightGrams: 75 },
+    { description: "unidad", quantity: 1.0, weightGrams: 130 },
+    { description: "cucharada", quantity: 1.0, weightGrams: 10 },
+  ];
 
+  // Obtener todos los alimentos existentes
+  const allFoods = await prisma.food.findMany({ select: { id: true } });
+
+  // Crear array de inserciones
+  const toInsert = [];
+
+  for (const food of allFoods) {
+    for (const medida of medidasBase) {
+      toInsert.push({
+        foodId: food.id,
+        description: medida.description,
+        quantity: medida.quantity,
+        weightGrams: medida.weightGrams,
+      });
+    }
+  }
+
+  // Inserción en batch (recomendado para Prisma/PostgreSQL)
+  const chunkSize = 100;
+  for (let i = 0; i < toInsert.length; i += chunkSize) {
+    const chunk = toInsert.slice(i, i + chunkSize);
+    await prisma.householdMeasure.createMany({
+      data: chunk,
+      skipDuplicates: true, // evita errores si ya existe
+    });
+  }
+
+  console.log(`✅ Insertadas ${toInsert.length} medidas tradicionales.`);
+}
 async function main() {
   // await seedAdmin();
-  // await seedCategorias();
+  // await seedCategorias(raasdasdasd);
   // await seedOptionalNutrients();
   // await seedRecipeWithDetail();
+  // await seedHouseholdMeasures();
   await seedTraditionalHouseholdMeasures();
 }
 

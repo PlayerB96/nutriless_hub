@@ -115,7 +115,7 @@ export default function Home() {
           width="w-full max-w-4xl"
         >
           {/* Aquí puedes poner el formulario de receta, por ejemplo: */}
-          <FormularioReceta onSubmitSuccess={handleSubmitSuccess} />
+          <FormularioReceta onSubmitSuccess={handleSubmitSuccess} userId={userId} />
         </Modal>
       </MainContent>
     );

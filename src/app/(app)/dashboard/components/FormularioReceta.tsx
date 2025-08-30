@@ -7,9 +7,11 @@ import { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 
 export default function FormularioReceta({
-  onSubmitSuccess,
+  onSubmitSuccess,  
+  userId, 
 }: {
   onSubmitSuccess: () => void;
+  userId: string;
 }) {
   const etiquetasDisponibles = [
     "Desayuno",
@@ -25,7 +27,7 @@ export default function FormularioReceta({
   const [porciones, setPorciones] = useState<number | "">("");
   const [tiempoPreparacion, setTiempoPreparacion] = useState<number | "">("");
   const [tiempoCoccion, setTiempoCoccion] = useState<number | "">("");
-  const [dificultad, setDificultad] = useState("facil");
+  const [dificultad, setDificultad] = useState("Fácil");
   const [esPublica, setEsPublica] = useState(true);
   const refInputEtiqueta = useRef<HTMLInputElement>(null);
 
@@ -71,6 +73,7 @@ export default function FormularioReceta({
       }
       formData.append("difficulty", dificultad);
       formData.append("isPublic", esPublica.toString());
+      formData.append("userId", userId.toString()); // 👈 obligatorio
 
       const res = await fetch("/api/recipes", {
         method: "POST",
@@ -253,9 +256,9 @@ export default function FormularioReceta({
           onChange={(e) => setDificultad(e.target.value)}
           className="w-full border border-gray-300 rounded-md p-2 bg-bg"
         >
-          <option value="facil">Fácil</option>
-          <option value="intermedio">Intermedio</option>
-          <option value="dificil">Difícil</option>
+          <option value="Fácil">Fácil</option>
+          <option value="Media">Media</option>
+          <option value="Difícil">Difícil</option>
         </select>
       </div>
 

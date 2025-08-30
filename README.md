@@ -37,7 +37,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## COMANDOS
 
-# CARGAR DATA NECESARIA PARA BASE DE DATOS (DESDE seed.ts)
+# PASO 1 : GENERAR MIGRACIONES 
+npx prisma migrate dev --name init
+npx prisma generate
+# PASO 2 : CARGAR DATA NECESARIA PARA BASE DE DATOS (DESDE seed.ts)
+npx prisma migrate reset
 npx prisma db seed
 
 # CINSTALAR DEPENDENCIA

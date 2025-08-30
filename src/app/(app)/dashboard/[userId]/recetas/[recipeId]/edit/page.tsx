@@ -21,7 +21,7 @@ import EditableTextList from "./components/EditableTextList";
 import IngredientSelectorList from "./components/IngredientSelectorList";
 
 const difficulties = ["Fácil", "Media", "Difícil"];
-const DEFAULT_IMAGE = "/images/logonutri.png";
+const DEFAULT_IMAGE = "/images/receta_defecto.png";
 
 export default function EditRecipePage() {
   const { recipeId } = useParams();
@@ -239,14 +239,13 @@ export default function EditRecipePage() {
         <div className="space-y-6">
           {/* Imagen */}
           <div>
-            <label className=" text-sm font-medium ">Imagen de la receta</label>
-            <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-300 dark:border-slate-700 shadow-sm mb-3">
+            <label className="text-sm font-medium">Imagen de la receta</label>
+            <div className="relative w-full h-82 rounded-lg overflow-hidden border border-gray-300 dark:border-slate-700 shadow-sm mb-3">
               <Image
                 src={recipe.image || DEFAULT_IMAGE}
                 alt={`Imagen de ${recipe.image}`}
-                width={128} // o el tamaño que quieras
-                height={128} // o el tamaño que quieras
-                className="object-cover w-full h-full"
+                fill
+                style={{ objectFit: "cover" }}
               />
             </div>
             <label className="inline-flex items-center gap-2 cursor-pointer bg-primary px-4 py-2 rounded hover:bg-primary-dark transition">
@@ -384,7 +383,7 @@ export default function EditRecipePage() {
           <div className="pt-4">
             <button
               type="submit"
-              className="w-full bg-secondary hover:bg-secondary/80 transition text-white font-semibold py-3 px-4 rounded-xl shadow-sm"
+              className="w-full bg-secondary hover:bg-secondary/80 transition text-white font-semibold py-3 px-4 rounded-xl shadow-sm cursor-pointer"
             >
               Guardar cambios
             </button>

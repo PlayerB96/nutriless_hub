@@ -12,7 +12,7 @@ import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { Recipe } from "@/domain/models/recipe";
 
-const DEFAULT_IMAGE = "/images/logonutri.png";
+const DEFAULT_IMAGE = "/images/receta_defecto.png";
 
 export default function DashboardUserRecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -141,7 +141,7 @@ export default function DashboardUserRecipesPage() {
                 </p>
 
                 <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 mt-1">
-                  {recipe.difficulty === "facil" && (
+                  {recipe.difficulty === "Fácil" && (
                     <>
                       <Star className="w-4 h-4 text-green-500" />
                       <span className="text-green-600 dark:text-green-400">
@@ -149,7 +149,7 @@ export default function DashboardUserRecipesPage() {
                       </span>
                     </>
                   )}
-                  {recipe.difficulty === "intermedio" && (
+                  {recipe.difficulty === "Media" && (
                     <>
                       <StarHalf className="w-4 h-4 text-yellow-500" />
                       <span className="text-yellow-600 dark:text-yellow-400">
@@ -157,7 +157,7 @@ export default function DashboardUserRecipesPage() {
                       </span>
                     </>
                   )}
-                  {recipe.difficulty === "dificil" && (
+                  {recipe.difficulty === "Difícil" && (
                     <>
                       <StarOff className="w-4 h-4 text-red-500" />
                       <span className="text-red-600 dark:text-red-400">
