@@ -6,7 +6,7 @@ const nextConfig: _NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "https://pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev",
+        hostname: "pub-b150312a074447b28b7b2fe8fac4e6f5.r2.dev",
         port: "3000",
         pathname: "/api/image/**",
       },
@@ -19,6 +19,21 @@ const nextConfig: _NextConfig = {
         source: "/",
         destination: "/login",
         permanent: false, // true si deseas redirección permanente (301)
+      },
+    ];
+  },
+
+  // 👇 Aquí agregamos los headers personalizados
+  async headers() {
+    return [
+      {
+        source: "/(.*)", // aplica a todas las rutas
+        headers: [
+          {
+            key: "Referrer-Policy",
+            value: "no-referrer-when-downgrade", // opción más permisiva
+          },
+        ],
       },
     ];
   },
