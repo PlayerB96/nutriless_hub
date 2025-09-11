@@ -7,8 +7,8 @@ import { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 
 export default function FormularioReceta({
-  onSubmitSuccess,  
-  userId, 
+  onSubmitSuccess,
+  userId,
 }: {
   onSubmitSuccess: () => void;
   userId: string;
@@ -84,7 +84,7 @@ export default function FormularioReceta({
         const data = await res.json();
         toast.success("Receta creada correctamente ✅");
         // Redirigir al detalle de la receta
-        router.push(`/dashboard/recipes/${data.recipe.id}`);
+        router.push(`/dashboard/${userId}/recetas/${data.recipe.id}/edit`);
         onSubmitSuccess?.();
       } else {
         const error = await res.json();

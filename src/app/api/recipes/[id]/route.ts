@@ -69,3 +69,49 @@ export async function GET(req: Request, { params }: { params: tParams }) {
     });
   }
 }
+
+export async function DELETE(req: Request, { params }: { params: tParams }) {
+  const resolvedParams = await params;
+  const recipeId = Number(resolvedParams.id);
+
+  if (isNaN(recipeId)) {
+    return new Response(JSON.stringify({ message: "ID inválido" }), {
+      status: 400,
+    });
+  }
+
+  try {
+    // 1️⃣ Buscar los detalles de la receta
+    const recipeDetails = await prisma.recipeDetail.findMany({
+      where: { recipeId },
+      select: { id: true },
+    });
+
+    const detailIds = recipeDetails.map((d) => d.id);
+
+    // 2️⃣ Borrar todos los RecipeIngredient asociados a esos detalles
+    await prisma.recipeIngredient.deleteMany({
+      where: { recipeDetailId: { in: detailIds } },
+    });
+
+    // 3️⃣ Borrar los RecipeDetail asociados
+    await prisma.recipeDetail.deleteMany({
+      where: { recipeId },
+    });
+
+    // 4️⃣ Finalmente borrar la receta
+    await prisma.recipe.delete({
+      where: { id: recipeId },
+    });
+
+    return new Response(JSON.stringify({ message: "Receta eliminada correctamente" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    console.error("Error al eliminar receta:", error);
+    return new Response(JSON.stringify({ message: "Error interno" }), {
+      status: 500,
+    });
+  }
+}

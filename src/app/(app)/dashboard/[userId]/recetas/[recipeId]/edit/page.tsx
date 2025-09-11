@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Recipe } from "@/domain/models/recipe";
+import Swal from "sweetalert2";
+
 import {
   Pencil,
   Eye,
@@ -14,6 +16,7 @@ import {
   UtensilsCrossed,
   Users,
   GaugeCircle,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
 import { TraditionalFood } from "@/domain/models/traditional-food";
@@ -80,6 +83,53 @@ export default function EditRecipePage() {
       setRecipe({ ...recipe, image: reader.result as string });
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleDelete = async () => {
+    if (!recipe) return;
+
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const res = await fetch(`/api/recipes/${recipe.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        await Swal.fire(
+          "Error",
+          `No se pudo eliminar: ${data.message}`,
+          "error"
+        );
+        return;
+      }
+
+      await Swal.fire(
+        "Eliminado",
+        "La receta fue eliminada correctamente.",
+        "success"
+      );
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error al eliminar receta:", error);
+      await Swal.fire(
+        "Error",
+        "Ocurrió un error al eliminar la receta.",
+        "error"
+      );
+    }
   };
 
   const handleChange = (
@@ -226,6 +276,18 @@ export default function EditRecipePage() {
 
   return (
     <main className="mx-auto p-6 bg-primary shadow rounded-2xl">
+      {/* Botón eliminar */}
+      <div className="flex justify-end mb-4">
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
+        >
+          <Trash2 className="w-5 h-5" />
+          Eliminar receta
+        </button>
+      </div>
+
       <h1 className="text-3xl font-bold mb-8 flex items-center gap-2">
         <Pencil className="w-6 h-6" />
         Editar Receta
