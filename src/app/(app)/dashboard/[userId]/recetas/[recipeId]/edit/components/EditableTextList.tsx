@@ -66,7 +66,7 @@ export default function EditableTextList({
               onClick={() => onRemove(idx)}
               className="text-red-500 hover:text-red-700 cursor-pointer"
             >
-              <Trash2 className="w-4 h-4 mt-1" />
+              <Trash2 className="w-6 h-6 mt-4" />
             </button>
           </li>
         ))}

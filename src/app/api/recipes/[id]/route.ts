@@ -23,10 +23,11 @@ export async function GET(req: Request, { params }: { params: tParams }) {
               include: {
                 food: {
                   include: {
-                    householdMeasures: true,
+                    nutrients: true, // nutrientes del alimento
+                    householdMeasures: true, // ✅ aquí
                   },
                 },
-                medida: true,
+                medida: true, // info de la medida usada
               },
             },
           },
@@ -39,16 +40,21 @@ export async function GET(req: Request, { params }: { params: tParams }) {
         status: 404,
       });
     }
-    // 🛠️ AQUI: reconstruir tipoMedida y cantidad desde householdMeasures
-    // ejemplo: asumiendo que tú sabes qué medida usar (puede venir del primer elemento por ahora)
+
+    // Reconstruir ingredientes enriquecidos con cantidad y tfingredientsipo de medida
     const enrichedIngredients =
-      recipe.detail?.recipeIngredients.map((ri) => {
-        return {
-          ...ri.food,
-          cantidad: ri.cantidad,
-          tipoMedida: ri.medidaId,
-        };
-      }) ?? [];
+      recipe.detail?.recipeIngredients.map((ri) => ({
+        id: ri.food.id,
+        name: ri.food.name,
+        category: ri.food.category,
+        origin: ri.food.origin,
+        imageUrl: ri.food.imageUrl,
+        nutrients: ri.food.nutrients || [],
+        cantidad: ri.cantidad, // cantidad usada en la receta
+        tipoMedida: ri.medidaId, // id de la medida
+        medida: ri.medida!, // objeto completo de la medida
+        householdMeasures: ri.food.householdMeasures || [], // ✅ obligatorio
+      })) ?? [];
 
     const enrichedRecipe = {
       ...recipe,
@@ -57,7 +63,15 @@ export async function GET(req: Request, { params }: { params: tParams }) {
         ingredients: enrichedIngredients,
       },
     };
+
     console.log("📦 Receta enriquecida:", enrichedRecipe);
+    enrichedRecipe.detail.ingredients.forEach((ingredient) => {
+      // console.log("🍴 Ingrediente:", ingredient.name);
+      console.log("   Cantidad usada en receta:", ingredient.cantidad); // ✅ viene de RecipeIngredient
+      console.log("   Medida completa:", ingredient.medida.weightGrams);
+      // console.log("   Nutrientes:", ingredient.nutrients);
+    });
+
     return new Response(JSON.stringify(enrichedRecipe), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -104,10 +118,13 @@ export async function DELETE(req: Request, { params }: { params: tParams }) {
       where: { id: recipeId },
     });
 
-    return new Response(JSON.stringify({ message: "Receta eliminada correctamente" }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ message: "Receta eliminada correctamente" }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (error) {
     console.error("Error al eliminar receta:", error);
     return new Response(JSON.stringify({ message: "Error interno" }), {
