@@ -4,10 +4,11 @@
 import { TraditionalFood } from "@/domain/models/traditional-food";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import "jspdf-autotable";
 
 import TraditionFoodDetails from "./components/TraditionFoodDetails";
+import Swal from "sweetalert2";
 
 type Props = {
   params: Promise<{ userId: string }>;
@@ -77,6 +78,62 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     setSelectedFoods((prev) =>
       prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
     );
+  };
+
+  const handleDelete = async (id: number) => {
+    const result = await Swal.fire({
+      title: "¿Eliminar alimento?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+      background: "var(--primary)",
+      color: "var(--text)",
+    });
+
+    if (!result.isConfirmed) return;
+    console.log("Eliminando alimento con ID:", id);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods/organicos/${id}`,
+        { method: "DELETE" }
+      );
+
+      let data: { message?: string } = {};
+
+      try {
+        data = await res.json();
+      } catch (e) {
+        console.warn("Respuesta no JSON", e);
+      }
+
+      if (!res.ok) {
+        throw new Error(
+          data?.message ?? `Error al eliminar. Status: ${res.status}`
+        );
+      }
+
+      // Actualizar lista de alimentos en frontend
+      setFoods((prev) => prev.filter((f) => f.id !== id));
+
+      Swal.fire({
+        title: "Eliminado",
+        text: data?.message || "El alimento ha sido eliminado correctamente",
+        icon: "success",
+        background: "var(--primary)",
+        color: "var(--text)",
+      });
+    } catch (err: unknown) {
+      console.error("Error catch:", err);
+      Swal.fire({
+        title: "Error",
+        text: (err as Error).message || "No se pudo eliminar el alimento",
+        icon: "error",
+        background: "var(--primary)",
+        color: "var(--text)",
+      });
+    }
   };
 
   return (
@@ -187,6 +244,17 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                         day: "numeric",
                         month: "long",
                       })}
+                    </td>
+                    <td
+                      className="px-4 py-2 text-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        onClick={() => handleDelete(food.id)}
+                        className="text-red-500 hover:text-red-700 transition"
+                      >
+                        <Trash2 className="w-5 h-5 mx-auto cursor-pointer" />
+                      </button>
                     </td>
                   </tr>
 

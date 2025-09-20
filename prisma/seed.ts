@@ -5,14 +5,14 @@ const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient();
 
 async function seedAdmin() {
-  const email = "player.b.1996@gmail.com";
+  const email = "nutriless.29@gmail.com";
   const password = await bcrypt.hash("123", 10);
 
   await prisma.user.upsert({
     where: { email },
     update: {},
     create: {
-      name: "Bryan Rafael Andia",
+      name: "Lesly Allca Ruiz",
       email,
       password,
     },
@@ -233,12 +233,12 @@ async function seedHouseholdMeasures() {
   console.log(`✅ Insertadas ${toInsert.length} medidas tradicionales.`);
 }
 async function main() {
-  // await seedAdmin();
+  await seedAdmin();
   // await seedCategorias(raasdasdasd);
   // await seedOptionalNutrients();
   // await seedRecipeWithDetail();
   // await seedHouseholdMeasures();
-  await seedTraditionalHouseholdMeasures();
+  // await seedTraditionalHouseholdMeasures();
 }
 
 main()

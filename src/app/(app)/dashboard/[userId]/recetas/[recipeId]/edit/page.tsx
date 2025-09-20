@@ -496,7 +496,7 @@ export default function EditRecipePage() {
         </div>
 
         {/* Columna derecha: Datos receta */}
-        <div className="space-y-6 p-6 rounded-xl shadow-sm border border-slate-200 md:col-span-1">
+        <div className="space-y-6 p-6 rounded-xl shadow-sm  md:col-span-1">
           {/* Nombre */}
           <div>
             <label className=" text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-1">

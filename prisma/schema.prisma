@@ -150,55 +150,55 @@ model RecipeDetail {
   traditionalFoodId Int?
 }
 
-// 🧾 ALIMENTOS TRADICIONALES DEL SISTEMA
-model TraditionalFood {
-  id        Int      @id @default(autoincrement())
-  name      String
-  category  String
-  origin    String?
-  imageUrl  String?
-  createdAt DateTime @default(now())
+  // 🧾 ALIMENTOS TRADICIONALES DEL SISTEMA
+  model TraditionalFood {
+    id        Int      @id @default(autoincrement())
+    name      String
+    category  String
+    origin    String?
+    imageUrl  String?
+    createdAt DateTime @default(now())
 
-  nutrients         TraditionalNutrient[]
-  recipeDetails     RecipeDetail[]
-  householdMeasures TraditionalHouseholdMeasure[]
-  RecipeIngredient  RecipeIngredient[]
-}
+    nutrients         TraditionalNutrient[]
+    recipeDetails     RecipeDetail[]
+    householdMeasures TraditionalHouseholdMeasure[]
+    RecipeIngredient  RecipeIngredient[]
+  }
 
-model TraditionalNutrient {
-  id        Int      @id @default(autoincrement())
-  foodId    Int
-  nutrient  String
-  value     Float
-  unit      String
-  createdAt DateTime @default(now())
+  model TraditionalNutrient {
+    id        Int      @id @default(autoincrement())
+    foodId    Int
+    nutrient  String
+    value     Float
+    unit      String
+    createdAt DateTime @default(now())
 
-  food TraditionalFood @relation(fields: [foodId], references: [id])
-}
+    food TraditionalFood @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  }
 
-model TraditionalHouseholdMeasure {
-  id          Int    @id @default(autoincrement())
-  foodId      Int
-  description String
-  quantity    Float
-  weightGrams Float
+  model TraditionalHouseholdMeasure {
+    id          Int    @id @default(autoincrement())
+    foodId      Int
+    description String
+    quantity    Float
+    weightGrams Float
 
-  food             TraditionalFood    @relation(fields: [foodId], references: [id])
-  RecipeIngredient RecipeIngredient[]
+    food             TraditionalFood    @relation(fields: [foodId], references: [id], onDelete: Cascade)
+    RecipeIngredient RecipeIngredient[]
 
-  @@unique([foodId, description, quantity])
-}
+    @@unique([foodId, description, quantity])
+  }
 
-model RecipeIngredient {
-  id             Int   @id @default(autoincrement())
-  recipeDetailId Int
-  foodId         Int
-  medidaId       Int
-  cantidad       Float
+  model RecipeIngredient {
+    id             Int   @id @default(autoincrement())
+    recipeDetailId Int
+    foodId         Int
+    medidaId       Int
+    cantidad       Float
 
-  recipeDetail RecipeDetail                @relation(fields: [recipeDetailId], references: [id])
-  food         TraditionalFood             @relation(fields: [foodId], references: [id])
-  medida       TraditionalHouseholdMeasure @relation(fields: [medidaId], references: [id])
+    recipeDetail RecipeDetail                @relation(fields: [recipeDetailId], references: [id], onDelete: Cascade)
+    food         TraditionalFood             @relation(fields: [foodId], references: [id], onDelete: Cascade)
+    medida       TraditionalHouseholdMeasure @relation(fields: [medidaId], references: [id], onDelete: Cascade)
 
-  @@unique([recipeDetailId, foodId])
-}
+    @@unique([recipeDetailId, foodId])
+  }
