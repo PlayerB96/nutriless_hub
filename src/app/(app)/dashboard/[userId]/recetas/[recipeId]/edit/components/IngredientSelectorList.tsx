@@ -5,6 +5,7 @@ import Select from "react-select";
 import { Plus, Trash2 } from "lucide-react";
 import { TraditionalFood } from "@/domain/models/traditional-food";
 import { TraditionalHouseholdMeasure } from "@prisma/client";
+
 type EnrichedIngredient = TraditionalFood & {
   cantidad: number;
   tipoMedida: number;
@@ -37,7 +38,7 @@ export default function IngredientSelectorList({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold flex items-center gap-2 mb-2 text-text dark:text-text">
+      <h2 className="text-lg font-semibold flex items-center gap-2 mb-4 text-text dark:text-text">
         {icon} {title}
         <button
           type="button"
@@ -48,57 +49,29 @@ export default function IngredientSelectorList({
         </button>
       </h2>
 
+      {/* Cabecera (solo visible en desktop) */}
+      <div className="hidden md:flex text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
+        <div className="w-[30%] min-w-[200px] flex">
+          <span className="w-[35%]">Cantidad</span>
+          <span className="w-[65%]">Unidad</span>
+        </div>
+        <div className="w-[65%]">Alimento</div>
+        <div className="w-auto text-center">Acciones</div>
+      </div>
+
       <ul className="space-y-4">
         {items.map((item, idx) => (
           <li
             key={idx}
-            className="flex flex-wrap gap-4 items-end md:items-center"
+            className="flex flex-col md:flex-row gap-1 items-stretch"
           >
-            {/* Select de comida */}
-            <div className="w-full md:flex-[2]">
-              <label className="text-sm text-gray-500 dark:text-gray-400 mb-1 block">
-                Selecciona alimento
-              </label>
-              <Select
-                options={foodOptions}
-                value={foodOptions.find((opt) => opt.value === item.id)}
-                onChange={(selected) => {
-                  const food = availableFoods.find(
-                    (f) => f.id === selected?.value
-                  );
-                  if (food) {
-                    const medidaSeleccionada = food.householdMeasures?.find(
-                      (m) => m.id === item.tipoMedida
-                    );
-                    if (!medidaSeleccionada) return;
-                    onUpdate(idx, {
-                      ...food,
-                      cantidad: item.cantidad,
-                      tipoMedida: item.tipoMedida,
-                      medida: {
-                        ...medidaSeleccionada,
-                        foodId: food.id,
-                      },
-                    });
-                  }
-                }}
-                styles={{
-                  control: (base) => ({ ...base, cursor: "pointer" }),
-                  option: (base) => ({ ...base, cursor: "pointer" }),
-                }}
-              />
-            </div>
-
-            {/* Input de cantidad */}
-            <div className="w-full md:flex-1">
-              <label className="text-sm text-gray-500 dark:text-gray-400 mb-1 block">
-                Cantidad
-              </label>
+            {/* Cantidad + Unidad */}
+            <div className="flex md:w-[30%] w-full min-w-[180px]">
               <input
                 type="number"
                 min="0.1"
                 step="0.1"
-                className="w-full px-2 py-1 border rounded"
+                className="w-[35%] px-2 py-2 border rounded-l-md border-r-0"
                 value={
                   item.cantidad != null
                     ? item.cantidad
@@ -106,7 +79,7 @@ export default function IngredientSelectorList({
                         (m) => m.id === item.tipoMedida
                       )?.quantity ?? ""
                 }
-                placeholder="Cantidad"
+                placeholder="Cant."
                 onChange={(e) => {
                   const value = parseFloat(e.target.value);
                   if (!isNaN(value) && value >= 0.1) {
@@ -114,15 +87,9 @@ export default function IngredientSelectorList({
                   }
                 }}
               />
-            </div>
 
-            {/* Select de unidad */}
-            <div className="w-full md:flex-[1.5]">
-              <label className="text-sm text-gray-500 dark:text-gray-400 mb-1 block">
-                Unidad / Medida
-              </label>
               <select
-                className="w-full px-2 py-1 border rounded"
+                className="w-[65%] px-2 py-2 border rounded-r-md"
                 value={item.tipoMedida ?? ""}
                 onChange={(e) => {
                   const nuevaMedidaId = parseInt(e.target.value);
@@ -147,8 +114,8 @@ export default function IngredientSelectorList({
                 <option value="" disabled>
                   {!item.householdMeasures ||
                   item.householdMeasures.length === 0
-                    ? "Sin medidas disponibles"
-                    : "Selecciona unidad"}
+                    ? "Sin medidas"
+                    : "Unidad"}
                 </option>
                 {item.householdMeasures?.map((m) => (
                   <option key={m.id} value={m.id}>
@@ -158,14 +125,56 @@ export default function IngredientSelectorList({
               </select>
             </div>
 
+            {/* Select de alimento */}
+            <div className="md:w-[65%] w-full">
+              <Select
+                options={foodOptions}
+                value={foodOptions.find((opt) => opt.value === item.id)}
+                menuPortalTarget={document.body}
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    cursor: "pointer",
+                    minHeight: "42px",
+                    borderRadius: "0.5rem",
+                  }),
+                  option: (base) => ({ ...base, cursor: "pointer" }),
+                  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                }}
+                onChange={(selected) => {
+                  const food = availableFoods.find(
+                    (f) => f.id === selected?.value
+                  );
+                  if (food) {
+                    const medidaSeleccionada =
+                      food.householdMeasures?.find(
+                        (m) => m.id === item.tipoMedida
+                      ) || food.householdMeasures?.[0];
+
+                    onUpdate(idx, {
+                      ...food,
+                      householdMeasures: food.householdMeasures ?? [],
+                      cantidad: item.cantidad || 0,
+                      tipoMedida: medidaSeleccionada
+                        ? medidaSeleccionada.id
+                        : 0,
+                      medida: medidaSeleccionada
+                        ? { ...medidaSeleccionada, foodId: food.id }
+                        : ({} as TraditionalHouseholdMeasure),
+                    });
+                  }
+                }}
+              />
+            </div>
+
             {/* Botón eliminar */}
-            <div className="w-full md:w-10 flex justify-center items-center">
+            <div className="flex md:w-auto w-full justify-end items-center">
               <button
                 type="button"
                 onClick={() => onRemove(idx)}
                 className="text-red-500 hover:text-red-700 cursor-pointer"
               >
-                <Trash2 className="w-6 h-6 mt-4" />
+                <Trash2 className="w-6 h-6" />
               </button>
             </div>
           </li>

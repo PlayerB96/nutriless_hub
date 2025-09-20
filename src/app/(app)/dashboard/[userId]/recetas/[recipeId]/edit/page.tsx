@@ -255,12 +255,16 @@ export default function EditRecipePage() {
 
   const addIngredient = () => {
     if (!recipe) return;
-    const newIngredient: TraditionalFood = {
+    const newIngredient: EnrichedIngredient = {
       id: 0,
       name: "",
       category: "",
       createdAt: new Date().toISOString(),
       nutrients: [],
+      householdMeasures: [], // 👈 aseguramos que exista aunque esté vacío
+      cantidad: 0,
+      tipoMedida: 0,
+      medida: {} as TraditionalHouseholdMeasure, // inicial vacío
     };
     setRecipe({
       ...recipe,
@@ -399,10 +403,10 @@ export default function EditRecipePage() {
       {/* Formulario */}
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-10"
+        className="grid grid-cols-1 md:grid-cols-3 gap-10"
       >
         {/* Columna izquierda: Imagen, Ingredientes, Instrucciones */}
-        <div className="space-y-6">
+        <div className="space-y-6 md:col-span-2">
           {/* Imagen */}
           <div>
             <label className="text-sm font-medium inline-flex gap-2">
@@ -453,7 +457,7 @@ export default function EditRecipePage() {
         </div>
 
         {/* Columna derecha: Datos receta */}
-        <div className="space-y-6 p-6 rounded-xl shadow-sm border border-slate-200">
+        <div className="space-y-6 p-6 rounded-xl shadow-sm border border-slate-200 md:col-span-1">
           {/* Nombre */}
           <div>
             <label className=" text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-1">
