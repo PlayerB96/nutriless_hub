@@ -218,9 +218,27 @@ export default function EditRecipePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!recipe) return alert("Los datos de la receta no están cargados.");
-    if (!recipe.name || !recipe.portions || !recipe.prepTime)
-      return alert("Por favor, completa todos los campos requeridos");
+    if (!recipe) {
+      await confirmAction({
+        title: "Error",
+        text: "Los datos de la receta no están cargados.",
+        icon: "error",
+        confirmButtonText: "Ok",
+        cancelButtonText: "Cancelar",
+      });
+      return;
+    }
+
+    if (!recipe.name || !recipe.portions || !recipe.prepTime) {
+      await confirmAction({
+        title: "Campos incompletos",
+        text: "Por favor, completa todos los campos requeridos.",
+        icon: "warning",
+        confirmButtonText: "Entendido",
+        cancelButtonText: "Cancelar",
+      });
+      return;
+    }
 
     try {
       const res = await fetch(
@@ -245,10 +263,27 @@ export default function EditRecipePage() {
         const error = await res.json();
         throw new Error(error.message || "Error al actualizar receta");
       }
-      router.push(`/dashboard`);
+
+      // ✅ Confirmación de éxito usando tu helper
+      const result = await confirmAction({
+        title: "Receta actualizada",
+        text: "La receta se guardó correctamente.",
+        icon: "success",
+        confirmButtonText: "Ir al Dashboard",
+        cancelButtonText: "Ok",
+      });
+
+      if (result.isConfirmed) {
+        router.push(`/dashboard`);
+      }
     } catch (err: unknown) {
-      if (err instanceof Error) alert(err.message);
-      else alert("Error inesperado");
+      await confirmAction({
+        title: "Error",
+        text: err instanceof Error ? err.message : "Error inesperado",
+        icon: "error",
+        confirmButtonText: "OK",
+        cancelButtonText: "Cancelar",
+      });
       console.error(err);
     }
   };
@@ -373,30 +408,34 @@ export default function EditRecipePage() {
       </h1>
 
       {/* Cabecera macronutrientes */}
-      <div className="grid grid-cols-4 gap-4 mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm text-center">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm text-center">
         <div>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
             🔥 Calorías
           </p>
-          <p className="font-bold text-lg">{macros.calories} kcal</p>
+          <p className="font-semibold text-base md:text-lg">
+            {macros.calories} kcal
+          </p>
         </div>
         <div>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
             🥑 Grasas
           </p>
-          <p className="font-bold text-lg">{macros.fat} g</p>
+          <p className="font-semibold text-base md:text-lg">{macros.fat} g</p>
         </div>
         <div>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
             🍞 Carbohidratos
           </p>
-          <p className="font-bold text-lg">{macros.carbs} g</p>
+          <p className="font-semibold text-base md:text-lg">{macros.carbs} g</p>
         </div>
         <div>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
             🍗 Proteínas
           </p>
-          <p className="font-bold text-lg">{macros.protein} g</p>
+          <p className="font-semibold text-base md:text-lg">
+            {macros.protein} g
+          </p>
         </div>
       </div>
 
@@ -563,9 +602,11 @@ export default function EditRecipePage() {
           <div className="pt-4">
             <button
               type="submit"
-              className="w-full bg-secondary hover:bg-secondary/80 transition text-white font-semibold py-3 px-4 rounded-xl shadow-sm cursor-pointer"
+              className="w-full bg-secondary text-white font-semibold py-3 px-4 rounded-xl shadow-sm cursor-pointer 
+               transition-colors duration-300 ease-in-out 
+               hover:bg-secondary hover:opacity-90"
             >
-              Guardar cambios
+              Guardar Cambios
             </button>
           </div>
         </div>

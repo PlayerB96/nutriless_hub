@@ -29,7 +29,9 @@ export default function EditableTextList({
         <button
           type="button"
           onClick={onAdd}
-          className="ml-auto text-sm bg-secondary text-white py-1 px-2 rounded flex items-center gap-1 cursor-pointer"
+          className="ml-auto text-sm bg-secondary text-white py-1 px-2 rounded flex items-center gap-1 cursor-pointer
+             transition-colors duration-300 ease-in-out 
+             hover:bg-secondary hover:opacity-90"
         >
           <Plus className="w-4 h-4" /> Agregar
         </button>

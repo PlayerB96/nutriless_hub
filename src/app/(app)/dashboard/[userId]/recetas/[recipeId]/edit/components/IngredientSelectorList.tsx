@@ -43,7 +43,9 @@ export default function IngredientSelectorList({
         <button
           type="button"
           onClick={onAdd}
-          className="ml-auto text-sm bg-secondary text-white py-1 px-2 rounded flex items-center gap-1 cursor-pointer"
+          className="ml-auto text-sm bg-secondary text-white py-1 px-2 rounded flex items-center gap-1 cursor-pointer
+             transition-colors duration-300 ease-in-out 
+             hover:bg-secondary hover:opacity-90"
         >
           <Plus className="w-4 h-4" /> Agregar
         </button>
@@ -69,8 +71,8 @@ export default function IngredientSelectorList({
             <div className="flex md:w-[30%] w-full min-w-[180px]">
               <input
                 type="number"
-                min="0.1"
-                step="0.1"
+                min="1"
+                step="1"
                 className="w-[35%] px-2 py-2 border rounded-l-md border-r-0"
                 value={
                   item.cantidad != null
