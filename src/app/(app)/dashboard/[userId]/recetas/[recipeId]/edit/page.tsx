@@ -18,6 +18,7 @@ import {
   GaugeCircle,
   Trash2,
   RefreshCw,
+  LoaderCircle,
 } from "lucide-react";
 import Image from "next/image";
 import { TraditionalFood } from "@/domain/models/traditional-food";
@@ -37,6 +38,8 @@ import { confirmAction } from "@/components/ui/confirmAction";
 export default function EditRecipePage() {
   const { recipeId, userId } = useParams();
   const router = useRouter();
+  const [loadingButton, setLoadingButton] = useState(false);
+
 
   const [loading, setLoading] = useState(true);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -218,6 +221,8 @@ export default function EditRecipePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoadingButton(true);
+
     if (!recipe) {
       await confirmAction({
         title: "Error",
@@ -285,6 +290,8 @@ export default function EditRecipePage() {
         cancelButtonText: "Cancelar",
       });
       console.error(err);
+    } finally {
+      setLoadingButton(false);
     }
   };
 
@@ -602,13 +609,22 @@ export default function EditRecipePage() {
           <div className="pt-4">
             <button
               type="submit"
-              className="w-full bg-secondary text-white font-semibold py-3 px-4 rounded-xl shadow-sm cursor-pointer 
-               transition-colors duration-300 ease-in-out 
-               hover:bg-secondary hover:opacity-90"
+              disabled={loadingButton}
+              className={`w-full bg-secondary text-white font-semibold py-3 px-4 rounded-xl shadow-sm cursor-pointer 
+      transition-colors duration-300 ease-in-out 
+      hover:bg-secondary hover:opacity-90 ${loadingButton ? "cursor-not-allowed opacity-70" : ""}`}
             >
-              Guardar Cambios
+              {loadingButton ? (
+                <div className="flex items-center justify-center gap-2">
+                  <LoaderCircle className="animate-spin w-5 h-5 text-white" />
+                  <span>Guardando</span>
+                </div>
+              ) : (
+                "Guardar Cambios"
+              )}
             </button>
           </div>
+
         </div>
       </form>
     </main>
