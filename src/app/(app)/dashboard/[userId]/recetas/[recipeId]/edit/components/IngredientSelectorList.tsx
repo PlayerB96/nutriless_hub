@@ -76,36 +76,41 @@ export default function IngredientSelectorList({
               className="flex flex-col md:flex-row gap-1 items-stretch"
             >
               {/* Cantidad + Unidad */}
-              <div className="flex md:w-[30%] w-full min-w-[180px]">
+              <div className="flex md:w-fill min-w-[180px]">
                 <input
                   type="number"
-                  min="1"
-                  step="1"
-                  className="w-[35%] px-2  border border-gray-400 rounded-l-md border-r-0 h-[42px]"
+                  min="0.1"
+                  step="0.1"
+                  className="w-[35%] px-2 border border-gray-400 rounded-l-md border-r-0 h-[42px]"
                   value={
-                    item.cantidad != null
-                      ? item.cantidad
-                      : item.householdMeasures?.find(
-                        (m) => m.id === item.tipoMedida
-                      )?.quantity ?? ""
+                    item.cantidad === 0 || item.cantidad == null ? "" : item.cantidad
                   }
                   placeholder="Cant."
                   onChange={(e) => {
                     const value = e.target.value;
+
+                    // Si el usuario borra todo, no mostramos nada, pero guardamos 0 internamente
                     if (value === "") {
-                      // Permitir borrar
                       onUpdate(idx, { ...item, cantidad: 0 });
                       return;
                     }
+
                     const numberValue = parseFloat(value);
-                    if (!isNaN(numberValue) && numberValue >= 0.1) {
+
+                    // Solo permitir números positivos mayores a 0
+                    if (!isNaN(numberValue) && numberValue > 0) {
                       onUpdate(idx, { ...item, cantidad: numberValue });
                     }
                   }}
-
+                  onBlur={(e) => {
+                    // Si el usuario deja el campo vacío al salir, forzamos el valor 0 internamente
+                    if (e.target.value === "") {
+                      onUpdate(idx, { ...item, cantidad: 0 });
+                    }
+                  }}
                 />
 
-                <Select
+                <div className="w-[160px]"><Select
                   options={medidaOptions}
                   value={
                     medidaOptions.find((opt) => opt.value === item.tipoMedida) ||
@@ -160,7 +165,8 @@ export default function IngredientSelectorList({
                   isDisabled={
                     !item.householdMeasures || item.householdMeasures.length === 0
                   }
-                />
+                /></div>
+
               </div>
 
               {/* Alimento + Macronutrientes */}
@@ -232,7 +238,7 @@ export default function IngredientSelectorList({
 
                 {/* Macronutrientes */}
                 {item?.nutrients && item.nutrients.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2 text-xs text-slate-600 dark:text-slate-300">
+                  <div className="grid grid-cols-4 gap-2 text-sm text-slate-900 dark:text-slate-300">
                     {["kcal", "fat", "carbs", "protein"].map((nutr) => {
                       const getNutrientValue = () => {
                         const totalGrams =
@@ -284,7 +290,7 @@ export default function IngredientSelectorList({
                       return (
                         <div
                           key={nutr}
-                          className="bg-slate-100 dark:bg-slate-700 rounded-md p-1 text-center"
+                          className="bg-slate-200 dark:bg-slate-700 rounded-md p-1 text-center"
                         >
                           <p className="font-semibold">
                             {result ? `${result.value}${result.unit}` : "-"}
@@ -306,7 +312,7 @@ export default function IngredientSelectorList({
               </div>
 
               {/* Botón eliminar */}
-              <div className="flex md:w-auto w-full justify-end items-center">
+              <div className="flex md:w-auto w-full justify-end items-start pt-2">
                 <button
                   type="button"
                   onClick={() => onRemove(idx)}

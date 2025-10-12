@@ -397,52 +397,53 @@ export default function EditRecipePage() {
 
   return (
     <main className="mx-auto p-6 bg-primary shadow rounded-2xl">
-      {/* Botón eliminar */}
-      <div className="flex justify-end mb-4">
-        <button
-          type="button"
-          onClick={handleDelete}
-          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
-        >
-          <Trash2 className="w-5 h-5" />
-          Eliminar receta
-        </button>
-      </div>
+      {/* Cabecera fija superior */}
+      <div className="sticky top-0 z-40 bg-primary/95 backdrop-blur-sm shadow-md rounded-b-xl p-4 mb-6">
+        {/* Botón eliminar y título */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+            <Pencil className="w-6 h-6" />
+            Editar Receta
+          </h1>
 
-      <h1 className="text-3xl font-bold mb-8 flex items-center gap-2">
-        <Pencil className="w-6 h-6" />
-        Editar Receta
-      </h1>
+          <button
+            type="button"
+            onClick={handleDelete}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
+          >
+            <Trash2 className="w-5 h-5" />
+            Eliminar receta
+          </button>
+        </div>
 
-      {/* Cabecera macronutrientes */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-white dark:bg-slate-800 rounded-lg shadow-sm text-center">
-        <div>
-          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-            🔥 Calorías
-          </p>
-          <p className="font-semibold text-base md:text-lg">
-            {macros.calories} kcal
-          </p>
-        </div>
-        <div>
-          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-            🥑 Grasas
-          </p>
-          <p className="font-semibold text-base md:text-lg">{macros.fat} g</p>
-        </div>
-        <div>
-          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-            🍞 Carbohidratos
-          </p>
-          <p className="font-semibold text-base md:text-lg">{macros.carbs} g</p>
-        </div>
-        <div>
-          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400">
-            🍗 Proteínas
-          </p>
-          <p className="font-semibold text-base md:text-lg">
-            {macros.protein} g
-          </p>
+        {/* Cabecera macronutrientes */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-3 bg-violet-100 dark:bg-violet-950 rounded-lg shadow-inner text-center">
+          <div>
+            <p className="text-xs md:text-sm text-violet-700 dark:text-violet-300">
+              🔥 Calorías
+            </p>
+            <p className="font-semibold text-base md:text-lg">
+              {macros.calories} kcal
+            </p>
+          </div>
+          <div>
+            <p className="text-xs md:text-sm text-violet-700 dark:text-violet-300">
+              🥑 Grasas
+            </p>
+            <p className="font-semibold text-base md:text-lg">{macros.fat} g</p>
+          </div>
+          <div>
+            <p className="text-xs md:text-sm text-violet-700 dark:text-violet-300">
+              🍞 Carbohidratos
+            </p>
+            <p className="font-semibold text-base md:text-lg">{macros.carbs} g</p>
+          </div>
+          <div>
+            <p className="text-xs md:text-sm text-violet-700 dark:text-violet-300">
+              🍗 Proteínas
+            </p>
+            <p className="font-semibold text-base md:text-lg">{macros.protein} g</p>
+          </div>
         </div>
       </div>
 
@@ -453,31 +454,6 @@ export default function EditRecipePage() {
       >
         {/* Columna izquierda: Imagen, Ingredientes, Instrucciones */}
         <div className="space-y-6 md:col-span-2">
-          {/* Imagen */}
-          <div>
-            <label className="text-sm font-medium inline-flex gap-2">
-              <ImageIcon className="w-5 h-5" />
-              Imagen de la receta
-            </label>
-            <div className="relative w-full h-82 rounded-lg overflow-hidden border border-gray-300 dark:border-slate-700 shadow-sm mb-3">
-              <Image
-                src={recipe.image || DEFAULT_IMAGE}
-                alt={`Imagen de ${recipe.name}`}
-                fill
-                style={{ objectFit: "cover" }}
-              />
-            </div>
-            <label className="inline-flex items-center gap-2 cursor-pointer bg-primary px-4 py-2 rounded hover:bg-primary-dark transition">
-              <RefreshCw className="w-5 h-5" />
-              Cambiar Imagen
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-              />
-            </label>
-          </div>
 
           {/* Ingredientes */}
           <IngredientSelectorList
@@ -504,6 +480,32 @@ export default function EditRecipePage() {
 
         {/* Columna derecha: Datos receta */}
         <div className="space-y-6 p-6 rounded-xl shadow-sm  md:col-span-1">
+          {/* Imagen */}
+          <div>
+            <label className="text-sm font-medium inline-flex gap-2">
+              <ImageIcon className="w-5 h-5" />
+              Imagen de la receta
+            </label>
+            <div className="relative w-full aspect-video rounded-xl overflow-hidden border border-gray-300 dark:border-slate-700 shadow-sm mb-4">
+              <Image
+                src={recipe.image || DEFAULT_IMAGE}
+                alt={`Imagen de ${recipe.name}`}
+                fill
+                style={{ objectFit: "cover" }}
+              />
+            </div>
+            <label className="inline-flex items-center gap-2 cursor-pointer bg-primary px-4 py-2 rounded hover:bg-primary-dark transition">
+              <RefreshCw className="w-5 h-5" />
+              Cambiar Imagen
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+            </label>
+          </div>
+
           {/* Nombre */}
           <div>
             <label className=" text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1 flex items-center gap-1">
