@@ -37,9 +37,11 @@ export default function DashboardUserFoodsPage({ params }: Props) {
 
   const [selectedFoods, setSelectedFoods] = useState<number[]>([]);
   const [loadingButton, setLoadingButton] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchFoods = useCallback(async () => {
     try {
+      setLoading(true);
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods`,
         { cache: "no-store" }
@@ -49,6 +51,8 @@ export default function DashboardUserFoodsPage({ params }: Props) {
       setFoods(data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }, [userId]);
 
@@ -189,7 +193,11 @@ export default function DashboardUserFoodsPage({ params }: Props) {
         </div>
       </div>
 
-      {foods.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <LoaderCircle className="animate-spin w-8 h-8 text-secondary" />
+        </div>
+      ) : foods.length === 0 ? (
         <p>No se encontraron alimentos.</p>
       ) : (
         <div className="rounded-lg border border-gray-900">

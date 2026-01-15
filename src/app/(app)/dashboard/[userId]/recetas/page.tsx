@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
+  LoaderCircle,
   Star,
   StarHalf,
   StarOff,
@@ -23,9 +24,12 @@ export default function DashboardUserRecipesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
   const router = useRouter();
-// k
+
+  const [loading, setLoading] = useState(true);
+
   const fetchRecipes = useCallback(async () => {
     try {
+      setLoading(true);
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes?userId=${userId}`,
         { cache: "no-store" }
@@ -34,7 +38,10 @@ export default function DashboardUserRecipesPage() {
       const data = await res.json();
       setRecipes(data);
     } catch (err) {
+      setLoading(false);
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }, [userId]);
 
@@ -98,8 +105,12 @@ export default function DashboardUserRecipesPage() {
         </div>
       </div>
 
-      {paginatedRecipes.length === 0 ? (
-        <p className="text-gray-500">No se encontraron recetas.</p>
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <LoaderCircle className="animate-spin w-8 h-8 text-secondary" />
+        </div>
+      ) : recipes.length === 0 ? (
+        <p>No se encontraron recetas.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 cursor-pointer">
           {paginatedRecipes.map((recipe) => (

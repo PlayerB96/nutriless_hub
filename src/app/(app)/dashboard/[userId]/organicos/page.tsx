@@ -4,7 +4,7 @@
 import { TraditionalFood } from "@/domain/models/traditional-food";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2, LoaderCircle } from "lucide-react";
 import "jspdf-autotable";
 
 import TraditionFoodDetails from "./components/TraditionFoodDetails";
@@ -23,9 +23,11 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   const itemsPerPage = 10;
 
   const [selectedFoods, setSelectedFoods] = useState<number[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchTraditionalFoods = useCallback(async () => {
     try {
+      setLoading(true);
       console.log("#####111");
 
       const res = await fetch(
@@ -39,6 +41,8 @@ export default function DashboardUserFoodsPage({ params }: Props) {
       setFoods(data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   }, [userId]);
 
@@ -178,7 +182,11 @@ export default function DashboardUserFoodsPage({ params }: Props) {
         </div>
       </div>
 
-      {foods.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <LoaderCircle className="animate-spin w-8 h-8 text-secondary" />
+        </div>
+      ) : foods.length === 0 ? (
         <p>No se encontraron alimentos.</p>
       ) : (
         <div className="rounded-lg border border-gray-900">

@@ -19,6 +19,9 @@ import {
   Trash2,
   RefreshCw,
   LoaderCircle,
+  Flame,
+  Leaf,
+  Ham,
 } from "lucide-react";
 import Image from "next/image";
 import { TraditionalFood } from "@/domain/models/traditional-food";
@@ -39,7 +42,6 @@ export default function EditRecipePage() {
   const { recipeId, userId } = useParams();
   const router = useRouter();
   const [loadingButton, setLoadingButton] = useState(false);
-
 
   const [loading, setLoading] = useState(true);
   const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -398,51 +400,54 @@ export default function EditRecipePage() {
   return (
     <main className="mx-auto p-6 bg-primary shadow rounded-2xl">
       {/* Cabecera fija superior */}
+      {/* Botón eliminar y título */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+        <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+          <Pencil className="w-6 h-6" />
+          Editar Receta
+        </h1>
+
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="flex items-center gap-2 bg-red-900 hover:bg-red-800 text-white px-4 py-2 rounded-lg transition cursor-pointer"
+        >
+          <Trash2 className="w-5 h-5" />
+          Eliminar receta
+        </button>
+      </div>
       <div className="sticky top-0 z-40 bg-primary/95 backdrop-blur-sm shadow-md rounded-b-xl p-4 mb-6">
-        {/* Botón eliminar y título */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
-          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-            <Pencil className="w-6 h-6" />
-            Editar Receta
-          </h1>
-
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
-          >
-            <Trash2 className="w-5 h-5" />
-            Eliminar receta
-          </button>
-        </div>
-
         {/* Cabecera macronutrientes */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-3 bg-violet-100 dark:bg-violet-950 rounded-lg shadow-inner text-center">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-3 rounded-lg shadow-inner text-center">
           <div>
-            <p className="text-xs md:text-sm text-violet-700 dark:text-violet-300">
-              🔥 Calorías
-            </p>
+            <div className="flex items-center justify-center gap-2">
+              <Flame className="w-5 h-5" /> Calorías
+            </div>
             <p className="font-semibold text-base md:text-lg">
               {macros.calories} kcal
             </p>
           </div>
           <div>
-            <p className="text-xs md:text-sm text-violet-700 dark:text-violet-300">
-              🥑 Grasas
-            </p>
+            <div className="flex items-center justify-center gap-2">
+              <Leaf className="w-5 h-5" /> Grasas
+            </div>
             <p className="font-semibold text-base md:text-lg">{macros.fat} g</p>
           </div>
           <div>
-            <p className="text-xs md:text-sm text-violet-700 dark:text-violet-300">
-              🍞 Carbohidratos
+            <div className="flex items-center justify-center gap-2">
+              <Flame className="w-5 h-5" /> Carbohidratos
+            </div>
+            <p className="font-semibold text-base md:text-lg">
+              {macros.carbs} g
             </p>
-            <p className="font-semibold text-base md:text-lg">{macros.carbs} g</p>
           </div>
           <div>
-            <p className="text-xs md:text-sm text-violet-700 dark:text-violet-300">
-              🍗 Proteínas
+            <div className="flex items-center justify-center gap-2">
+              <Ham className="w-5 h-5" /> Proteínas
+            </div>
+            <p className="font-semibold text-base md:text-lg">
+              {macros.protein} g
             </p>
-            <p className="font-semibold text-base md:text-lg">{macros.protein} g</p>
           </div>
         </div>
       </div>
@@ -454,7 +459,6 @@ export default function EditRecipePage() {
       >
         {/* Columna izquierda: Imagen, Ingredientes, Instrucciones */}
         <div className="space-y-6 md:col-span-2">
-
           {/* Ingredientes */}
           <IngredientSelectorList
             title="Ingredientes"
@@ -614,7 +618,9 @@ export default function EditRecipePage() {
               disabled={loadingButton}
               className={`w-full bg-secondary text-white font-semibold py-3 px-4 rounded-xl shadow-sm cursor-pointer 
       transition-colors duration-300 ease-in-out 
-      hover:bg-secondary hover:opacity-90 ${loadingButton ? "cursor-not-allowed opacity-70" : ""}`}
+      hover:bg-secondary hover:opacity-90 ${
+        loadingButton ? "cursor-not-allowed opacity-70" : ""
+      }`}
             >
               {loadingButton ? (
                 <div className="flex items-center justify-center gap-2">
@@ -626,7 +632,6 @@ export default function EditRecipePage() {
               )}
             </button>
           </div>
-
         </div>
       </form>
     </main>
