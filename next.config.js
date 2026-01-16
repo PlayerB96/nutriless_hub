@@ -1,7 +1,7 @@
-import { NextConfig as _NextConfig } from "next"; // Import para usar en runtime
-
-const nextConfig: _NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
+
   images: {
     remotePatterns: [
       {
@@ -18,20 +18,19 @@ const nextConfig: _NextConfig = {
       {
         source: "/",
         destination: "/login",
-        permanent: false, // true si deseas redirección permanente (301)
+        permanent: false, // 307
       },
     ];
   },
 
-  // 👇 Aquí agregamos los headers personalizados
   async headers() {
     return [
       {
-        source: "/(.*)", // aplica a todas las rutas
+        source: "/(.*)",
         headers: [
           {
             key: "Referrer-Policy",
-            value: "no-referrer-when-downgrade", // opción más permisiva
+            value: "no-referrer-when-downgrade",
           },
         ],
       },
@@ -39,4 +38,4 @@ const nextConfig: _NextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
