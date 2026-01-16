@@ -2,21 +2,17 @@
 
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { ThemeProvider } from "next-themes";
-import "../globals.css";
-import { useState } from "react";
 import SideNav from "@/components/layout/Sidenav";
-import { Session } from "next-auth";
-
+import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
-import { Toaster } from "react-hot-toast"; // <-- Importa Toaster
-// RootLayout.tsx (igual que tienes ahora)
+import { Toaster } from "react-hot-toast";
+import { useState } from "react";
+import "../globals.css";
+
 export default function RootLayout({
   children,
-  session,
 }: {
   children: React.ReactNode;
-  session?: Session | null;
 }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -24,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-background text-foreground">
-        <SessionProvider session={session}>
+        <SessionProvider>
           <ThemeProvider attribute="class" enableSystem defaultTheme="system">
             <div className="flex min-h-screen relative">
               <SideNav
@@ -46,16 +42,18 @@ export default function RootLayout({
                 ${isCollapsed ? "md:pl-16" : "md:pl-56"}
               `}
               >
-                {/* Aquí paso el setter y el estado */}
                 <Navbar
                   isCollapsed={isCollapsed}
                   setIsCollapsed={setIsCollapsed}
                   setIsMobileOpen={setIsMobileOpen}
                 />
+
                 <main className="flex-1 p-4">{children}</main>
+
                 <Footer />
               </div>
             </div>
+
             <Toaster position="top-right" />
           </ThemeProvider>
         </SessionProvider>
