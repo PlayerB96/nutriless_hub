@@ -22,7 +22,7 @@ export default function PacientesPage() {
 
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+//   const [showModal, setShowModal] = useState(false);
 
   const [page, setPage] = useState(1);
   const pageSize = 6;
@@ -51,7 +51,7 @@ export default function PacientesPage() {
 
           {/* Desktop button */}
           <button
-            onClick={() => setShowModal(true)}
+            // onClick={() => setShowModal(true)}
             className="hidden md:flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg shadow hover:scale-105"
           >
             <PlusCircle size={18} /> Nuevo
@@ -149,7 +149,7 @@ export default function PacientesPage() {
 
       {/* FLOATING BUTTON MOBILE */}
       <button
-        onClick={() => setShowModal(true)}
+        // onClick={() => setShowModal(true)}
         className="md:hidden fixed bottom-6 right-6 bg-secondary text-white p-4 rounded-full shadow-xl"
       >
         <PlusCircle />
