@@ -43,23 +43,28 @@ export default function IngredientSelectorList({
         <button
           type="button"
           onClick={onAdd}
-          className="ml-auto text-sm bg-secondary text-white py-1 px-2 rounded flex items-center gap-1 cursor-pointer
-             transition-colors duration-300 ease-in-out 
-             hover:bg-secondary hover:opacity-90"
+          className="
+            ml-auto
+            flex items-center gap-1
+            rounded-md
+            bg-secondary
+            px-3 py-1.5
+            text-sm font-medium text-white
+            shadow-sm
+            transition-all
+            hover:opacity-90 hover:shadow
+            active:scale-95 cursor-pointer
+            focus:outline-none focus:ring-2 focus:ring-secondary
+          "
+          title="Agregar ingrediente"
         >
-          <Plus className="w-4 h-4" /> Agregar
+          <Plus className="w-4 h-4" />
+          Agregar
         </button>
+
       </h2>
 
-      {/* Cabecera (solo desktop) */}
-      <div className="hidden md:flex text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">
-        <div className="w-[30%] min-w-[200px] flex">
-          <span className="w-[35%]">Cantidad</span>
-          <span className="w-[65%]">Unidad de Consumo</span>
-        </div>
-        <div className="w-[65%]">Alimento</div>
-        <div className="w-auto text-center">Acciones</div>
-      </div>
+
 
       <ul className="space-y-4">
         {items.map((item, idx) => {
@@ -73,8 +78,16 @@ export default function IngredientSelectorList({
           return (
             <li
               key={idx}
-              className="flex flex-col md:flex-row gap-1 items-stretch"
+              className="
+              flex flex-col md:flex-row gap-2
+              items-stretch
+              rounded-lg
+              border border-slate-200 dark:border-slate-700
+              p-3
+              bg-primary dark:bg-slate-800
+            "
             >
+
               {/* Cantidad + Unidad */}
               <div className="flex md:w-fill min-w-[180px]">
                 <input
@@ -312,15 +325,27 @@ export default function IngredientSelectorList({
               </div>
 
               {/* Botón eliminar */}
-              <div className="flex md:w-auto w-full justify-end items-start pt-2">
+              <div className="flex md:w-auto w-full justify-end items-start pt-1">
                 <button
                   type="button"
                   onClick={() => onRemove(idx)}
-                  className="text-red-500 hover:text-red-700 cursor-pointer"
+                  className="
+                    group
+                    flex items-center justify-center
+                    w-9 h-9
+                    rounded-full
+                    bg-red-50 dark:bg-red-900/30
+                    text-red-500
+                    transition-all duration-200
+                    hover:bg-red-500 hover:text-white
+                    focus:outline-none focus:ring-2 focus:ring-red-400 cursor-pointer
+                  "
+                  title="Eliminar ingrediente"
                 >
-                  <Trash2 className="w-6 h-6" />
+                  <Trash2 className="w-4 h-4 transition-transform group-hover:scale-110" />
                 </button>
               </div>
+
             </li>
           );
         })}

@@ -39,11 +39,22 @@ export default function EditableTextList({
 
       <ul className="space-y-2">
         {items.map((item, idx) => (
-          <li key={idx} className="flex gap-2 items-start">
+          <li
+            key={idx}
+            className="
+                flex gap-3 items-start
+                rounded-lg
+                border border-slate-200 dark:border-slate-700
+                bg-primary dark:bg-slate-800
+                p-3
+              "
+          >
+
             {/* Número iterativo */}
-            <div className="pt-2 text-gray-500 font-semibold w-6 text-right">
+            <div className="pt-2 text-slate-400 font-medium w-6 text-right select-none">
               {idx + 1}.
             </div>
+
 
             {/* Input o Textarea */}
             {isTextarea ? (
@@ -58,18 +69,41 @@ export default function EditableTextList({
                 type="text"
                 value={item}
                 onChange={(e) => onUpdate(idx, e.target.value)}
-                className="flex-1 border px-3 py-1 rounded"
+                className="
+                  flex-1
+                  rounded-md
+                  border border-slate-300 dark:border-slate-600
+                  bg-transparent
+                  px-3 py-2
+                  text-sm
+                  focus:outline-none focus:ring-2 focus:ring-secondary
+                "
               />
+
             )}
 
             {/* Botón eliminar */}
             <button
               type="button"
               onClick={() => onRemove(idx)}
-              className="text-red-500 hover:text-red-700 cursor-pointer"
+              className="
+                group
+                mt-1
+                flex items-center justify-center
+                w-9 h-9
+                rounded-full
+                bg-red-50 dark:bg-red-900/30
+                text-red-500
+                transition-all duration-200
+                hover:bg-red-500 hover:text-white
+                focus:outline-none focus:ring-2 focus:ring-red-400 cursor-pointer
+              "
+              title="Eliminar"
             >
-              <Trash2 className="w-6 h-6 mt-4" />
+              <Trash2 className="w-4 h-4 transition-transform group-hover:scale-110" />
             </button>
+
+
           </li>
         ))}
       </ul>

@@ -1,3 +1,4 @@
+
 // ░░░ DATOS DE CONEXIÓN Y GENERADOR ░░░
 
 datasource db {
@@ -22,6 +23,7 @@ model User {
   accounts Account[]
   sessions Session[]
   recipes  Recipe[] // Recetas creadas por el usuario
+  patients Patient[] // Pacientes creados por el usuario
 }
 
 model Account {
@@ -202,3 +204,21 @@ model RecipeDetail {
 
     @@unique([recipeDetailId, foodId])
   }
+
+
+// 👤 PACIENTES PARA NUTRICIÓN
+model Patient {
+  id           Int      @id @default(autoincrement())
+  userId       Int      // Nutricionista dueño del paciente
+  name         String
+  lastName     String
+  gender       String   // M/F/O
+  birthDate    DateTime
+  email        String? @unique
+  phone        String?
+  height       Float?   // Altura en cm
+  weight       Float?   // Peso en kg
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

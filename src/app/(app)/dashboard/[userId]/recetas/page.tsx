@@ -4,7 +4,9 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
+  Filter,
   LoaderCircle,
+  Search,
   Star,
   StarHalf,
   StarOff,
@@ -17,14 +19,13 @@ const DEFAULT_IMAGE = "/images/receta_defecto.png";
 
 export default function DashboardUserRecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  // const { id } = React.use(params);
   const { userId } = useParams();
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9;
   const router = useRouter();
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTag, setSelectedTag] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
   const [loading, setLoading] = useState(true);
 
   const fetchRecipes = useCallback(async () => {
@@ -38,7 +39,6 @@ export default function DashboardUserRecipesPage() {
       const data = await res.json();
       setRecipes(data);
     } catch (err) {
-      setLoading(false);
       console.error(err);
     } finally {
       setLoading(false);
@@ -49,11 +49,25 @@ export default function DashboardUserRecipesPage() {
     fetchRecipes();
   }, [fetchRecipes]);
 
+  /* 🔹 Tags únicos para el select */
+  const availableTags = useMemo(() => {
+    const tags = recipes.flatMap((recipe) => recipe.tags || []);
+    return Array.from(new Set(tags));
+  }, [recipes]);
+
+  /* 🔹 Filtro por nombre + tag */
   const filteredRecipes = useMemo(() => {
-    return recipes.filter((recipe) =>
-      recipe.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [recipes, searchTerm]);
+    return recipes.filter((recipe) => {
+      const matchesName = recipe.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+      const matchesTag =
+        !selectedTag || recipe.tags.includes(selectedTag);
+
+      return matchesName && matchesTag;
+    });
+  }, [recipes, searchTerm, selectedTag]);
 
   const totalPages = Math.ceil(filteredRecipes.length / itemsPerPage);
 
@@ -68,20 +82,72 @@ export default function DashboardUserRecipesPage() {
     <main className="p-4">
       <h1 className="text-2xl font-bold mb-6">Recetas</h1>
 
-      {/* Buscador */}
+      {/* 🔍 Buscador + Filtro */}
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <input
-          type="text"
-          placeholder="Buscar receta..."
-          className="border px-3 py-2 rounded w-full sm:w-64 text-gray-700 dark:text-gray-200"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }}
-        />
+        
 
-        {/* Paginación */}
+        <div className="w-full sm:w-auto bg-white dark:bg-slate-900 border dark:border-slate-700 rounded-xl p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Filter className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Filtros
+            </h3>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Buscar por nombre */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                <Search className="w-3.5 h-3.5" />
+                Buscar por nombre
+              </label>
+
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Ej. Lasaña, Ensalada..."
+                  className="pl-9 pr-3 py-2 border dark:border-slate-700 rounded-lg w-full sm:w-64
+                     text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-900
+                     focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Filtro por categorías */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                <Filter className="w-3.5 h-3.5" />
+                Categoría
+              </label>
+
+              <select
+                value={selectedTag}
+                onChange={(e) => {
+                  setSelectedTag(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-2 border dark:border-slate-700 rounded-lg
+                   text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-900
+                   focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+              >
+                <option value="">Todas las categorías</option>
+                {availableTags.map((tag) => (
+                  <option key={tag} value={tag}>
+                    {tag}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* ⏮️ Paginación */}
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -91,13 +157,13 @@ export default function DashboardUserRecipesPage() {
             <ChevronLeft className="w-5 h-5" />
           </button>
           <span>
-            Página {currentPage} de {totalPages}
+            Página {currentPage} de {totalPages || 1}
           </span>
           <button
             onClick={() =>
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             className="px-3 py-1 border rounded disabled:opacity-50"
           >
             <ChevronRight className="w-5 h-5" />
@@ -109,7 +175,7 @@ export default function DashboardUserRecipesPage() {
         <div className="flex justify-center items-center py-12">
           <LoaderCircle className="animate-spin w-8 h-8 text-secondary" />
         </div>
-      ) : recipes.length === 0 ? (
+      ) : filteredRecipes.length === 0 ? (
         <p>No se encontraron recetas.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 cursor-pointer">
@@ -128,12 +194,13 @@ export default function DashboardUserRecipesPage() {
                 height={200}
                 className="object-cover w-full h-48"
               />
-              <div className="p-4 bg-white dark:bg-slate-800">
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-lg font-semibold">{recipe.name}</h2>
-                </div>
 
-                {/* Tags */}
+              <div className="p-4 bg-white dark:bg-slate-800">
+                <h2 className="text-lg font-semibold mb-2">
+                  {recipe.name}
+                </h2>
+
+                {/* 🏷️ Tags */}
                 <div className="flex flex-wrap gap-1 mb-2">
                   {recipe.tags.map((tag, i) => (
                     <span
@@ -145,13 +212,16 @@ export default function DashboardUserRecipesPage() {
                   ))}
                 </div>
 
-                {/* Tiempos */}
+                {/* ⏱️ Tiempos */}
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Preparación: {recipe.prepTime} min
-                  {recipe.cookTime ? ` • Cocción: ${recipe.cookTime} min` : ""}
+                  {recipe.cookTime
+                    ? ` • Cocción: ${recipe.cookTime} min`
+                    : ""}
                 </p>
 
-                <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-200 mt-1">
+                {/* ⭐ Dificultad */}
+                <div className="flex items-center gap-2 text-sm mt-1">
                   {recipe.difficulty === "Fácil" && (
                     <>
                       <Star className="w-4 h-4 text-green-500" />

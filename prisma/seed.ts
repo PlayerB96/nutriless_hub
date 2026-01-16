@@ -1,3 +1,27 @@
+async function seedPatient() {
+  // Busca un usuario existente para asociar el paciente
+  const user = await prisma.user.findFirst();
+  if (!user) {
+    console.log("❌ No hay usuarios para asociar paciente");
+    return;
+  }
+  await prisma.patient.upsert({
+    where: { email: "paciente.prueba@mail.com" },
+    update: {},
+    create: {
+      userId: user.id,
+      name: "Paciente",
+      lastName: "Prueba",
+      gender: "M",
+      birthDate: new Date("1990-01-01"),
+      email: "paciente.prueba@mail.com",
+      phone: "999999999",
+      height: 170,
+      weight: 70,
+    },
+  });
+  console.log("✅ Paciente de prueba cargado.");
+}
 /* eslint-disable @typescript-eslint/no-require-imports */
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
@@ -233,8 +257,9 @@ async function seedHouseholdMeasures() {
   console.log(`✅ Insertadas ${toInsert.length} medidas tradicionales.`);
 }
 async function main() {
-  await seedAdmin();
-  // await seedCategorias(raasdasdasd);
+  // await seedAdmin();
+  await seedPatient();
+  // await seedCategorias();
   // await seedOptionalNutrients();
   // await seedRecipeWithDetail();
   // await seedHouseholdMeasures();
