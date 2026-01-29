@@ -56,56 +56,56 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Tarjeta estándar para cada sección */}
-            <section className="bg-primary rounded-xl p-6 flex flex-col items-center border border-primary transition-all duration-200">
+            <section className="bg-primary rounded-xl p-6 flex flex-col items-center border border-primary">
               <h2 className="text-xl font-semibold mb-4">Pacientes</h2>
               <button
-                className="w-full cursor-pointer flex items-center justify-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg font-medium mb-3 transition-all duration-200 shadow hover:scale-105  hover:bg-secondary-secondary focus:outline-none focus:ring-2 focus:ring-secondary"
+                className="w-full cursor-pointer flex items-center justify-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg font-medium mb-3 shadow hover:scale-105  hover:bg-secondary-secondary focus:outline-none focus:ring-2 focus:ring-secondary"
                 onClick={() => setOpenModal("receta")}
               >
                 <User size={20} /> Agregar Paciente
               </button>
               <button
-                className="w-full  cursor-pointer flex items-center justify-center gap-2 text-secondary border border-secondary px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow hover:scale-105  hover:bg-secondary-secondary/40 focus:outline-none focus:ring-2 focus:ring-secondary"
+                className="w-full  cursor-pointer flex items-center justify-center gap-2 text-secondary border border-secondary px-4 py-2 rounded-lg font-medium shadow hover:scale-105  hover:bg-secondary-secondary/40 focus:outline-none focus:ring-2 focus:ring-secondary"
                 onClick={() => router.push(`/dashboard/${userId}/pacientes`)}
               >
                 <Contact size={20} /> Lista de Pacientes
               </button>
             </section>
 
-            <section className="bg-primary rounded-xl p-6 flex flex-col items-center border border-primary transition-all duration-200">
+            <section className="bg-primary rounded-xl p-6 flex flex-col items-center border border-primary">
               <h2 className="text-xl font-semibold mb-4">Recetas</h2>
               <button
-                className="w-full cursor-pointer flex items-center justify-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg font-medium mb-3 transition-all duration-200 shadow hover:scale-105  hover:bg-secondary-secondary focus:outline-none focus:ring-2 focus:ring-secondary"
+                className="w-full cursor-pointer flex items-center justify-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg font-medium mb-3 shadow hover:scale-105  hover:bg-secondary-secondary focus:outline-none focus:ring-2 focus:ring-secondary"
                 onClick={() => setOpenModal("receta")}
               >
                 <NotebookPen size={20} /> Agregar Receta
               </button>
               <button
-                className="w-full cursor-pointer flex items-center justify-center gap-2 text-secondary border border-secondary px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow hover:scale-105  hover:bg-secondary-secondary/40 focus:outline-none focus:ring-2 focus:ring-secondary"
+                className="w-full cursor-pointer flex items-center justify-center gap-2 text-secondary border border-secondary px-4 py-2 rounded-lg font-medium shadow hover:scale-105  hover:bg-secondary-secondary/40 focus:outline-none focus:ring-2 focus:ring-secondary"
                 onClick={() => router.push(`/dashboard/${userId}/recetas`)}
               >
                 <BookOpen size={20} /> Lista de Recetas
               </button>
             </section>
 
-            <section className="bg-primary rounded-xl p-6 flex flex-col items-center border border-primary transition-all duration-200">
+            <section className="bg-primary rounded-xl p-6 flex flex-col items-center border border-primary">
               <h2 className="text-xl font-semibold mb-4">
                 Alimentos y Pacientes
               </h2>
               <button
-                className="w-full cursor-pointer flex items-center justify-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg font-medium mb-3 transition-all duration-200 shadow hover:scale-105  hover:bg-secondary-secondary focus:outline-none focus:ring-2 focus:ring-secondary"
+                className="w-full cursor-pointer flex items-center justify-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg font-medium mb-3 shadow hover:scale-105  hover:bg-secondary-secondary focus:outline-none focus:ring-2 focus:ring-secondary"
                 onClick={() => setOpenModal("alimento")}
               >
                 <PlusCircle size={20} /> Agregar Alimento
               </button>
               <button
-                className="w-full cursor-pointer flex items-center justify-center gap-2 text-secondary border border-secondary px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow hover:scale-105  hover:bg-secondary-secondary/40 focus:outline-none focus:ring-2 focus:ring-secondary"
+                className="w-full cursor-pointer flex items-center justify-center gap-2 text-secondary border border-secondary px-4 py-2 rounded-lg font-medium shadow hover:scale-105  hover:bg-secondary-secondary/40 focus:outline-none focus:ring-2 focus:ring-secondary"
                 onClick={() => router.push(`/dashboard/${userId}/procesados`)}
               >
                 <Package size={20} /> Alimentos Procesados
               </button>
               <button
-                className="w-full cursor-pointer flex items-center justify-center gap-2 text-secondary border border-secondary px-4 py-2 rounded-lg font-medium mt-2 transition-all duration-200 shadow hover:scale-105  hover:bg-secondary-secondary/40 focus:outline-none focus:ring-2 focus:ring-secondary"
+                className="w-full cursor-pointer flex items-center justify-center gap-2 text-secondary border border-secondary px-4 py-2 rounded-lg font-medium mt-2 shadow hover:scale-105  hover:bg-secondary-secondary/40 focus:outline-none focus:ring-2 focus:ring-secondary"
                 onClick={() => router.push(`/dashboard/${userId}/organicos`)}
               >
                 <Leaf size={20} /> Alimentos Orgánicos

@@ -18,14 +18,15 @@ import { generatePdf } from "@/lib/utils/pdfGenerator";
 import Modal from "@/components/ui/Modal";
 import EditFood from "./components/EditFood";
 
+
 type Props = {
-  params: Promise<{ userId: string }>;
+  params: { userId: string };
 };
 
 export default function DashboardUserFoodsPage({ params }: Props) {
   const [foods, setFoods] = useState<Food[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const { userId } = React.use(params);
+  const { userId } = params;
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;

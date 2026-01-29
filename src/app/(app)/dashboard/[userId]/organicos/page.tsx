@@ -11,13 +11,13 @@ import TraditionFoodDetails from "./components/TraditionFoodDetails";
 import Swal from "sweetalert2";
 
 type Props = {
-  params: Promise<{ userId: string }>;
+  params: { userId: string };
 };
 
 export default function DashboardUserFoodsPage({ params }: Props) {
   const [foods, setFoods] = useState<TraditionalFood[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const { userId } = React.use(params);
+  const { userId } = params;
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -28,14 +28,11 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   const fetchTraditionalFoods = useCallback(async () => {
     try {
       setLoading(true);
-      console.log("#####111");
 
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods/organicos`,
-        { cache: "no-store" }
+        { cache: "no-store" },
       );
-      console.log(res);
-      console.log("#####222");
       if (!res.ok) throw new Error("Error al obtener los alimentos");
       const data = await res.json();
       setFoods(data);
@@ -48,7 +45,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
 
   const filteredFoods = useMemo(() => {
     return foods.filter((food) =>
-      food.name.toLowerCase().includes(searchTerm.toLowerCase())
+      food.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [foods, searchTerm]);
 
@@ -57,7 +54,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   const paginatedFoods = useMemo(() => {
     return filteredFoods.slice(
       (currentPage - 1) * itemsPerPage,
-      currentPage * itemsPerPage
+      currentPage * itemsPerPage,
     );
   }, [filteredFoods, currentPage, itemsPerPage]);
 
@@ -80,7 +77,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
 
   const toggleSelect = (id: number) => {
     setSelectedFoods((prev) =>
-      prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id],
     );
   };
 
@@ -99,22 +96,16 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     if (!result.isConfirmed) return;
     console.log("Eliminando alimento con ID:", id);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods/organicos/${id}`,
-        { method: "DELETE" }
-      );
+      const res = await fetch(`/api/users/${userId}/foods/organicos/${id}`, {
+        method: "DELETE",
+      });
 
-      let data: { message?: string } = {};
-
-      try {
-        data = await res.json();
-      } catch (e) {
-        console.warn("Respuesta no JSON", e);
-      }
+      // let data: { message?: string } = {};
+      const data = await res.json();
 
       if (!res.ok) {
         throw new Error(
-          data?.message ?? `Error al eliminar. Status: ${res.status}`
+          data?.message ?? `Error al eliminar. Status: ${res.status}`,
         );
       }
 
@@ -204,12 +195,12 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                       if (e.target.checked) {
                         const nuevosIds = paginatedFoods.map((f) => f.id);
                         setSelectedFoods((prev) =>
-                          Array.from(new Set([...prev, ...nuevosIds]))
+                          Array.from(new Set([...prev, ...nuevosIds])),
                         );
                       } else {
                         const idsPaginaActual = paginatedFoods.map((f) => f.id);
                         setSelectedFoods((prev) =>
-                          prev.filter((id) => !idsPaginaActual.includes(id))
+                          prev.filter((id) => !idsPaginaActual.includes(id)),
                         );
                       }
                     }}

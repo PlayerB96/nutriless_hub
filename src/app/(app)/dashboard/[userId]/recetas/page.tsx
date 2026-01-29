@@ -86,7 +86,7 @@ export default function DashboardUserRecipesPage() {
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         
 
-        <div className="w-full sm:w-auto bg-white dark:bg-slate-900 border dark:border-slate-700 rounded-xl p-4 shadow-sm">
+        <div className="w-full sm:w-auto bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Filter className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">

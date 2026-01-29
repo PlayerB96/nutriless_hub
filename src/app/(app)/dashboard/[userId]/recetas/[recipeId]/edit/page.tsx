@@ -57,7 +57,7 @@ export default function EditRecipePage() {
   useEffect(() => {
     const fetchFoods = async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods/organicos`
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods/organicos`,
       );
       const data = await res.json();
       setAvailableFoods(data);
@@ -71,7 +71,7 @@ export default function EditRecipePage() {
     const fetchRecipe = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/${recipeId}`
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/${recipeId}`,
         );
         if (!res.ok) throw new Error("Error al cargar receta");
         const data = await res.json();
@@ -170,10 +170,10 @@ export default function EditRecipePage() {
       text: "Esta acción no se puede deshacer.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
       confirmButtonText: "Sí, eliminar",
       cancelButtonText: "Cancelar",
+      background: "var(--primary)",
+      color: "var(--text)",
     });
 
     if (!result.isConfirmed) return;
@@ -182,33 +182,35 @@ export default function EditRecipePage() {
       const res = await fetch(`/api/recipes/${recipe.id}`, {
         method: "DELETE",
       });
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
-        await Swal.fire(
-          "Error",
-          `No se pudo eliminar: ${data.message}`,
-          "error"
+        throw new Error(
+          data?.message ?? `Error al eliminar. Status: ${res.status}`,
         );
-        return;
       }
-      await Swal.fire(
-        "Eliminado",
-        "La receta fue eliminada correctamente.",
-        "success"
-      );
+      await Swal.fire({
+        title: "Eliminado",
+        text: data?.message || "La receta ha sido eliminada correctamente",
+        icon: "success",
+        background: "var(--primary)",
+        color: "var(--text)",
+      });
       router.push("/dashboard");
     } catch (error) {
       console.error("Error al eliminar receta:", error);
-      await Swal.fire(
-        "Error",
-        "Ocurrió un error al eliminar la receta.",
-        "error"
-      );
+      await Swal.fire({
+        title: "Error",
+        text: (error as Error).message || "No se pudo eliminar la receta",
+        icon: "error",
+        background: "var(--primary)",
+        color: "var(--text)",
+      });
     }
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     if (!recipe) return;
     const target = e.target;
@@ -263,7 +265,7 @@ export default function EditRecipePage() {
               instructions: recipe.detail?.instructions || [],
             },
           }),
-        }
+        },
       );
 
       if (!res.ok) {
