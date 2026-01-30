@@ -163,26 +163,30 @@ export default function PacientesPage() {
               {pacientesPaginados.map((p) => (
                 <tr
                   key={p.id}
-                  className="border-t hover:bg-secondary-secondary"
+                  className="border-t hover:bg-secondary-secondary cursor-pointer"
+                  onClick={() => {
+                    window.location.href = `/dashboard/${userId}/pacientes/${p.id}`;
+                  }}
                 >
                   <td className="px-4 py-2 font-medium">
                     {p.name} {p.lastName}
                   </td>
                   <td className="px-4 py-2">{p.gender}</td>
-                      <td className="px-4 py-2">{p.birthDate ? new Date(p.birthDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).replace(' de ', ' ').replace(' de ', ' del ') : ''}</td>
+                  <td className="px-4 py-2">{p.birthDate ? new Date(p.birthDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).replace(' de ', ' ').replace(' de ', ' del ') : ''}</td>
                   <td className="px-4 py-2 hidden lg:table-cell">{p.email}</td>
                   <td className="px-4 py-2">
                     <div className="flex gap-2">
                       <button
                         className=" hover:bg-primary-secondary  rounded cursor-pointer"
                         title="Editar"
+                        onClick={(e) => { e.stopPropagation(); /* lógica de editar */ }}
                       >
                         <SquarePen size={18} />
                       </button>
                       <button
                         className="text-red-500 hover:bg-primary-secondary p-2 rounded cursor-pointer flex items-center justify-center"
                         title="Eliminar"
-                        onClick={() => handleDelete(p.id)}
+                        onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }}
                       >
                         <Trash2 size={18} />
                       </button>
