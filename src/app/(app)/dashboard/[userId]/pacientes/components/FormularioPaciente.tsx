@@ -56,17 +56,23 @@ export default function FormularioPaciente({ onSubmitSuccess }: { onSubmitSucces
         <h3 className="text-xl font-semibold mb-4">Datos del Paciente</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="name" className="block mb-1 font-medium">Nombre</label>
+            <label htmlFor="name" className="block mb-1 font-medium">
+              Nombre <span className="text-red-500">*</span>
+            </label>
             <input name="name" id="name" value={form.name} onChange={handleChange} placeholder="Nombre" className="w-full border border-gray-300 rounded-md p-2 bg-bg" required />
           </div>
           <div>
-            <label htmlFor="lastName" className="block mb-1 font-medium">Apellido</label>
+            <label htmlFor="lastName" className="block mb-1 font-medium">
+              Apellido <span className="text-red-500">*</span>
+            </label>
             <input name="lastName" id="lastName" value={form.lastName} onChange={handleChange} placeholder="Apellido" className="w-full border border-gray-300 rounded-md p-2 bg-bg" required />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div>
-            <label htmlFor="gender" className="block mb-1 font-medium">Género</label>
+            <label htmlFor="gender" className="block mb-1 font-medium">
+              Género <span className="text-red-500">*</span>
+            </label>
             <select name="gender" id="gender" value={form.gender} onChange={handleChange} className="w-full border border-gray-300 rounded-md p-2 bg-bg" required>
               <option value="">Selecciona género</option>
               <option value="Masculino">Masculino</option>
@@ -74,7 +80,9 @@ export default function FormularioPaciente({ onSubmitSuccess }: { onSubmitSucces
             </select>
           </div>
           <div>
-            <label htmlFor="birthDate" className="block mb-1 font-medium">Fecha de nacimiento</label>
+            <label htmlFor="birthDate" className="block mb-1 font-medium">
+              Fecha de nacimiento <span className="text-red-500">*</span>
+            </label>
             <input name="birthDate" id="birthDate" type="date" value={form.birthDate} onChange={handleChange} className="w-full border border-gray-300 rounded-md p-2 bg-bg" required />
           </div>
         </div>

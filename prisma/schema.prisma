@@ -204,21 +204,26 @@ model RecipeDetail {
 
     @@unique([recipeDetailId, foodId])
   }
+  
 
-
-// 👤 PACIENTES PARA NUTRICIÓN
+// 👤 PATIENTS FOR NUTRITION
 model Patient {
-  id           Int      @id @default(autoincrement())
-  userId       Int      // Nutricionista dueño del paciente
-  name         String
-  lastName     String
-  gender       String   // M/F/O
-  birthDate    DateTime
-  email        String? @unique
-  phone        String?
-  height       Float?   // Altura en cm
-  weight       Float?   // Peso en kg
-  createdAt    DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  userId         Int      // Nutritionist who owns the patient
+  name           String
+  lastName       String
+  gender         String   // M / F / O
+  birthDate      DateTime
+  email          String?  @unique
+  phone          String?
+  height         Float?   // Height in cm
+  weight         Float?   // Weight in kg
 
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  maritalStatus  String?  // Single, Married, etc.
+  occupation     String?  // Job / profession
+  photo          String?  // Image URL or file path
+
+  createdAt      DateTime @default(now())
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

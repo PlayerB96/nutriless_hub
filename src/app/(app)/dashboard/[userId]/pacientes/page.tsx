@@ -1,9 +1,10 @@
 "use client";
 
-import { Contact, PlusCircle, SquarePen, Trash2 } from "lucide-react";
+import { Contact, Filter, PlusCircle, Search, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import Modal from "@/components/ui/Modal";
 import FormularioPaciente from "./components/FormularioPaciente";
 
@@ -13,6 +14,7 @@ type Paciente = {
   lastName: string;
   gender: string;
   birthDate: string;
+  createdAt?: string;
   email?: string;
   phone?: string;
   height?: number;
@@ -27,10 +29,59 @@ export default function PacientesPage() {
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+
   const [page, setPage] = useState(1);
   const pageSize = 6;
-  const totalPages = Math.ceil(pacientes.length / pageSize);
-  const pacientesPaginados = pacientes.slice(
+
+  const filteredPacientes = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    return pacientes.filter((p) => {
+      const fullName = `${p.name} ${p.lastName}`.toLowerCase();
+      const matchesName = !term || fullName.includes(term);
+
+      let matchesDate = true;
+      if (dateFilter && p.createdAt) {
+        const created = new Date(p.createdAt);
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+        switch (dateFilter) {
+          case "hoy":
+            matchesDate = created >= startOfToday;
+            break;
+          case "7d": {
+            const start = new Date(startOfToday);
+            start.setDate(start.getDate() - 6);
+            matchesDate = created >= start;
+            break;
+          }
+          case "30d": {
+            const start = new Date(startOfToday);
+            start.setDate(start.getDate() - 29);
+            matchesDate = created >= start;
+            break;
+          }
+          case "esteMes":
+            matchesDate =
+              created.getMonth() === now.getMonth() &&
+              created.getFullYear() === now.getFullYear();
+            break;
+          case "esteAno":
+            matchesDate = created.getFullYear() === now.getFullYear();
+            break;
+          default:
+            matchesDate = true;
+        }
+      }
+
+      return matchesName && matchesDate;
+    });
+  }, [pacientes, searchTerm, dateFilter]);
+
+  const totalPages = Math.ceil(filteredPacientes.length / pageSize);
+  const pacientesPaginados = filteredPacientes.slice(
     (page - 1) * pageSize,
     page * pageSize,
   );
@@ -106,6 +157,64 @@ export default function PacientesPage() {
           </button>
         </div>
 
+        {/* FILTROS */}
+        <div className="w-full bg-primary-secondary rounded-xl p-4 border border-primary">
+          <div className="flex items-center gap-2 mb-4">
+            <Filter className="w-4 h-4 text-secondary" />
+            <h3 className="text-sm font-semibold text-text">Filtros</h3>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Buscar por nombre */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-text-alt flex items-center gap-1">
+                <Search className="w-3.5 h-3.5" />
+                Buscar por nombre
+              </label>
+
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-alt" />
+                <input
+                  type="text"
+                  placeholder="Ej. Juan Pérez..."
+                  className="pl-9 pr-3 py-2 border border-primary rounded-lg w-full sm:w-64
+                     text-text bg-bg focus:ring-2 focus:ring-secondary focus:outline-none"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setPage(1);
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Filtro por fecha de registro */}
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium text-text-alt flex items-center gap-1">
+                <Filter className="w-3.5 h-3.5" />
+                Fecha de registro
+              </label>
+
+              <select
+                value={dateFilter}
+                onChange={(e) => {
+                  setDateFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="px-3 py-2 border border-primary rounded-lg
+                   text-text bg-bg focus:ring-2 focus:ring-secondary focus:outline-none"
+              >
+                <option value="">Todas</option>
+                <option value="hoy">Hoy</option>
+                <option value="7d">Últimos 7 días</option>
+                <option value="30d">Últimos 30 días</option>
+                <option value="esteMes">Este mes</option>
+                <option value="esteAno">Este año</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         {/* LOADING */}
         {loading && <p className="text-text-alt">Cargando pacientes...</p>}
 
@@ -129,12 +238,6 @@ export default function PacientesPage() {
               </div>
 
               <div className="flex gap-2 mt-3">
-                <button
-                  className="text-primary hover:bg-primary-secondary p-2 rounded cursor-pointer flex items-center justify-center"
-                  title="Editar"
-                >
-                  <SquarePen size={18} />
-                </button>
                 <button
                   className="text-red-500 hover:bg-primary-secondary p-2 rounded cursor-pointer flex items-center justify-center"
                   title="Eliminar"
@@ -160,40 +263,44 @@ export default function PacientesPage() {
               </tr>
             </thead>
             <tbody>
-              {pacientesPaginados.map((p) => (
-                <tr
-                  key={p.id}
-                  className="border-t hover:bg-secondary-secondary cursor-pointer"
-                  onClick={() => {
-                    window.location.href = `/dashboard/${userId}/pacientes/${p.id}`;
-                  }}
-                >
-                  <td className="px-4 py-2 font-medium">
-                    {p.name} {p.lastName}
-                  </td>
-                  <td className="px-4 py-2">{p.gender}</td>
-                  <td className="px-4 py-2">{p.birthDate ? new Date(p.birthDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).replace(' de ', ' ').replace(' de ', ' del ') : ''}</td>
-                  <td className="px-4 py-2 hidden lg:table-cell">{p.email}</td>
-                  <td className="px-4 py-2">
-                    <div className="flex gap-2">
-                      <button
-                        className=" hover:bg-primary-secondary  rounded cursor-pointer"
-                        title="Editar"
-                        onClick={(e) => { e.stopPropagation(); /* lógica de editar */ }}
-                      >
-                        <SquarePen size={18} />
-                      </button>
-                      <button
-                        className="text-red-500 hover:bg-primary-secondary p-2 rounded cursor-pointer flex items-center justify-center"
-                        title="Eliminar"
-                        onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }}
-                      >
-                        <Trash2 size={18} />
-                      </button>
+              {loading ? (
+                <tr className="border-t">
+                  <td colSpan={5} className="px-4 py-8 text-center">
+                    <div className="flex items-center justify-center gap-2 text-text-alt">
+                      <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-secondary border-t-transparent" />
+                      Cargando pacientes...
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                pacientesPaginados.map((p) => (
+                  <tr
+                    key={p.id}
+                    className="border-t hover:bg-secondary-secondary cursor-pointer"
+                    onClick={() => {
+                      window.location.href = `/dashboard/${userId}/pacientes/${p.id}`;
+                    }}
+                  >
+                    <td className="px-4 py-2 font-medium">
+                      {p.name} {p.lastName}
+                    </td>
+                    <td className="px-4 py-2">{p.gender}</td>
+                    <td className="px-4 py-2">{p.birthDate ? new Date(p.birthDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).replace(' de ', ' ').replace(' de ', ' del ') : ''}</td>
+                    <td className="px-4 py-2 hidden lg:table-cell">{p.email}</td>
+                    <td className="px-4 py-2">
+                      <div className="flex gap-2">
+                        <button
+                          className="text-red-500 hover:bg-primary-secondary p-2 rounded cursor-pointer flex items-center justify-center"
+                          title="Eliminar"
+                          onClick={(e) => { e.stopPropagation(); handleDelete(p.id); }}
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -227,12 +334,28 @@ export default function PacientesPage() {
         <div className="w-full bg-primary-secondary rounded-xl p-4">
           <h3 className=" font-semibold mb-3">Recientes</h3>
           <ul className="space-y-2">
-            {pacientes.slice(0, 3).map((p) => (
-              <li key={p.id} className="bg-primary p-3 rounded-lg text-sm">
-                <div className="font-bold">
-                  {p.name} {p.lastName}
-                </div>
-                <div className="text-xs text-text-alt">{p.email}</div>
+            {pacientes.slice(0, 5).map((p) => (
+              <li key={p.id}>
+                <Link
+                  href={`/dashboard/${userId}/pacientes/${p.id}`}
+                  className="block bg-primary p-3 rounded-lg text-sm hover:bg-secondary-secondary transition-all duration-200 cursor-pointer hover:shadow-sm hover:-translate-y-0.5"
+                >
+                  <div className="font-bold">
+                    {p.name} {p.lastName}
+                  </div>
+                  <div className="text-xs text-text-alt">{p.email || "Sin correo"}</div>
+                  <div className="text-[11px] text-text-alt">
+                    {p.createdAt
+                      ? `Registrado: ${new Date(p.createdAt).toLocaleString("es-ES", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}`
+                      : ""}
+                  </div>
+                </Link>
               </li>
             ))}
           </ul>
