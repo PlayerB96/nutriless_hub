@@ -6,6 +6,7 @@ import Modal from "@/components/ui/Modal";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import FormularioAlimento from "./components/FormularioAlimento";
+import FormularioPaciente from "./[userId]/pacientes/components/FormularioPaciente";
 import {
   BookOpen,
   Contact,
@@ -19,9 +20,9 @@ import FormularioReceta from "./components/FormularioReceta";
 
 export default function Home() {
   // Estado que indica qué modal está abierto, o null si ninguno
-  const [openModal, setOpenModal] = useState<"alimento" | "receta" | null>(
-    null,
-  );
+  const [openModal, setOpenModal] = useState<
+    "alimento" | "receta" | "paciente" | null
+  >(null);
 
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -60,7 +61,7 @@ export default function Home() {
               <h2 className="text-xl font-semibold mb-4">Pacientes</h2>
               <button
                 className="w-full cursor-pointer flex items-center justify-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg font-medium mb-3 shadow hover:scale-105  hover:bg-secondary-secondary focus:outline-none focus:ring-2 focus:ring-secondary"
-                onClick={() => setOpenModal("receta")}
+                onClick={() => setOpenModal("paciente")}
               >
                 <User size={20} /> Agregar Paciente
               </button>
@@ -124,14 +125,23 @@ export default function Home() {
           <FormularioAlimento onSubmitSuccess={handleSubmitSuccess} />
         </Modal>
 
-        {/* Modal para Receta (ejemplo, agrega el componente de receta aquí) */}
+        {/* Modal para Paciente */}
+        <Modal
+          isOpen={openModal === "paciente"}
+          onClose={() => setOpenModal(null)}
+          title="Crea Nuevo Paciente"
+          width="w-full max-w-4xl"
+        >
+          <FormularioPaciente onSubmitSuccess={handleSubmitSuccess} />
+        </Modal>
+
+        {/* Modal para Receta */}
         <Modal
           isOpen={openModal === "receta"}
           onClose={() => setOpenModal(null)}
           title="Crea Nueva Receta"
           width="w-full max-w-4xl"
         >
-          {/* Aquí puedes poner el formulario de receta, por ejemplo: */}
           <FormularioReceta
             onSubmitSuccess={handleSubmitSuccess}
             userId={userId}
