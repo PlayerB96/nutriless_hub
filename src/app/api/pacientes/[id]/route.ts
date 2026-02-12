@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma";
 // GET /api/pacientes/[id]
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const id = Number(params.id);
+  const { id: idStr } = await params;
+  const id = Number(idStr);
   if (!id) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
@@ -27,9 +28,10 @@ export async function GET(
 // DELETE /api/pacientes/[id]
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const id = Number(params.id);
+  const { id: idStr } = await params;
+  const id = Number(idStr);
   if (!id) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }

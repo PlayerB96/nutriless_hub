@@ -104,12 +104,22 @@ export default function PacientesPage() {
       const res = await fetch(`/api/pacientes/${id}`, {
         method: "DELETE",
       });
-      const data = await res.json();
+      
       if (!res.ok) {
-        throw new Error(
-          data?.message ?? `Error al eliminar. Status: ${res.status}`,
-        );
+        const text = await res.text();
+        let errorMessage = `Error al eliminar. Status: ${res.status}`;
+        try {
+          const data = JSON.parse(text);
+          errorMessage = data?.message || data?.error || errorMessage;
+        } catch {
+          // Si no es JSON válido, usar el mensaje por defecto
+        }
+        throw new Error(errorMessage);
       }
+      
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+      
       setPacientes((prev) => prev.filter((p) => p.id !== id));
       Swal.fire({
         title: "Eliminado",
@@ -133,8 +143,21 @@ export default function PacientesPage() {
   useEffect(() => {
     if (!userId) return;
     fetch(`/api/pacientes?userId=${userId}`)
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(`Error al cargar pacientes: ${res.status}`);
+        }
+        const text = await res.text();
+        if (!text) {
+          return [];
+        }
+        return JSON.parse(text);
+      })
       .then((data) => setPacientes(data))
+      .catch((error) => {
+        console.error("Error al cargar pacientes:", error);
+        setPacientes([]);
+      })
       .finally(() => setLoading(false));
   }, [userId]);
 
