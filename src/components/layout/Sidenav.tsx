@@ -83,19 +83,26 @@ export default function SideNav({
         </nav>
       </aside>
 
-      {/* Drawer para mobile */}
+      {/* Drawer móvil: panel 80% + 20% de contenido visible */}
       <div
-        className={`fixed inset-0 z-50 md:hidden transition-transform duration-300 ${
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-0 z-50 md:hidden ${
+          isMobileOpen ? "visible" : "invisible pointer-events-none"
         }`}
       >
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50"
+        <button
+          type="button"
+          className={`fixed inset-y-0 right-0 w-[20%] bg-black/40 transition-opacity duration-300 ${
+            isMobileOpen ? "opacity-100" : "opacity-0"
+          }`}
           onClick={() => setIsMobileOpen(false)}
-          aria-hidden="true"
+          aria-label="Cerrar menú"
         />
 
-        <aside className="relative w-full h-full bg-white dark:bg-gray-900 p-4">
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 flex w-[80%] flex-col bg-primary p-4 shadow-xl transition-transform duration-300 dark:bg-primary ${
+            isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
           <div className="mb-4 flex justify-between items-center">
             <Image
               src="/images/logonutri.png"
@@ -108,8 +115,9 @@ export default function SideNav({
             />
 
             <button
+              type="button"
               onClick={() => setIsMobileOpen(false)}
-              className="text-gray-900 dark:text-white focus:outline-none hover:opacity-70 transition-opacity"
+              className="text-gray-900 transition-opacity hover:opacity-70 focus:outline-none dark:text-white"
               aria-label="Cerrar menú"
             >
               <X size={24} />
@@ -123,20 +131,19 @@ export default function SideNav({
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => setIsMobileOpen(false)}
                   className={`
                     flex items-center gap-3 rounded px-2 py-2 transition-colors
-                    hover:bg-gray-100 dark:hover:bg-gray-800
+                    focus:outline-none focus:ring-2 focus:ring-primary/50
                     ${
                       isActive
                         ? "bg-secondary text-white dark:text-white font-semibold"
-                        : "text-gray-700 dark:text-gray-200"
+                        : "dark:text-white/90 hover:bg-white/10 dark:hover:bg-white/10"
                     }
                   `}
                 >
                   <span className="text-xl">{item.icon}</span>
-                  {!isCollapsed && (
-                    <span className="text-sm">{item.label}</span>
-                  )}
+                  <span className="text-sm">{item.label}</span>
                 </Link>
               );
             })}

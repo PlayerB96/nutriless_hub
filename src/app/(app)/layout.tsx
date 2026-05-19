@@ -30,13 +30,6 @@ export default function RootLayout({
                 setIsMobileOpen={setIsMobileOpen}
               />
 
-              {isMobileOpen && (
-                <div
-                  className="fixed inset-0 bg-black bg-opacity-40 z-30 md:hidden"
-                  onClick={() => setIsMobileOpen(false)}
-                />
-              )}
-
               <div
                 className={`flex-1 flex flex-col transition-all duration-300
                 ${isCollapsed ? "md:pl-16" : "md:pl-56"}
