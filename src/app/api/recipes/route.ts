@@ -1,29 +1,27 @@
 import { prisma } from "@/lib/prisma";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+import { requireSession, assertUserIdMatch } from "@/lib/auth-helpers";
+import { corsOptionsResponse, getCorsHeaders } from "@/lib/cors";
 
 export async function OPTIONS() {
-  return new Response(null, {
-    status: 204,
-    headers: corsHeaders,
-  });
+  return corsOptionsResponse();
 }
 
-// ⬇️ GET: listar todas las recetas del usuario
 export async function GET(req: Request) {
+  const auth = await requireSession();
+  if (!auth.ok) return auth.response;
+
   const { searchParams } = new URL(req.url);
   const userId = Number(searchParams.get("userId"));
 
-  if (isNaN(userId)) {
+  if (Number.isNaN(userId)) {
     return new Response(JSON.stringify({ message: "ID de usuario inválido" }), {
       status: 400,
-      headers: corsHeaders,
+      headers: getCorsHeaders(),
     });
   }
+
+  const forbidden = assertUserIdMatch(auth.userId, userId);
+  if (forbidden) return forbidden;
 
   try {
     const recipes = await prisma.recipe.findMany({
@@ -36,19 +34,21 @@ export async function GET(req: Request) {
 
     return new Response(JSON.stringify(recipes), {
       status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
+      headers: { "Content-Type": "application/json", ...getCorsHeaders() },
     });
   } catch (error) {
     console.error("Error al obtener recetas:", error);
     return new Response(JSON.stringify({ message: "Error interno" }), {
       status: 500,
-      headers: corsHeaders,
+      headers: getCorsHeaders(),
     });
   }
 }
 
-// ⬇️ POST: registrar una receta nueva
 export async function POST(req: Request) {
+  const auth = await requireSession();
+  if (!auth.ok) return auth.response;
+
   try {
     const formData = await req.formData();
 
@@ -66,12 +66,15 @@ export async function POST(req: Request) {
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
-    if (!name || tags.length === 0 || !difficulty || isNaN(userId)) {
+    if (!name || tags.length === 0 || !difficulty || Number.isNaN(userId)) {
       return new Response(JSON.stringify({ message: "Campos inválidos" }), {
         status: 400,
-        headers: corsHeaders,
+        headers: getCorsHeaders(),
       });
     }
+
+    const forbidden = assertUserIdMatch(auth.userId, userId);
+    if (forbidden) return forbidden;
 
     const newRecipe = await prisma.recipe.create({
       data: {
@@ -93,14 +96,14 @@ export async function POST(req: Request) {
       }),
       {
         status: 201,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+        headers: { "Content-Type": "application/json", ...getCorsHeaders() },
+      },
     );
   } catch (error) {
     console.error("Error al registrar receta:", error);
     return new Response(JSON.stringify({ message: "Error interno" }), {
       status: 500,
-      headers: corsHeaders,
+      headers: getCorsHeaders(),
     });
   }
 }

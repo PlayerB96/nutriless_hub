@@ -56,9 +56,7 @@ export default function EditRecipePage() {
   // 🔹 Fetch alimentos disponibles
   useEffect(() => {
     const fetchFoods = async () => {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods/organicos`,
-      );
+      const res = await fetch(`/api/users/${userId}/foods/organicos`);
       const data = await res.json();
       setAvailableFoods(data);
     };
@@ -70,9 +68,7 @@ export default function EditRecipePage() {
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/${recipeId}`,
-        );
+        const res = await fetch(`/api/recipes/${recipeId}`);
         if (!res.ok) throw new Error("Error al cargar receta");
         const data = await res.json();
         setRecipe(data);
@@ -250,9 +246,7 @@ export default function EditRecipePage() {
     }
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes/update`,
-        {
+      const res = await fetch("/api/recipes/update", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

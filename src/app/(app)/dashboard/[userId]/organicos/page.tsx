@@ -29,8 +29,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
     try {
       setLoading(true);
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods/organicos`,
+      const res = await fetch(`/api/users/${userId}/foods/organicos`,
         { cache: "no-store" },
       );
       if (!res.ok) throw new Error("Error al obtener los alimentos");

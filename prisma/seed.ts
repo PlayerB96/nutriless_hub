@@ -29,12 +29,28 @@ const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient();
 
 async function seedAdmin() {
-  const email = "nutriless.29@gmail.com";
-  const password = await bcrypt.hash("123", 10);
+  const email = process.env.SEED_ADMIN_EMAIL ?? "nutriless.29@gmail.com";
+  const plainPassword = process.env.SEED_ADMIN_PASSWORD;
+
+  if (!plainPassword) {
+    console.warn(
+      "⚠️ SEED_ADMIN_PASSWORD no definido; se omite el usuario admin del seed.",
+    );
+    return;
+  }
+
+  if (plainPassword.length < 12) {
+    console.warn(
+      "⚠️ SEED_ADMIN_PASSWORD debe tener al menos 12 caracteres; se omite el usuario admin.",
+    );
+    return;
+  }
+
+  const password = await bcrypt.hash(plainPassword, 12);
 
   await prisma.user.upsert({
     where: { email },
-    update: {},
+    update: { password },
     create: {
       name: "Lesly Allca Ruiz",
       email,

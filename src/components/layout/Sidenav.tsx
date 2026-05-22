@@ -13,6 +13,12 @@ interface SideNavProps {
   setIsMobileOpen: (value: boolean) => void;
 }
 
+/** Coincide la ruta exacta o subrutas (p. ej. /dashboard/1/pacientes → /dashboard). */
+function isNavItemActive(pathname: string, href: string): boolean {
+  if (pathname === href) return true;
+  return pathname.startsWith(`${href}/`);
+}
+
 export default function SideNav({
   isCollapsed,
   isMobileOpen,
@@ -40,7 +46,7 @@ export default function SideNav({
     <>
       {/* Sidebar para desktop */}
       <aside
-        className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-40 bg-primary dark:bg-primary ${
+        className={`hidden md:flex flex-col fixed inset-y-0 left-0 z-40 bg-primary border-r border-primary dark:bg-primary dark:border-transparent ${
           isCollapsed ? "w-16" : "w-56"
         }`}
       >
@@ -60,7 +66,7 @@ export default function SideNav({
 
         <nav className="flex-1 px-2 pt-8 space-y-2">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href; // ② true si la ruta actual coincide
+            const isActive = isNavItemActive(pathname, item.href);
             return (
               <Link
                 key={item.href}
@@ -71,7 +77,7 @@ export default function SideNav({
                 ${
                   isActive
                     ? "bg-secondary text-white dark:text-white font-semibold"
-                    : "dark:text-white/90 hover:bg-white/10 dark:hover:bg-white/10"
+                    : "text-text hover:bg-secondary-secondary dark:text-white/90 dark:hover:bg-white/10"
                 }
               `}
               >
@@ -126,7 +132,7 @@ export default function SideNav({
 
           <nav className="flex flex-col space-y-2">
             {menuItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = isNavItemActive(pathname, item.href);
               return (
                 <Link
                   key={item.href}
@@ -138,7 +144,7 @@ export default function SideNav({
                     ${
                       isActive
                         ? "bg-secondary text-white dark:text-white font-semibold"
-                        : "dark:text-white/90 hover:bg-white/10 dark:hover:bg-white/10"
+                        : "text-text hover:bg-secondary-secondary dark:text-white/90 dark:hover:bg-white/10"
                     }
                   `}
                 >

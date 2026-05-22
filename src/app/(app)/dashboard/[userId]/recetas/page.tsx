@@ -31,10 +31,10 @@ export default function DashboardUserRecipesPage() {
   const fetchRecipes = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/recipes?userId=${userId}`,
-        { cache: "no-store" }
-      );
+      const res = await fetch(`/api/recipes?userId=${userId}`, {
+        cache: "no-store",
+        credentials: "same-origin",
+      });
       if (!res.ok) throw new Error("Error al obtener las recetas");
       const data = await res.json();
       setRecipes(data);

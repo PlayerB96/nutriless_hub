@@ -1,10 +1,25 @@
 import { Food } from "@/domain/models/food";
+import { getPublicImageUrl } from "@/lib/image-url";
 import { jsPDF } from "jspdf";
 
-const loadImageAsBase64 = (url: string): Promise<string> => {
+async function loadImageAsBase64(url: string): Promise<string> {
+  if (url.startsWith("/api/images/")) {
+    const res = await fetch(url, { credentials: "include" });
+    if (!res.ok) throw new Error(`Error al cargar imagen (${res.status})`);
+    const blob = await res.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = "Anonymous";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      img.crossOrigin = "anonymous";
+    }
     img.onload = () => {
       const canvas = document.createElement("canvas");
       canvas.width = img.width;
@@ -12,13 +27,12 @@ const loadImageAsBase64 = (url: string): Promise<string> => {
       const ctx = canvas.getContext("2d");
       if (!ctx) return reject("No se pudo crear contexto 2D");
       ctx.drawImage(img, 0, 0);
-      const dataURL = canvas.toDataURL("image/png");
-      resolve(dataURL);
+      resolve(canvas.toDataURL("image/png"));
     };
     img.onerror = reject;
     img.src = url;
   });
-};
+}
 
 const centeredText = (
   doc: jsPDF,
@@ -105,7 +119,8 @@ export const generatePdf = async (
 
       if (food.imageUrl) {
         try {
-          const imageUrl = `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${food.imageUrl}`;
+          const imageUrl = getPublicImageUrl(food.imageUrl);
+          if (!imageUrl) throw new Error("URL de imagen no disponible");
 
           const base64Image = await loadImageAsBase64(imageUrl);
 

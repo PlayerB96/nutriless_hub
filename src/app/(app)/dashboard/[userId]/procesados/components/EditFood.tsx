@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { getPublicImageUrl } from "@/lib/image-url";
 import { Food } from "@/domain/models/food";
 import { NutritionDetail } from "@/domain/models/nutritionDetail";
 import { ImagePlus, LoaderCircle, Plus, Trash2 } from "lucide-react";
@@ -312,21 +313,24 @@ export default function EditFood({
               className="object-cover rounded"
               unoptimized
             />
-          ) : formData.imageUrl && typeof formData.imageUrl === "string" ? (
-            <Image
-              src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${formData.imageUrl}`}
-              alt={formData.name || "Imagen"}
-              width={192}
-              height={192}
-              className="object-cover rounded"
-              unoptimized
-            />
-          ) : (
-            <>
-              <ImagePlus />
-              <span className="text-gray-500">Selecciona una imagen</span>
-            </>
-          )}
+          ) : (() => {
+            const imageSrc = getPublicImageUrl(formData.imageUrl);
+            return imageSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={imageSrc}
+                alt={formData.name || "Imagen"}
+                width={192}
+                height={192}
+                className="h-48 w-48 object-cover rounded"
+              />
+            ) : (
+              <>
+                <ImagePlus />
+                <span className="text-gray-500">Selecciona una imagen</span>
+              </>
+            );
+          })()}
 
           <input
             id="fileInput"

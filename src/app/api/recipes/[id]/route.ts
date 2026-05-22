@@ -1,17 +1,23 @@
 import { prisma } from "@/lib/prisma";
+import { requireSession, requireRecipeOwned } from "@/lib/auth-helpers";
 
 type tParams = Promise<{ id: string }>;
 
-// Obtener una receta por ID
-export async function GET(req: Request, { params }: { params: tParams }) {
+export async function GET(_req: Request, { params }: { params: tParams }) {
+  const auth = await requireSession();
+  if (!auth.ok) return auth.response;
+
   const resolvedParams = await params;
   const recipeId = Number(resolvedParams.id);
 
-  if (isNaN(recipeId)) {
+  if (Number.isNaN(recipeId)) {
     return new Response(JSON.stringify({ message: "ID inválido" }), {
       status: 400,
     });
   }
+
+  const access = await requireRecipeOwned(recipeId, auth.userId);
+  if (!access.ok) return access.response;
 
   try {
     const recipe = await prisma.recipe.findUnique({
@@ -23,11 +29,11 @@ export async function GET(req: Request, { params }: { params: tParams }) {
               include: {
                 food: {
                   include: {
-                    nutrients: true, // nutrientes del alimento
-                    householdMeasures: true, // ✅ aquí
+                    nutrients: true,
+                    householdMeasures: true,
                   },
                 },
-                medida: true, // info de la medida usada
+                medida: true,
               },
             },
           },
@@ -41,7 +47,6 @@ export async function GET(req: Request, { params }: { params: tParams }) {
       });
     }
 
-    // Reconstruir ingredientes enriquecidos con cantidad y tfingredientsipo de medida
     const enrichedIngredients =
       recipe.detail?.recipeIngredients.map((ri) => ({
         id: ri.food.id,
@@ -50,10 +55,10 @@ export async function GET(req: Request, { params }: { params: tParams }) {
         origin: ri.food.origin,
         imageUrl: ri.food.imageUrl,
         nutrients: ri.food.nutrients || [],
-        cantidad: ri.cantidad, // cantidad usada en la receta
-        tipoMedida: ri.medidaId, // id de la medida
-        medida: ri.medida!, // objeto completo de la medida
-        householdMeasures: ri.food.householdMeasures || [], // ✅ obligatorio
+        cantidad: ri.cantidad,
+        tipoMedida: ri.medidaId,
+        medida: ri.medida!,
+        householdMeasures: ri.food.householdMeasures || [],
       })) ?? [];
 
     const enrichedRecipe = {
@@ -63,14 +68,6 @@ export async function GET(req: Request, { params }: { params: tParams }) {
         ingredients: enrichedIngredients,
       },
     };
-
-    console.log("📦 Receta enriquecida:", enrichedRecipe);
-    enrichedRecipe.detail.ingredients.forEach((ingredient) => {
-      // console.log("🍴 Ingrediente:", ingredient.name);
-      console.log("   Cantidad usada en receta:", ingredient.cantidad); // ✅ viene de RecipeIngredient
-      console.log("   Medida completa:", ingredient.medida.weightGrams);
-      // console.log("   Nutrientes:", ingredient.nutrients);
-    });
 
     return new Response(JSON.stringify(enrichedRecipe), {
       status: 200,
@@ -84,18 +81,23 @@ export async function GET(req: Request, { params }: { params: tParams }) {
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: tParams }) {
+export async function DELETE(_req: Request, { params }: { params: tParams }) {
+  const auth = await requireSession();
+  if (!auth.ok) return auth.response;
+
   const resolvedParams = await params;
   const recipeId = Number(resolvedParams.id);
 
-  if (isNaN(recipeId)) {
+  if (Number.isNaN(recipeId)) {
     return new Response(JSON.stringify({ message: "ID inválido" }), {
       status: 400,
     });
   }
 
+  const access = await requireRecipeOwned(recipeId, auth.userId);
+  if (!access.ok) return access.response;
+
   try {
-    // 1️⃣ Buscar los detalles de la receta
     const recipeDetails = await prisma.recipeDetail.findMany({
       where: { recipeId },
       select: { id: true },
@@ -103,17 +105,14 @@ export async function DELETE(req: Request, { params }: { params: tParams }) {
 
     const detailIds = recipeDetails.map((d) => d.id);
 
-    // 2️⃣ Borrar todos los RecipeIngredient asociados a esos detalles
     await prisma.recipeIngredient.deleteMany({
       where: { recipeDetailId: { in: detailIds } },
     });
 
-    // 3️⃣ Borrar los RecipeDetail asociados
     await prisma.recipeDetail.deleteMany({
       where: { recipeId },
     });
 
-    // 4️⃣ Finalmente borrar la receta
     await prisma.recipe.delete({
       where: { id: recipeId },
     });
@@ -123,7 +122,7 @@ export async function DELETE(req: Request, { params }: { params: tParams }) {
       {
         status: 200,
         headers: { "Content-Type": "application/json" },
-      }
+      },
     );
   } catch (error) {
     console.error("Error al eliminar receta:", error);

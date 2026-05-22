@@ -1,4 +1,11 @@
 @import "tailwindcss";
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Oculta el botón de preferencias de Next.js en desarrollo */
@@ -7,47 +14,58 @@
 }
 
 :root {
-  /* Fondo claro pastel para salud */
-  --bg: #faf9f6;               /* crema muy claro, casi blanco */
-  --text: #2e4a3b;             /* verde oscuro suave, texto principal */
-  --text-alt: #556b58;         /* verde grisáceo, texto secundario */
+  /* Base — neutros fríos con tinte verde suave */
+  --bg: #f4f7f5;
+  --text: #1a2e26;
+  --text-alt: #5c6f66;
 
-  /* Colores principales */
-  --primary: #ffedff;          /* azul pastel */
-  --primary-secondary: #a7c7ea;/* azul muy claro pastel */
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: #ffffff;
 
-  /* Colores secundarios */
-  --secondary: #ffb5df;        /* melocotón pastel */
-  --secondary-secondary: #ffe8d6; /* durazno muy claro */
+  /* Superficies (paneles, sidebar, tablas) */
+  --surface: #ffffff;
+  --surface-raised: #eef4f1;
+  --surface-sunken: #e4ece8;
 
-  --muted: #e0e0e0;            /* gris claro uso general */
+  --primary: var(--surface);
+  --primary-secondary: var(--surface-raised);
+
+  /* Acento de marca — verde salvia profesional */
+  --accent: #2f6b52;
+  --accent-hover: #255a45;
+  --accent-soft: #d8ebe3;
+  --accent-softer: #e8f4ee;
+
+  --secondary: var(--accent);
+  --secondary-secondary: var(--accent-soft);
+
+  /* Bordes y estados neutros */
+  --border: #d0ddd6;
+  --border-strong: #b5c9be;
+  --muted: #e2ebe6;
+  --muted-foreground: #6b7f76;
+
+  --primary-foreground: #ffffff;
 }
 
 /* Variables para modo oscuro - tonos oscuros y texturas suaves */
 .dark {
-  --bg: #121917;               /* negro verdoso profundo */
-  --text: #d0e8d0;             /* verde menta pálido, texto principal */
-  --text-alt: #a3c9a8;         /* verde grisáceo claro, texto secundario */
+  --bg: #121917;
+  --text: #d0e8d0;
+  --text-alt: #a3c9a8;
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: #1e2a24;
 
-  /* Colores principales oscuros */
-  --primary: #282828;          /* azul oscuro frío */
-  --primary-secondary: #3f3f3f; /* azul grisáceo */
+  --primary: #282828;
+  --primary-secondary: #3f3f3f;
 
-  /* Colores secundarios oscuros */
-  --secondary: #59b08a;        /* verde oscuro */
-  --secondary-secondary: #80c2a3; /* verde tono claro */
+  --secondary: #59b08a;
+  --secondary-secondary: #80c2a3;
 
-  --muted: #2e3c36;            /* verde grisáceo oscuro */
-}
-
-/* 
- * Soporte automático para modo oscuro según la preferencia del sistema operativo
- */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #0a0a0a;
-  }
+  --muted: #2e3c36;
+  --muted-foreground: #a3c9a8;
 }
 
 /* Aplica las variables CSS en el body */
@@ -57,12 +75,14 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* --- Utilidades de color --- */
+
 .bg-primary {
   background-color: var(--primary);
 }
 
 .text-primary {
-  color: var(--primary);
+  color: var(--accent);
 }
 
 .bg-secondary {
@@ -89,7 +109,6 @@ body {
   color: var(--secondary-secondary);
 }
 
-/* También para texto principal y secundario */
 .text-text {
   color: var(--text);
 }
@@ -98,11 +117,44 @@ body {
   color: var(--text-alt);
 }
 
-/* Fondo y texto general */
 .bg-bg {
   background-color: var(--bg);
 }
 
 .text-default {
   color: var(--text);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.text-primary-foreground {
+  color: var(--primary-foreground);
+}
+
+/* Modo claro: ajustes semánticos */
+:root .border-primary {
+  border-color: var(--border);
+}
+
+:root .bg-primary.text-white {
+  background-color: var(--secondary);
+}
+
+:root .bg-primary.text-white:hover,
+:root .bg-primary.text-white:focus-visible {
+  background-color: var(--accent-hover);
+}
+
+.dark .text-primary {
+  color: var(--secondary);
+}
+
+.dark .text-muted {
+  color: var(--muted-foreground);
+}
+
+.text-muted-secondary {
+  color: var(--secondary-secondary);
 }

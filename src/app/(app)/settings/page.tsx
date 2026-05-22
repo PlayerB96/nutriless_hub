@@ -1,76 +1,62 @@
 "use client";
 
 import MainContent from "@/components/ui/MainContent";
-import { useSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { useRequireAuth } from "@/shared/hooks/useRequireAuth";
+
+const IDLE_TIMEOUT_MS = 100_000;
 
 export default function SettingsPage() {
-  const { status } = useSession();
+  const { isAuthorized } = useRequireAuth();
   const router = useRouter();
-
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
-  // Función para cerrar sesión y redirigir
   const logout = useCallback(() => {
     signOut({ redirect: false });
     router.replace("/login");
-  }, [router]); // Quitamos 'signOut' de las dependencias
+  }, [router]);
 
   const resetTimer = useCallback(() => {
     if (timeoutId.current) clearTimeout(timeoutId.current);
-    timeoutId.current = setTimeout(() => {
-      logout();
-    }, 100000);
+    timeoutId.current = setTimeout(logout, IDLE_TIMEOUT_MS);
   }, [logout]);
 
   useEffect(() => {
-    if (status === "authenticated") {
-      resetTimer();
+    if (!isAuthorized) return;
 
-      const events = ["mousemove", "keydown", "scroll", "touchstart"];
-      events.forEach((event) => window.addEventListener(event, resetTimer));
+    resetTimer();
+    const events = ["mousemove", "keydown", "scroll", "touchstart"] as const;
+    events.forEach((event) => window.addEventListener(event, resetTimer));
 
-      return () => {
-        if (timeoutId.current) clearTimeout(timeoutId.current);
-        events.forEach((event) =>
-          window.removeEventListener(event, resetTimer)
-        );
-      };
-    }
-  }, [status, resetTimer]);
+    return () => {
+      if (timeoutId.current) clearTimeout(timeoutId.current);
+      events.forEach((event) =>
+        window.removeEventListener(event, resetTimer),
+      );
+    };
+  }, [isAuthorized, resetTimer]);
 
-  // Redirigir si no autenticado
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.replace("/login");
-    }
-  }, [status, router]);
-
-  if (status === "loading") {
-    return <div>Cargando...</div>;
+  if (!isAuthorized) {
+    return null;
   }
 
-  if (status === "authenticated") {
-    return (
-      <MainContent>
-        <h1 className="text-4xl font-bold mb-6 text-primary">Configuración</h1>
+  return (
+    <MainContent>
+      <h1 className="text-4xl font-bold mb-6 text-primary">Configuración</h1>
 
-        <section className="space-y-4">
-          <div>
-            <h2 className="text-2xl font-semibold mb-2 text-secondary">
-              Otras opciones
-            </h2>
-            <p className="text-muted dark:text-muted-secondary">
-              Aquí puedes agregar más opciones de configuración según tus
-              necesidades.
-            </p>
-          </div>
-        </section>
-      </MainContent>
-    );
-  }
-
-  return null;
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-2xl font-semibold mb-2 text-secondary">
+            Otras opciones
+          </h2>
+          <p className="text-muted dark:text-muted-secondary">
+            Aquí puedes agregar más opciones de configuración según tus
+            necesidades.
+          </p>
+        </div>
+      </section>
+    </MainContent>
+  );
 }

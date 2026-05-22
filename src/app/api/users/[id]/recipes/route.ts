@@ -1,26 +1,29 @@
+import { requireSessionUser } from "@/lib/auth-helpers";
 import { prisma } from "@/lib/prisma";
 
 type tParams = Promise<{ id: string }>;
 
-export async function GET(req: Request, { params }: { params: tParams }) {
-  const resolvedParams = await params; // ✅ Await al inicio
-  const userId = Number(resolvedParams.id); // ✅ Acceso después del await
+export async function GET(_req: Request, { params }: { params: tParams }) {
+  const resolvedParams = await params;
+  const userId = Number(resolvedParams.id);
 
-  if (isNaN(userId)) {
+  if (Number.isNaN(userId)) {
     return new Response(JSON.stringify({ message: "ID inválido" }), {
       status: 400,
     });
   }
 
+  const auth = await requireSessionUser(userId);
+  if (!auth.ok) return auth.response;
+
   try {
     const recipes = await prisma.recipe.findMany({
+      where: { userId },
       orderBy: { createdAt: "desc" },
       include: {
-        detail: true, // 👈 Esto carga ingredients e instructions
+        detail: true,
       },
     });
-
-    // console.log(recipes);
 
     return new Response(JSON.stringify(recipes), {
       status: 200,

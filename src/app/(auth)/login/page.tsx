@@ -40,8 +40,12 @@ export default function LoginPage() {
     }
   };
 
-  if (status === "authenticated") {
-    return null; // redirige
+  if (status === "loading" || status === "authenticated") {
+    return (
+      <div className="flex justify-center py-12" aria-busy="true">
+        <LoaderCircle className="animate-spin w-8 h-8 text-secondary" />
+      </div>
+    );
   }
 
   return (

@@ -1,48 +1,59 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireSession, assertUserIdMatch } from "@/lib/auth-helpers";
 
-// GET /api/pacientes?userId=1
 export async function GET(request: Request) {
+  const auth = await requireSession();
+  if (!auth.ok) return auth.response;
+
   const { searchParams } = new URL(request.url);
-  const userId = searchParams.get("userId");
-  if (!userId) {
+  const userId = Number(searchParams.get("userId"));
+  if (!userId || Number.isNaN(userId)) {
     return NextResponse.json({ error: "userId requerido" }, { status: 400 });
   }
+
+  const forbidden = assertUserIdMatch(auth.userId, userId);
+  if (forbidden) return forbidden;
+
   const pacientes = await prisma.patient.findMany({
-    where: { userId: Number(userId) },
+    where: { userId },
     orderBy: { createdAt: "desc" },
   });
   return NextResponse.json(pacientes);
 }
 
-// POST /api/pacientes
 export async function POST(request: Request) {
+  const auth = await requireSession();
+  if (!auth.ok) return auth.response;
+
   const data = await request.json();
 
-  // Minimal validation (required fields only)
   if (!data.userId || !data.name || !data.lastName || !data.gender || !data.birthDate) {
     return NextResponse.json(
       { error: "Missing required fields" },
-      { status: 400 }
+      { status: 400 },
     );
   }
+
+  const userId = Number(data.userId);
+  const forbidden = assertUserIdMatch(auth.userId, userId);
+  if (forbidden) return forbidden;
 
   try {
     const paciente = await prisma.patient.create({
       data: {
-        userId: Number(data.userId),
+        userId,
         name: data.name,
         lastName: data.lastName,
         gender: data.gender,
         birthDate: new Date(data.birthDate),
-
         email: data.email?.trim() ? data.email.trim() : null,
         phone: data.phone?.trim() ? data.phone.trim() : null,
         height: data.height ? Number(data.height) : null,
         weight: data.weight ? Number(data.weight) : null,
-
-        // ✅ New fields
-        maritalStatus: data.maritalStatus?.trim() ? data.maritalStatus.trim() : null,
+        maritalStatus: data.maritalStatus?.trim()
+          ? data.maritalStatus.trim()
+          : null,
         occupation: data.occupation?.trim() ? data.occupation.trim() : null,
         photo: data.photo ?? null,
       },
@@ -50,7 +61,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json(paciente);
   } catch (error) {
-    if (error instanceof Error && error.message.includes("Unique constraint failed")) {
+    if (
+      error instanceof Error &&
+      error.message.includes("Unique constraint failed")
+    ) {
       return NextResponse.json(
         { error: "El correo ya está registrado" },
         { status: 400 },

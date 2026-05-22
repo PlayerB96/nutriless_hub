@@ -1,18 +1,24 @@
 import { IngredientInput } from "@/domain/models/traditional-food";
 import { prisma } from "@/lib/prisma";
+import { requireSession, requireRecipeOwned } from "@/lib/auth-helpers";
 
 export async function POST(req: Request): Promise<Response> {
+  const auth = await requireSession();
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await req.json();
     const recipeId = Number(body.id);
 
-    if (isNaN(recipeId)) {
+    if (Number.isNaN(recipeId)) {
       return new Response(JSON.stringify({ message: "ID inválido" }), {
         status: 400,
       });
     }
 
-    // Actualiza la receta principal
+    const access = await requireRecipeOwned(recipeId, auth.userId);
+    if (!access.ok) return access.response;
+
     const updatedRecipe = await prisma.recipe.update({
       where: { id: recipeId },
       data: {
@@ -27,7 +33,6 @@ export async function POST(req: Request): Promise<Response> {
       },
     });
 
-    // Detalles de receta
     if (body.detail) {
       const updatedDetail = await prisma.recipeDetail.upsert({
         where: { recipeId },
@@ -63,7 +68,7 @@ export async function POST(req: Request): Promise<Response> {
       JSON.stringify({ message: "Error interno", error: message }),
       {
         status: 500,
-      }
+      },
     );
   }
 }

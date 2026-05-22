@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import "jspdf-autotable";
 
-import Image from "next/image";
+import { getPublicImageUrl } from "@/lib/image-url";
 import { generatePdf } from "@/lib/utils/pdfGenerator";
 import Modal from "@/components/ui/Modal";
 import EditFood from "./components/EditFood";
@@ -43,8 +43,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   const fetchFoods = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/users/${userId}/foods`,
+      const res = await fetch(`/api/users/${userId}/foods`,
         { cache: "no-store" }
       );
       if (!res.ok) throw new Error("Error al obtener los alimentos");
@@ -318,20 +317,24 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                     </td>
 
                     <td className="hidden sm:table-cell px-4 py-2 text-left">
-                      {food.imageUrl && typeof food.imageUrl === "string" ? (
-                        <Image
-                          src={`${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}/${food.imageUrl}`}
-                          alt={food.name || "Imagen del alimento"}
-                          width={64}
-                          height={64}
-                          className="w-16 h-16 object-cover rounded"
-                          unoptimized // Desactiva optimización para evitar errores en producción
-                        />
-                      ) : (
-                        <span className="text-gray-400 italic">
-                          No hay imagen
-                        </span>
-                      )}
+                      {(() => {
+                        const src = getPublicImageUrl(food.imageUrl);
+                        return src ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={src}
+                            alt={food.name || "Imagen del alimento"}
+                            width={64}
+                            height={64}
+                            className="w-16 h-16 object-cover rounded"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span className="text-gray-400 italic">
+                            {food.imageUrl ? "Imagen no disponible" : "No hay imagen"}
+                          </span>
+                        );
+                      })()}
                     </td>
 
                     <td className=" px-4 py-2">
