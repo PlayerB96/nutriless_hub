@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Tabs from "@/components/ui/Tabs";
+import CondicionesSaludPaciente from "./CondicionesSaludPaciente";
+import DatosAlimentacionPaciente from "./DatosAlimentacionPaciente";
 import EstiloVidaPaciente from "./EstiloVidaPaciente";
 import ObjetivosPaciente from "./ObjetivosPaciente";
 
@@ -46,6 +48,18 @@ type PatientDetailPayload = {
   alcoholFrequency: string | null;
   tobaccoFrequency: string | null;
   supplementTypes: string[];
+  dietType: string | null;
+  dietaryConditions: string[];
+  glutenIntolerant: boolean | null;
+  lactoseIntolerant: boolean | null;
+  mealsPerDay: number | null;
+  waterLitersPerDay: number | null;
+  hadPreviousDiet: boolean | null;
+  currentConditions: string[];
+  medications: string[];
+  pathologicalHistory: string[];
+  familyPathologicalHistory: string[];
+  intestinalCondition: string | null;
 } | null;
 
 type Props = {
@@ -77,6 +91,10 @@ export default function InformacionCompletaPaciente({
       <ObjetivosPaciente pacienteId={pacienteId} initialDetail={detail} />
     ) : activeTab === "estilo" ? (
       <EstiloVidaPaciente pacienteId={pacienteId} initialDetail={detail} />
+    ) : activeTab === "registros" ? (
+      <DatosAlimentacionPaciente pacienteId={pacienteId} initialDetail={detail} />
+    ) : activeTab === "salud" ? (
+      <CondicionesSaludPaciente pacienteId={pacienteId} initialDetail={detail} />
     ) : (
       <SectionPlaceholder title={activeSection.title} />
     );

@@ -361,7 +361,7 @@ export default function PacientesPage() {
               <li key={p.id}>
                 <Link
                   href={`/dashboard/${userId}/pacientes/${p.id}`}
-                  className="block bg-primary p-3 rounded-lg text-sm hover:bg-secondary-secondary transition-all duration-200 cursor-pointer hover:shadow-sm hover:-translate-y-0.5"
+                  className="block cursor-pointer rounded-lg bg-primary p-3 text-sm hover:bg-secondary-secondary hover:shadow-sm hover:-translate-y-0.5"
                 >
                   <div className="font-bold">
                     {p.name} {p.lastName}

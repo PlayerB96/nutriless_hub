@@ -24,6 +24,18 @@ export default function PacienteDetallePage() {
       alcoholFrequency: string | null;
       tobaccoFrequency: string | null;
       supplementTypes: string[];
+      dietType: string | null;
+      dietaryConditions: string[];
+      glutenIntolerant: boolean | null;
+      lactoseIntolerant: boolean | null;
+      mealsPerDay: number | null;
+      waterLitersPerDay: number | null;
+      hadPreviousDiet: boolean | null;
+      currentConditions: string[];
+      medications: string[];
+      pathologicalHistory: string[];
+      familyPathologicalHistory: string[];
+      intestinalCondition: string | null;
     } | null;
   } | null>(null);
   const [editData, setEditData] = useState({

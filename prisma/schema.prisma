@@ -251,15 +251,18 @@ model PatientDetail {
   tobaccoFrequency     String?
   tobaccoUse           Boolean?        @default(false)
   dietType             String?
+  dietaryConditions    String[]        @default([])
   glutenIntolerant     Boolean?        @default(false)
   lactoseIntolerant    Boolean?        @default(false)
+  hadPreviousDiet      Boolean?        @default(false)
   mealsPerDay          Int?
   waterLitersPerDay    Float?
-  currentConditions    String[]
-  healthComments       String?
-  intestinalCondition  String?
-  medications          String[]
-  pathologicalHistory  String[]
+  currentConditions           String[]
+  familyPathologicalHistory String[]        @default([])
+  healthComments              String?
+  intestinalCondition         String?
+  medications                 String[]
+  pathologicalHistory         String[]
   foodFrequencies      FoodFrequency[]
 
   patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)

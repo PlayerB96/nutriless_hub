@@ -120,7 +120,7 @@ export default function FormularioPaciente({ onSubmitSuccess }: { onSubmitSucces
 
       {error && <div className="text-red-500 text-sm">{error}</div>}
       <div className="flex justify-end gap-4 pt-4">
-        <button type="submit" className={`cursor-pointer bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 transition ${loading ? "cursor-not-allowed opacity-70" : ""}`} disabled={loading}>
+        <button type="submit" className={`cursor-pointer bg-primary text-white px-4 py-2 rounded-md hover:bg-primary/90 ${loading ? "cursor-not-allowed opacity-70" : ""}`} disabled={loading}>
           {loading ? (
             <LoaderCircle className="animate-spin w-5 h-5 text-white" />
           ) : (

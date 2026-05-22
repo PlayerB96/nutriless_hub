@@ -49,7 +49,7 @@ type Props = {
 };
 
 const selectClass =
-  "w-full cursor-pointer rounded-lg border border-primary bg-bg px-3 py-2 text-sm text-text transition hover:border-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary";
+  "w-full cursor-pointer rounded-lg border border-primary bg-bg px-3 py-2 text-sm text-text hover:border-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary";
 
 function isActivityLevel(v: string | null | undefined): v is ActivityLevelValue {
   return ACTIVITY_LEVEL_OPTIONS.some((o) => o.value === v);
@@ -110,18 +110,25 @@ function formToPayload(data: EstiloVidaForm) {
   };
 }
 
+const subsectionDivider =
+  "border-t border-[var(--border)] pt-6";
+
 function Subsection({
   title,
   children,
+  first = false,
 }: {
   title: string;
   children: React.ReactNode;
+  first?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-primary/80 bg-bg/50 p-4">
+    <section
+      className={`flex flex-col gap-4 ${first ? "" : subsectionDivider}`}
+    >
       <h4 className="text-base font-semibold text-text">{title}</h4>
       {children}
-    </div>
+    </section>
   );
 }
 
@@ -190,7 +197,7 @@ export default function EstiloVidaPaciente({
         <PatientAutoSaveStatus status={saveStatus} />
       </div>
 
-      <Subsection title="Actividad física">
+      <Subsection title="Actividad física" first>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="activity-level" className="text-sm font-semibold text-text">
             Nivel de actividad física
@@ -320,7 +327,7 @@ export default function EstiloVidaPaciente({
           </div>
         </div>
 
-        <div className="flex flex-col gap-1.5 border-t border-primary/60 pt-4">
+        <div className={`flex flex-col gap-1.5 ${subsectionDivider}`}>
           <p className="text-sm font-semibold text-text">Tabaco</p>
           <label
             htmlFor="tobacco-frequency"
@@ -347,7 +354,7 @@ export default function EstiloVidaPaciente({
           </select>
         </div>
 
-        <div className="border-t border-primary/60 pt-4">
+        <div className={subsectionDivider}>
           <PatientMultiSelectChips
             label="Suplementos"
             description="Selecciona uno o varios; puedes agregar otros"

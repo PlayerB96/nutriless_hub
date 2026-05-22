@@ -46,7 +46,7 @@ export default function Tabs<T extends string>({
               aria-controls={`tab-panel-${tab.key}`}
               id={`tab-${tab.key}`}
               onClick={() => onChange(tab.key)}
-              className={`px-4 py-2 rounded-lg text-left text-sm font-medium border transition ${
+              className={`px-4 py-2 rounded-lg text-left text-sm font-medium border ${
                 isActive
                   ? "bg-secondary text-white border-secondary cursor-pointer"
                   : "bg-bg text-text border-primary hover:bg-primary-secondary cursor-pointer"

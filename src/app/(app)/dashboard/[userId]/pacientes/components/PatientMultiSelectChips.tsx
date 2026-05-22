@@ -56,6 +56,12 @@ export default function PatientMultiSelectChips({
     }
   };
 
+  const chipBase =
+    "cursor-pointer rounded-full border px-3 py-1.5 text-xs font-medium hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary active:scale-95";
+  const chipSelected = "border-secondary bg-secondary text-white shadow-sm";
+  const chipUnselected =
+    "border-primary bg-bg text-text hover:border-secondary hover:bg-secondary/10";
+
   return (
     <div className="flex flex-col gap-2">
       <div>
@@ -73,38 +79,25 @@ export default function PatientMultiSelectChips({
               key={preset.value}
               type="button"
               onClick={() => toggle(preset.value)}
-              className={`cursor-pointer rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary active:scale-95 ${
-                isOn
-                  ? "border-secondary bg-secondary text-white shadow-sm"
-                  : "border-primary bg-bg text-text hover:border-secondary hover:bg-secondary/10"
-              }`}
+              className={`${chipBase} ${isOn ? chipSelected : chipUnselected}`}
             >
               {preset.label}
             </button>
           );
         })}
+        {customSelected.map((tag) => (
+          <button
+            key={tag}
+            type="button"
+            onClick={() => toggle(tag)}
+            className={`${chipBase} ${chipSelected} inline-flex items-center gap-1`}
+            aria-label={`Quitar ${formatCustomTagLabel(tag)}`}
+          >
+            {formatCustomTagLabel(tag)}
+            <X size={14} className="shrink-0 opacity-90" aria-hidden />
+          </button>
+        ))}
       </div>
-
-      {customSelected.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {customSelected.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center gap-1 rounded-full border border-secondary/50 bg-secondary/15 px-2.5 py-1 text-xs font-medium text-text"
-            >
-              {formatCustomTagLabel(tag)}
-              <button
-                type="button"
-                onClick={() => toggle(tag)}
-                className="cursor-pointer rounded-full p-0.5 text-text-alt transition hover:bg-secondary/20 hover:text-text"
-                aria-label={`Quitar ${formatCustomTagLabel(tag)}`}
-              >
-                <X size={14} />
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
 
       <div className="flex gap-2">
         <input
@@ -119,7 +112,7 @@ export default function PatientMultiSelectChips({
           type="button"
           onClick={addCustom}
           disabled={!customInput.trim()}
-          className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border border-primary bg-bg px-3 py-2 text-sm font-medium text-text transition hover:border-secondary hover:bg-secondary/10 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-lg border border-primary bg-bg px-3 py-2 text-sm font-medium text-text hover:border-secondary hover:bg-secondary/10 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Plus size={16} />
           Agregar

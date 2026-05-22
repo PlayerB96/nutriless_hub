@@ -42,7 +42,7 @@ prisma/
 - **TraditionalFood**: catálogo orgánico/tradicional del sistema (nutrientes y medidas caseras propias).
 - **Recipe** / **RecipeDetail** / **RecipeIngredient**: recetas con ingredientes ligados a `TraditionalFood`.
 - **Patient**: pacientes del nutricionista (`userId` obligatorio).
-- **PatientDetail** (1:1 con `Patient`): `goal`, `goalComment` (objetivos); `motivation` (1–10); estilo de vida (`activityLevel`, `stressLevel`, `stressReason`, `sleepHours`, `sleepQuality`, `alcoholTypes[]`, `alcoholFrequency`, `tobaccoFrequency`, `supplementTypes[]`); dieta (`dietType`, intolerancias, `mealsPerDay`, `waterLitersPerDay`); salud (`currentConditions`, `medications`, etc.); `FoodFrequency[]`. Constantes: `src/lib/patient-goals.ts`, `src/lib/patient-lifestyle.ts`. UI: `EstiloVidaPaciente.tsx`.
+- **PatientDetail** (1:1 con `Patient`): objetivos (`goal`, `goalComment`, `motivation`); estilo de vida; alimentación (`dietType`, `dietaryConditions[]`, `mealsPerDay`, `waterLitersPerDay`, `hadPreviousDiet`); salud (`currentConditions[]`, `medications[]`, `pathologicalHistory[]`, `familyPathologicalHistory[]`, `intestinalCondition`); `FoodFrequency[]`. Constantes: `patient-goals.ts`, `patient-lifestyle.ts`, `patient-diet.ts`, `patient-health.ts`. UI: `EstiloVidaPaciente`, `DatosAlimentacionPaciente`, `CondicionesSaludPaciente`.
 
 Antes de cambiar relaciones o campos, revisar `prisma/schema.prisma`. El historial de migraciones está **consolidado** en una sola migración inicial (`20260522195224_init`). Tras cambios en el esquema:
 

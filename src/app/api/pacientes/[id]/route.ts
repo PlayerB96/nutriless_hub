@@ -3,6 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { requireSession, requirePatientOwned } from "@/lib/auth-helpers";
 import { getDbErrorMessage } from "@/lib/db-retry";
 import { isValidPatientGoal } from "@/lib/patient-goals";
+import { isValidDietType, normalizeDietaryCondition } from "@/lib/patient-diet";
+import {
+  isValidIntestinalCondition,
+  normalizeHealthTagArray,
+} from "@/lib/patient-health";
 import {
   isValidActivityLevel,
   isValidConsumptionFrequency,
@@ -264,6 +269,135 @@ export async function PUT(
         );
       }
       detailFields.supplementTypes = types;
+    }
+
+    if (body.dietType !== undefined) {
+      if (body.dietType === null || body.dietType === "") {
+        detailFields.dietType = null;
+      } else if (isValidDietType(body.dietType)) {
+        detailFields.dietType = body.dietType;
+      } else {
+        return NextResponse.json(
+          { error: "Tipo de alimentación no válido" },
+          { status: 400 },
+        );
+      }
+    }
+
+    if (body.dietaryConditions !== undefined) {
+      const conditions = normalizeStringArray(
+        Array.isArray(body.dietaryConditions)
+          ? body.dietaryConditions.map((c: unknown) =>
+              typeof c === "string" ? normalizeDietaryCondition(c) : "",
+            )
+          : null,
+      );
+      if (conditions === null) {
+        return NextResponse.json(
+          { error: "Condiciones de alimentación no válidas" },
+          { status: 400 },
+        );
+      }
+      detailFields.dietaryConditions = conditions;
+      detailFields.glutenIntolerant = conditions.includes("intolerante_gluten");
+      detailFields.lactoseIntolerant =
+        conditions.includes("intolerante_lactosa");
+    }
+
+    if (body.hadPreviousDiet !== undefined) {
+      detailFields.hadPreviousDiet = Boolean(body.hadPreviousDiet);
+    }
+
+    if (body.mealsPerDay !== undefined) {
+      if (body.mealsPerDay === null || body.mealsPerDay === "") {
+        detailFields.mealsPerDay = null;
+      } else {
+        const meals = Number(body.mealsPerDay);
+        if (
+          Number.isNaN(meals) ||
+          !Number.isInteger(meals) ||
+          meals < 0 ||
+          meals > 20
+        ) {
+          return NextResponse.json(
+            { error: "Comidas por día debe ser un entero entre 0 y 20" },
+            { status: 400 },
+          );
+        }
+        detailFields.mealsPerDay = meals;
+      }
+    }
+
+    if (body.waterLitersPerDay !== undefined) {
+      if (body.waterLitersPerDay === null || body.waterLitersPerDay === "") {
+        detailFields.waterLitersPerDay = null;
+      } else {
+        const liters = Number(body.waterLitersPerDay);
+        if (Number.isNaN(liters) || liters < 0 || liters > 20) {
+          return NextResponse.json(
+            { error: "Agua al día debe estar entre 0 y 20 litros" },
+            { status: 400 },
+          );
+        }
+        detailFields.waterLitersPerDay = liters;
+      }
+    }
+
+    if (body.currentConditions !== undefined) {
+      const tags = normalizeHealthTagArray(body.currentConditions);
+      if (tags === null) {
+        return NextResponse.json(
+          { error: "Condiciones patológicas actuales no válidas" },
+          { status: 400 },
+        );
+      }
+      detailFields.currentConditions = tags;
+    }
+
+    if (body.medications !== undefined) {
+      const tags = normalizeHealthTagArray(body.medications);
+      if (tags === null) {
+        return NextResponse.json(
+          { error: "Medicinas consumidas no válidas" },
+          { status: 400 },
+        );
+      }
+      detailFields.medications = tags;
+    }
+
+    if (body.pathologicalHistory !== undefined) {
+      const tags = normalizeHealthTagArray(body.pathologicalHistory);
+      if (tags === null) {
+        return NextResponse.json(
+          { error: "Antecedentes patológicos personales no válidos" },
+          { status: 400 },
+        );
+      }
+      detailFields.pathologicalHistory = tags;
+    }
+
+    if (body.familyPathologicalHistory !== undefined) {
+      const tags = normalizeHealthTagArray(body.familyPathologicalHistory);
+      if (tags === null) {
+        return NextResponse.json(
+          { error: "Antecedentes patológicos familiares no válidos" },
+          { status: 400 },
+        );
+      }
+      detailFields.familyPathologicalHistory = tags;
+    }
+
+    if (body.intestinalCondition !== undefined) {
+      if (body.intestinalCondition === null || body.intestinalCondition === "") {
+        detailFields.intestinalCondition = null;
+      } else if (isValidIntestinalCondition(body.intestinalCondition)) {
+        detailFields.intestinalCondition = body.intestinalCondition;
+      } else {
+        return NextResponse.json(
+          { error: "Condición intestinal no válida" },
+          { status: 400 },
+        );
+      }
     }
 
     const hasDetailUpdate = Object.keys(detailFields).length > 0;
