@@ -13,8 +13,14 @@ export async function middleware(request: NextRequest) {
   if (pathname === "/api/auth/callback/credentials") {
     const ip = getClientIp(request);
     if (!checkRateLimit(`login:${ip}`)) {
+      const errorUrl = new URL("/api/auth/error", request.url);
+      errorUrl.searchParams.set("error", "TooManyRequests");
+      // NextAuth en el cliente espera `url` en JSON; sin ella, signIn() lanza TypeError.
       return NextResponse.json(
-        { error: "Demasiados intentos. Intenta más tarde." },
+        {
+          url: errorUrl.toString(),
+          error: "Demasiados intentos. Intenta más tarde.",
+        },
         { status: 429 },
       );
     }

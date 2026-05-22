@@ -131,15 +131,17 @@ export default function DashboardUserFoodsPage({ params }: Props) {
   };
 
   return (
-    <main className="p-1 w-full overflow-x-auto sm:overflow-visible">
-      <h1 className="text-2xl font-bold mb-6">Alimentos Orgánicos</h1>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4 ">
+    <main className="p-2 tablet:p-3 desktop:p-4 w-full overflow-x-auto tablet:overflow-visible">
+      <h1 className="text-xl tablet:text-2xl desktop:text-3xl font-bold mb-4 tablet:mb-6">
+        Alimentos Orgánicos
+      </h1>
+      <div className="flex flex-col tablet:flex-row tablet:items-center tablet:justify-between mb-4 gap-4 ">
         {/* Buscador y botón de exportar agrupados */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+        <div className="flex flex-col tablet:flex-row tablet:items-center gap-2">
           <input
             type="text"
             placeholder="Buscar alimento..."
-            className="border px-3 py-2 rounded w-64 text-gray-700 dark:text-gray-200"
+            className="border px-3 py-2 rounded w-full tablet:w-64 text-gray-700 dark:text-gray-200"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -180,7 +182,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
         <p>No se encontraron alimentos.</p>
       ) : (
         <div className="rounded-lg border border-gray-900">
-          <table className="min-w-full border-collapse bg-bg text-sm sm:text-base rounded-lg overflow-hidden">
+          <table className="min-w-full border-collapse bg-bg text-sm tablet:text-base rounded-lg overflow-hidden">
             <thead className="bg-primary">
               <tr>
                 <th className=" px-4 py-2 text-left">
@@ -208,7 +210,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
 
                 <th className=" px-4 py-2 text-left">Nombre</th>
                 {/* Ocultar en móvil */}
-                <th className="hidden sm:table-cell px-4 py-2 text-left">
+                <th className="hidden tablet:table-cell px-4 py-2 text-left">
                   Fecha Creación
                 </th>
 
@@ -237,7 +239,7 @@ export default function DashboardUserFoodsPage({ params }: Props) {
                     {/* El resto de las celdas igual que antes */}
                     <td className="px-4 py-2">{food.name}</td>
 
-                    <td className="hidden sm:table-cell px-4 py-2 text-left">
+                    <td className="hidden tablet:table-cell px-4 py-2 text-left">
                       {new Date(food.createdAt).toLocaleDateString("es-ES", {
                         day: "numeric",
                         month: "long",

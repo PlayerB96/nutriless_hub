@@ -23,20 +23,45 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoadingButton(true); // activamos spinner en el botón
+    setLoadingButton(true);
+    setError("");
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-    setLoadingButton(false);
+      if (res?.ok) {
+        router.push("/dashboard");
+        return;
+      }
 
-    if (res?.ok) {
-      router.push("/dashboard");
-    } else {
-      setError("Credenciales inválidas. Intenta de nuevo.");
+      const err = decodeURIComponent(res?.error ?? "").replace(/\+/g, " ");
+      if (res?.status === 429 || err === "TooManyRequests") {
+        setError(
+          "Demasiados intentos de inicio de sesión. Espera unos 15 minutos e inténtalo de nuevo.",
+        );
+      } else if (
+        err === "DatabaseUnavailable" ||
+        err.includes("database server") ||
+        err.includes("Can't reach database") ||
+        err.includes("prisma")
+      ) {
+        setError(
+          "No se pudo conectar a Neon desde el servidor. Reinicia `pnpm run dev` (solo una terminal), espera 5–10 s e inténtalo de nuevo. Si persiste, revisa DATABASE_URL en Neon.",
+        );
+      } else {
+        setError("Credenciales inválidas. Intenta de nuevo.");
+      }
+    } catch (cause) {
+      console.error("[login] signIn falló:", cause);
+      setError(
+        "No se pudo contactar con el servidor de autenticación. Comprueba que `npm run dev` está en marcha, que usas la misma URL que NEXTAUTH_URL (p. ej. http://localhost:3000) y revisa la consola del servidor.",
+      );
+    } finally {
+      setLoadingButton(false);
     }
   };
 
@@ -49,8 +74,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-card shadow-xl rounded-xl p-8 w-full max-w-md">
-      <h1 className="text-2xl font-bold mb-6 text-center">Iniciar sesión</h1>
+    <div className="bg-card shadow-xl rounded-xl p-5 tablet:p-6 desktop:p-8 w-full max-w-md">
+      <h1 className="text-xl tablet:text-2xl font-bold mb-4 tablet:mb-6 text-center">
+        Iniciar sesión
+      </h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
@@ -88,7 +115,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loadingButton}
-          className={`w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition flex justify-center  cursor-pointer items-center ${
+          className={`w-full cursor-pointer bg-secondary px-4 py-2 text-white rounded-md transition hover:opacity-90 flex justify-center items-center ${
             loadingButton ? "cursor-not-allowed opacity-70" : ""
           }`}
         >

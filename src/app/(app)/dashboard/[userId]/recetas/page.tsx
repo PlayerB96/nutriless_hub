@@ -79,14 +79,16 @@ export default function DashboardUserRecipesPage() {
   }, [filteredRecipes, currentPage]);
 
   return (
-    <main className="p-4">
-      <h1 className="text-2xl font-bold mb-6">Recetas</h1>
+    <main className="p-2 tablet:p-3 desktop:p-4">
+      <h1 className="text-xl tablet:text-2xl desktop:text-3xl font-bold mb-4 tablet:mb-6">
+        Recetas
+      </h1>
 
       {/* 🔍 Buscador + Filtro */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="mb-6 flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-4">
         
 
-        <div className="w-full sm:w-auto bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl p-4 shadow-sm">
+        <div className="w-full tablet:w-auto bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Filter className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -94,7 +96,7 @@ export default function DashboardUserRecipesPage() {
             </h3>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col tablet:flex-row gap-4">
             {/* Buscar por nombre */}
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
@@ -107,7 +109,7 @@ export default function DashboardUserRecipesPage() {
                 <input
                   type="text"
                   placeholder="Ej. Lasaña, Ensalada..."
-                  className="pl-9 pr-3 py-2 border dark:border-slate-700 rounded-lg w-full sm:w-64
+                  className="pl-9 pr-3 py-2 border dark:border-slate-700 rounded-lg w-full tablet:w-64
                      text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-900
                      focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                   value={searchTerm}
@@ -178,7 +180,7 @@ export default function DashboardUserRecipesPage() {
       ) : filteredRecipes.length === 0 ? (
         <p>No se encontraron recetas.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 cursor-pointer">
+        <div className="grid grid-cols-1 tablet:grid-cols-2 desktop:grid-cols-3 gap-4 tablet:gap-6 cursor-pointer">
           {paginatedRecipes.map((recipe) => (
             <div
               key={recipe.id}

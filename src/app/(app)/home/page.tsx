@@ -12,11 +12,13 @@ export default function HomePage() {
 
   return (
     <MainContent>
-      <h1 className="text-4xl font-bold mb-6 text-primary">Inicio</h1>
+      <h1 className="text-2xl tablet:text-3xl desktop:text-4xl font-bold mb-4 tablet:mb-6 text-primary">
+        Inicio
+      </h1>
 
-      <section className="space-y-4">
+      <section className="space-y-3 tablet:space-y-4">
         <div>
-          <h2 className="text-2xl font-semibold mb-2 text-secondary">
+          <h2 className="text-xl tablet:text-2xl font-semibold mb-2 text-secondary">
             Otras opciones
           </h2>
           <p className="text-muted dark:text-muted-secondary">

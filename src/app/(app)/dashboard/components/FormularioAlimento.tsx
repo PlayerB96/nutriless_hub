@@ -289,7 +289,7 @@ export default function FormularioAlimento({
       {/* Detalle Nutricional */}
       <section>
         <h3 className="text-xl font-semibold mb-4">Detalle Nutricional</h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 tablet:grid-cols-3 desktop:grid-cols-5">
           {todosLosCampos.map(({ key, label }) => (
             <div key={key} className="relative">
               <label

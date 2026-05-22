@@ -394,11 +394,11 @@ export default function EditRecipePage() {
   if (!recipe) return <p className="p-4">No se encontró la receta.</p>;
 
   return (
-    <main className="mx-auto p-6 bg-primary shadow rounded-2xl">
+    <main className="mx-auto p-3 tablet:p-4 desktop:p-6 bg-primary shadow rounded-xl tablet:rounded-2xl">
       {/* Cabecera fija superior */}
       {/* Botón eliminar y título */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
-        <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+      <div className="flex flex-col tablet:flex-row tablet:items-center tablet:justify-between gap-3 mb-3">
+        <h1 className="text-xl tablet:text-2xl desktop:text-3xl font-bold flex items-center gap-2">
           <Pencil className="w-6 h-6" />
           Editar Receta
         </h1>
@@ -414,12 +414,12 @@ export default function EditRecipePage() {
       </div>
       <div className="sticky top-0 z-40 bg-primary/95 backdrop-blur-sm shadow-md rounded-b-xl p-4 mb-6">
         {/* Cabecera macronutrientes */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-3 rounded-lg shadow-inner text-center">
+        <div className="grid grid-cols-2 tablet:grid-cols-4 gap-3 tablet:gap-4 p-3 rounded-lg shadow-inner text-center">
           <div>
             <div className="flex items-center justify-center gap-2">
               <Flame className="w-5 h-5" /> Calorías
             </div>
-            <p className="font-semibold text-base md:text-lg">
+            <p className="font-semibold text-sm tablet:text-base desktop:text-lg">
               {macros.calories} kcal
             </p>
           </div>
@@ -427,13 +427,13 @@ export default function EditRecipePage() {
             <div className="flex items-center justify-center gap-2">
               <Leaf className="w-5 h-5" /> Grasas
             </div>
-            <p className="font-semibold text-base md:text-lg">{macros.fat} g</p>
+            <p className="font-semibold text-sm tablet:text-base desktop:text-lg">{macros.fat} g</p>
           </div>
           <div>
             <div className="flex items-center justify-center gap-2">
               <Flame className="w-5 h-5" /> Carbohidratos
             </div>
-            <p className="font-semibold text-base md:text-lg">
+            <p className="font-semibold text-sm tablet:text-base desktop:text-lg">
               {macros.carbs} g
             </p>
           </div>
@@ -441,7 +441,7 @@ export default function EditRecipePage() {
             <div className="flex items-center justify-center gap-2">
               <Ham className="w-5 h-5" /> Proteínas
             </div>
-            <p className="font-semibold text-base md:text-lg">
+            <p className="font-semibold text-sm tablet:text-base desktop:text-lg">
               {macros.protein} g
             </p>
           </div>
@@ -451,10 +451,10 @@ export default function EditRecipePage() {
       {/* Formulario */}
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-3 gap-10"
+        className="grid grid-cols-1 desktop:grid-cols-3 gap-6 tablet:gap-8 desktop:gap-10"
       >
         {/* Columna izquierda: Imagen, Ingredientes, Instrucciones */}
-        <div className="space-y-6 md:col-span-2">
+        <div className="space-y-6 desktop:col-span-2">
           {/* Ingredientes */}
           <IngredientSelectorList
             title="Ingredientes"
@@ -479,7 +479,7 @@ export default function EditRecipePage() {
         </div>
 
         {/* Columna derecha: Datos receta */}
-        <div className="space-y-6 p-6 rounded-xl shadow-sm  md:col-span-1">
+        <div className="space-y-6 p-4 tablet:p-6 rounded-xl shadow-sm desktop:col-span-1">
           {/* Imagen */}
           <div>
             <label className="text-sm font-medium inline-flex gap-2">

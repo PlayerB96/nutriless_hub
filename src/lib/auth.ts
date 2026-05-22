@@ -1,5 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { withDbRetry, isRetryableDbError } from "@/lib/db-retry";
 import { prisma } from "@/lib/prisma";
 import type { AuthOptions } from "next-auth/core/types";
 
@@ -32,20 +33,34 @@ export const authOptions: AuthOptions = {
 
         if (!email || !password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email },
-        });
+        try {
+          const user = await withDbRetry(
+            () =>
+              prisma.user.findUnique({
+                where: { email },
+              }),
+            { attempts: 6, delayMs: 2500 },
+          );
 
-        if (!user) return null;
+          if (!user) return null;
 
-        const valid = await bcrypt.compare(password, user.password);
-        if (!valid) return null;
+          const valid = await bcrypt.compare(password, user.password);
+          if (!valid) return null;
 
-        return {
-          id: user.id.toString(),
-          name: user.name,
-          email: user.email,
-        };
+          return {
+            id: user.id.toString(),
+            name: user.name,
+            email: user.email,
+          };
+        } catch (error) {
+          if (isRetryableDbError(error)) {
+            console.error("[auth] Base de datos no disponible tras reintentos:", error);
+            // Código corto: NextAuth lo mete en la URL; mensajes largos rompen signIn() en el cliente.
+            throw new Error("DatabaseUnavailable");
+          }
+          console.error("[auth] Error en authorize:", error);
+          return null;
+        }
       },
     }),
   ],

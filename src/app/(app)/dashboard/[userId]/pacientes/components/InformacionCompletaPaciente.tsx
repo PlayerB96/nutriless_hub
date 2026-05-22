@@ -1,80 +1,99 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Tabs from "@/components/ui/Tabs";
+import EstiloVidaPaciente from "./EstiloVidaPaciente";
+import ObjetivosPaciente from "./ObjetivosPaciente";
 
-const TABS = [
-  { key: "objetivos", label: "Objetivos" },
-  { key: "estilo", label: "Estilo de vida" },
-  { key: "registros", label: "Registros de alimentos" },
+const SECTIONS = [
+  { key: "objetivos", label: "Objetivos", title: "Objetivos" },
+  { key: "estilo", label: "Estilo de vida", title: "Estilo de vida" },
+  {
+    key: "registros",
+    label: "Registro de alimentos",
+    title: "Registro de alimentos",
+  },
+  {
+    key: "salud",
+    label: "Condiciones de salud",
+    title: "Condiciones de salud",
+  },
+  {
+    key: "preferidos",
+    label: "Alimentos preferidos",
+    title: "Alimentos preferidos",
+  },
+  { key: "comentarios", label: "Comentarios", title: "Comentarios" },
+  {
+    key: "imagenes",
+    label: "Imágenes del paciente",
+    title: "Imágenes del paciente",
+  },
 ] as const;
 
-type TabKey = (typeof TABS)[number]["key"];
+type SectionKey = (typeof SECTIONS)[number]["key"];
 
-export default function InformacionCompletaPaciente() {
-  const [activeTab, setActiveTab] = useState<TabKey>("objetivos");
+type PatientDetailPayload = {
+  goal: string | null;
+  motivation: number | null;
+  goalComment: string | null;
+  activityLevel: string | null;
+  stressLevel: string | null;
+  stressReason: string | null;
+  sleepHours: number | null;
+  sleepQuality: number | null;
+  alcoholTypes: string[];
+  alcoholFrequency: string | null;
+  tobaccoFrequency: string | null;
+  supplementTypes: string[];
+} | null;
 
-  const content = useMemo(() => {
-    switch (activeTab) {
-      case "objetivos":
-        return (
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold">Objetivos</h3>
-            <ul className="list-disc pl-5 text-sm text-text-alt">
-              <li>Perder 4 kg en 8 semanas.</li>
-              <li>Mejorar hábitos de hidratación.</li>
-              <li>Aumentar consumo de fibra.</li>
-            </ul>
-          </div>
-        );
-      case "estilo":
-        return (
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold">Estilo de vida</h3>
-            <p className="text-sm text-text-alt">
-              Actividad física: 3 días/semana · Sueño: 7 h · Estrés: medio.
-            </p>
-            <p className="text-sm text-text-alt">
-              Horarios: desayuno 8:00, almuerzo 13:30, cena 20:00.
-            </p>
-          </div>
-        );
-      case "registros":
-        return (
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold">Registros de alimentos</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-text-alt">
-              <div className="p-3 rounded-lg bg-bg border border-primary">
-                <div className="font-medium text-text">24/01</div>
-                <div>Desayuno: avena + fruta</div>
-                <div>Almuerzo: pollo + ensalada</div>
-              </div>
-              <div className="p-3 rounded-lg bg-bg border border-primary">
-                <div className="font-medium text-text">25/01</div>
-                <div>Desayuno: yogurt + granola</div>
-                <div>Cena: pescado + verduras</div>
-              </div>
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  }, [activeTab]);
+type Props = {
+  pacienteId: string;
+  detail?: PatientDetailPayload;
+};
+
+function SectionPlaceholder({ title }: { title: string }) {
+  return (
+    <div className="flex min-h-[220px] flex-col">
+      <h3 className="mb-3 text-lg font-semibold text-text">{title}</h3>
+      <div
+        className="min-h-[180px] flex-1 rounded-lg border border-dashed border-primary/50"
+        aria-label={`Área de contenido: ${title}`}
+      />
+    </div>
+  );
+}
+
+export default function InformacionCompletaPaciente({
+  pacienteId,
+  detail,
+}: Props) {
+  const [activeTab, setActiveTab] = useState<SectionKey>("objetivos");
+  const activeSection = SECTIONS.find((s) => s.key === activeTab) ?? SECTIONS[0];
+
+  const panelContent =
+    activeTab === "objetivos" ? (
+      <ObjetivosPaciente pacienteId={pacienteId} initialDetail={detail} />
+    ) : activeTab === "estilo" ? (
+      <EstiloVidaPaciente pacienteId={pacienteId} initialDetail={detail} />
+    ) : (
+      <SectionPlaceholder title={activeSection.title} />
+    );
 
   return (
-    <section className="w-full bg-primary rounded-xl shadow-lg p-6 border border-primary h-[420px] overflow-y-auto">
-      <h2 className="text-xl font-bold mb-4">Información completa</h2>
+    <section className="flex w-full min-h-[min(420px,70vh)] flex-col overflow-hidden rounded-xl border border-primary bg-primary p-4 shadow-lg tablet:p-6">
+      <h2 className="mb-4 shrink-0 text-xl font-bold">Información completa</h2>
       <Tabs
-        tabs={TABS}
+        tabs={SECTIONS.map(({ key, label }) => ({ key, label }))}
         value={activeTab}
         onChange={setActiveTab}
         orientation="vertical"
-        className="flex flex-col md:flex-row gap-6"
-        listClassName="md:w-1/4 flex md:flex-col gap-2"
-        panelClassName="flex-1 bg-bg rounded-lg p-4 border border-primary"
+        className="flex min-h-0 flex-1 flex-col gap-3 tablet:flex-row tablet:gap-6"
+        listClassName="flex shrink-0 gap-1.5 overflow-x-auto pb-1 tablet:w-[11rem] tablet:flex-col tablet:overflow-x-visible tablet:overflow-y-auto tablet:pb-0 desktop:w-[13rem] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        panelClassName="min-h-0 flex-1 overflow-y-auto rounded-lg border border-primary bg-bg p-4"
       >
-        {content}
+        {panelContent}
       </Tabs>
     </section>
   );

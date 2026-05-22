@@ -347,7 +347,7 @@ export default function EditFood({
           <h3 className="font-semibold text-lg">Detalles Nutricionales</h3>
           <button
             type="button"
-            className="btn btn-sm btn-outline flex items-center gap-1 cursor-pointer bg-secondary p-1 md:p-2 rounded"
+            className="btn btn-sm btn-outline flex items-center gap-1 cursor-pointer bg-secondary p-1 tablet:p-2 rounded"
             onClick={handleAddNutrition}
           >
             <Plus className="w-4 h-4" />

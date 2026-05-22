@@ -15,7 +15,9 @@ export default function LoginLayout({
       <body className="bg-background text-foreground flex items-center justify-center min-h-screen">
         <SessionProvider>
           <ThemeProvider attribute="class" enableSystem defaultTheme="system">
-            <main className="w-full max-w-md p-8">{children}</main>
+            <main className="w-full max-w-md p-4 tablet:p-6 desktop:p-8">
+              {children}
+            </main>
           </ThemeProvider>
         </SessionProvider>
       </body>

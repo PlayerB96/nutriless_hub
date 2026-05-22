@@ -29,7 +29,7 @@ const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient();
 
 async function seedAdmin() {
-  const email = process.env.SEED_ADMIN_EMAIL ?? "nutriless.29@gmail.com";
+  const email = process.env.SEED_ADMIN_EMAIL ?? "admin@ejemplo.com";
   const plainPassword = process.env.SEED_ADMIN_PASSWORD;
 
   if (!plainPassword) {
@@ -39,11 +39,17 @@ async function seedAdmin() {
     return;
   }
 
-  if (plainPassword.length < 12) {
+  if (plainPassword.length < 3) {
     console.warn(
-      "⚠️ SEED_ADMIN_PASSWORD debe tener al menos 12 caracteres; se omite el usuario admin.",
+      "⚠️ SEED_ADMIN_PASSWORD demasiado corta; se omite el usuario admin.",
     );
     return;
+  }
+
+  if (plainPassword.length < 12) {
+    console.warn(
+      "⚠️ Contraseña de seed corta (<12). Solo para desarrollo local.",
+    );
   }
 
   const password = await bcrypt.hash(plainPassword, 12);
@@ -273,7 +279,7 @@ async function seedHouseholdMeasures() {
   console.log(`✅ Insertadas ${toInsert.length} medidas tradicionales.`);
 }
 async function main() {
-  // await seedAdmin();
+  await seedAdmin();
   await seedPatient();
   // await seedCategorias();
   // await seedOptionalNutrients();

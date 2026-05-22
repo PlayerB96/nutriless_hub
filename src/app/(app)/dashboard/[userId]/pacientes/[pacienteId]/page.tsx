@@ -10,7 +10,22 @@ export default function PacienteDetallePage() {
   const params = useParams();
   const pacienteId = params.pacienteId as string;
   const userId = params.userId as string;
-  const [paciente, setPaciente] = useState<unknown>(null);
+  const [paciente, setPaciente] = useState<{
+    detail?: {
+      goal: string | null;
+      motivation: number | null;
+      goalComment: string | null;
+      activityLevel: string | null;
+      stressLevel: string | null;
+      stressReason: string | null;
+      sleepHours: number | null;
+      sleepQuality: number | null;
+      alcoholTypes: string[];
+      alcoholFrequency: string | null;
+      tobaccoFrequency: string | null;
+      supplementTypes: string[];
+    } | null;
+  } | null>(null);
   const [editData, setEditData] = useState({
     name: "",
     lastName: "",
@@ -24,6 +39,7 @@ export default function PacienteDetallePage() {
     maritalStatus: "",
   });
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [foto, setFoto] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [updateStatus, setUpdateStatus] = useState<
@@ -36,27 +52,77 @@ export default function PacienteDetallePage() {
   // Cargar datos iniciales del paciente
   useEffect(() => {
     if (!pacienteId) return;
-    fetch(`/api/pacientes/${pacienteId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setPaciente(data);
+
+    let cancelled = false;
+
+    async function loadPaciente() {
+      setLoading(true);
+      setLoadError(null);
+
+      try {
+        const res = await fetch(`/api/pacientes/${pacienteId}`);
+        const text = await res.text();
+
+        if (!text.trim()) {
+          throw new Error(
+            res.ok
+              ? "El servidor devolvió una respuesta vacía"
+              : `Error del servidor (${res.status})`,
+          );
+        }
+
+        let data: Record<string, unknown>;
+        try {
+          data = JSON.parse(text) as Record<string, unknown>;
+        } catch {
+          throw new Error("Respuesta inválida del servidor");
+        }
+
+        if (!res.ok) {
+          throw new Error(
+            typeof data.error === "string"
+              ? data.error
+              : "No se pudo cargar el paciente",
+          );
+        }
+
+        if (cancelled) return;
+
+        setPaciente(data as typeof paciente);
         setEditData({
-          name: data.name || "",
-          lastName: data.lastName || "",
-          email: data.email || "",
-          gender: data.gender || "",
-          birthDate: data.birthDate ? data.birthDate.slice(0, 10) : "",
-          phone: data.phone || "",
-          height: data.height || "",
-          weight: data.weight || "",
-          occupation: data.occupation || "",
-          maritalStatus: data.maritalStatus || "",
+          name: String(data.name ?? ""),
+          lastName: String(data.lastName ?? ""),
+          email: String(data.email ?? ""),
+          gender: String(data.gender ?? ""),
+          birthDate:
+            typeof data.birthDate === "string"
+              ? data.birthDate.slice(0, 10)
+              : "",
+          phone: String(data.phone ?? ""),
+          height: String(data.height ?? ""),
+          weight: String(data.weight ?? ""),
+          occupation: String(data.occupation ?? ""),
+          maritalStatus: String(data.maritalStatus ?? ""),
         });
-        if (data.photo) {
+        if (typeof data.photo === "string" && data.photo) {
           setFoto(data.photo);
         }
-      })
-      .finally(() => setLoading(false));
+      } catch (err) {
+        if (!cancelled) {
+          setPaciente(null);
+          setLoadError(
+            err instanceof Error ? err.message : "Error al cargar el paciente",
+          );
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadPaciente();
+    return () => {
+      cancelled = true;
+    };
   }, [pacienteId]);
 
   // Función para actualizar el paciente
@@ -82,13 +148,11 @@ export default function PacienteDetallePage() {
         const updatedData = await response.json();
         setPaciente(updatedData);
         setUpdateStatus("success");
-        setUpdateMessage("Cambios guardados correctamente");
+        setUpdateMessage("");
 
-        // Limpiar el mensaje de éxito después de 3 segundos
         setTimeout(() => {
           setUpdateStatus("idle");
-          setUpdateMessage("");
-        }, 3000);
+        }, 2500);
       } catch (error) {
         setUpdateStatus("error");
         setUpdateMessage(
@@ -176,10 +240,22 @@ export default function PacienteDetallePage() {
   };
 
   if (loading) return <div className="p-8">Cargando...</div>;
+  if (loadError) {
+    return (
+      <div className="mx-auto max-w-lg p-8">
+        <p className="text-center text-sm text-red-600">{loadError}</p>
+        <p className="mt-3 text-center text-xs text-text-alt">
+          Si acabas de actualizar el proyecto, ejecuta{" "}
+          <code className="rounded bg-primary px-1">npx prisma migrate deploy</code>{" "}
+          y recarga la página.
+        </p>
+      </div>
+    );
+  }
   if (!paciente) return <div className="p-8">Paciente no encontrado</div>;
 
   return (
-    <div className="w-full max-w mx-auto p-4 flex flex-col gap-4">
+    <div className="w-full max-w-full tablet:max-w-5xl desktop:max-w-6xl mx-auto p-3 tablet:p-4 desktop:p-6 flex flex-col gap-3 tablet:gap-4">
       <Breadcrumb
         items={[
           { label: "Pacientes", href: `/dashboard/${userId}/pacientes` },
@@ -204,7 +280,10 @@ export default function PacienteDetallePage() {
         onFotoChange={handleFotoChange}
         onInputChange={handleInputChange}
       />
-      <InformacionCompletaPaciente />
+      <InformacionCompletaPaciente
+        pacienteId={pacienteId}
+        detail={paciente.detail ?? null}
+      />
     </div>
   );
 }

@@ -79,7 +79,7 @@ export default function IngredientSelectorList({
             <li
               key={idx}
               className="
-              flex flex-col md:flex-row gap-2
+              flex flex-col tablet:flex-row gap-2
               items-stretch
               rounded-lg
               border border-slate-200 dark:border-slate-700
@@ -89,7 +89,7 @@ export default function IngredientSelectorList({
             >
 
               {/* Cantidad + Unidad */}
-              <div className="flex md:w-fill min-w-[180px]">
+              <div className="flex w-full tablet:flex-1 tablet:min-w-[180px]">
                 <input
                   type="number"
                   min="0.1"
@@ -183,7 +183,7 @@ export default function IngredientSelectorList({
               </div>
 
               {/* Alimento + Macronutrientes */}
-              <div className="md:w-[65%] w-full flex flex-col gap-1">
+              <div className="w-full tablet:w-[65%] flex flex-col gap-1">
                 <div className="h-[42px]">
                   <Select
                     options={foodOptions}
@@ -325,7 +325,7 @@ export default function IngredientSelectorList({
               </div>
 
               {/* Botón eliminar */}
-              <div className="flex md:w-auto w-full justify-end items-start pt-1">
+              <div className="flex tablet:w-auto w-full justify-end items-start pt-1">
                 <button
                   type="button"
                   onClick={() => onRemove(idx)}

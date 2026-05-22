@@ -54,7 +54,7 @@ export default function FormularioPaciente({ onSubmitSuccess }: { onSubmitSucces
       {/* Datos personales */}
       <section>
         <h3 className="text-xl font-semibold mb-4">Datos del Paciente</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
           <div>
             <label htmlFor="name" className="block mb-1 font-medium">
               Nombre <span className="text-red-500">*</span>
@@ -68,7 +68,7 @@ export default function FormularioPaciente({ onSubmitSuccess }: { onSubmitSucces
             <input name="lastName" id="lastName" value={form.lastName} onChange={handleChange} placeholder="Apellido" className="w-full border border-gray-300 rounded-md p-2 bg-bg" required />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4 mt-4">
           <div>
             <label htmlFor="gender" className="block mb-1 font-medium">
               Género <span className="text-red-500">*</span>
@@ -91,7 +91,7 @@ export default function FormularioPaciente({ onSubmitSuccess }: { onSubmitSucces
       {/* Contacto */}
       <section>
         <h3 className="text-xl font-semibold mb-4">Contacto</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
           <div>
             <label htmlFor="email" className="block mb-1 font-medium">Correo electrónico</label>
             <input name="email" id="email" value={form.email} onChange={handleChange} placeholder="Correo" className="w-full border border-gray-300 rounded-md p-2 bg-bg" type="email" />
@@ -106,7 +106,7 @@ export default function FormularioPaciente({ onSubmitSuccess }: { onSubmitSucces
       {/* Datos físicos */}
       <section>
         <h3 className="text-xl font-semibold mb-4">Datos físicos</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-4">
           <div>
             <label htmlFor="height" className="block mb-1 font-medium">Altura (cm)</label>
             <input name="height" id="height" value={form.height} onChange={handleChange} placeholder="Altura (cm)" className="w-full border border-gray-300 rounded-md p-2 bg-bg" type="number" min="0" />

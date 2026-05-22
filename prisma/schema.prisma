@@ -225,5 +225,53 @@ model Patient {
 
   createdAt      DateTime @default(now())
 
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  detail         PatientDetail?
+}
+
+model PatientDetail {
+  id                   Int             @id @default(autoincrement())
+  patientId            Int             @unique
+  goal                 String?
+  goalComment          String?
+  motivation           Int?            // 1–10
+  activityLevel        String?
+  alcoholFrequency     String?
+  alcoholTypes         String[]        @default([])
+  alcoholUse           Boolean?        @default(false)
+  coffeeFrequency      Int?
+  coffeeUse            Boolean?        @default(false)
+  sleepHours           Float?
+  sleepQuality         Int?
+  stressLevel          String?
+  stressReason         String?
+  supplementTypes      String[]        @default([])
+  supplementsFrequency Int?
+  supplementsUse       Boolean?        @default(false)
+  tobaccoFrequency     String?
+  tobaccoUse           Boolean?        @default(false)
+  dietType             String?
+  glutenIntolerant     Boolean?        @default(false)
+  lactoseIntolerant    Boolean?        @default(false)
+  mealsPerDay          Int?
+  waterLitersPerDay    Float?
+  currentConditions    String[]
+  healthComments       String?
+  intestinalCondition  String?
+  medications          String[]
+  pathologicalHistory  String[]
+  foodFrequencies      FoodFrequency[]
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model FoodFrequency {
+  id              Int           @id @default(autoincrement())
+  patientDetailId Int
+  foodGroup       String
+  timesPerWeek    Int?
+
+  patientDetail PatientDetail @relation(fields: [patientDetailId], references: [id], onDelete: Cascade)
+
+  @@unique([patientDetailId, foodGroup])
 }

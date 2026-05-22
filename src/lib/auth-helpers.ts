@@ -3,6 +3,7 @@ import type { Session } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { withDbRetry } from "@/lib/db-retry";
 
 export type SessionAuth = {
   ok: true;
@@ -61,7 +62,12 @@ export async function requirePatientOwned(
   | { ok: true; patient: Awaited<ReturnType<typeof prisma.patient.findUnique>> & object }
   | AuthFailure
 > {
-  const patient = await prisma.patient.findUnique({ where: { id: patientId } });
+  const patient = await withDbRetry(() =>
+    prisma.patient.findUnique({
+      where: { id: patientId },
+      include: { detail: true },
+    }),
+  );
   if (!patient) {
     return {
       ok: false,

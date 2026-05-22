@@ -37,15 +37,15 @@ export default function DashboardPage() {
   return (
     <MainContent>
       <div className="text-text rounded-2xl p-2 space-y-4">
-        <h1 className="text-4xl font-bold mb-2 text-secondary">
+        <h1 className="text-2xl tablet:text-3xl desktop:text-4xl font-bold mb-2 text-secondary">
           Bienvenido{session?.user?.name ? `, ${session.user.name}` : ""}
         </h1>
-        <p className="mb-8 max-w-xl text-text-alt text-lg">
+        <p className="mb-6 tablet:mb-8 max-w-xl text-text-alt text-base tablet:text-lg">
           Esta es tu plataforma para registrar alimentos, pacientes y generar
           dietas de manera sencilla.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 tablet:grid-cols-2 desktop:grid-cols-3 gap-4 tablet:gap-6 desktop:gap-8">
           <section className="bg-primary rounded-xl p-6 flex flex-col items-center border border-primary">
             <h2 className="text-xl font-semibold mb-4">Pacientes</h2>
             <button

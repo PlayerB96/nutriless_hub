@@ -56,22 +56,22 @@ export default function Navbar({
   const currentTheme = theme === "system" ? systemTheme : theme;
 
   return (
-    <nav className="text-text bg-primary/80 backdrop-blur-sm border-b border-primary dark:bg-primary dark:text-text dark:border-transparent shadow-xs p-4 w-full overflow-x-auto sm:overflow-visible">
-      <div className="w-full flex justify-between items-center">
+    <nav className="text-text bg-primary/80 backdrop-blur-sm border-b border-primary dark:bg-primary dark:text-text dark:border-transparent shadow-xs p-3 tablet:p-4 w-full overflow-x-auto tablet:overflow-visible">
+      <div className="w-full flex justify-between items-center gap-2">
         {/* Izquierda: Botón hamburguesa móvil + botón colapsar sidebar */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 tablet:space-x-4">
           {/* Botón hamburguesa solo en móvil */}
           <button
-            className="md:hidden text-text px-2 py-1 rounded hover:bg-muted/80 focus:outline-none"
+            className="tablet:hidden text-text px-2 py-1 rounded hover:bg-muted/80 focus:outline-none"
             onClick={() => setIsMobileOpen(true)}
             aria-label="Abrir menú lateral"
           >
             <Menu size={24} />
           </button>
 
-          {/* Botón para colapsar / expandir sidebar (visible en md+) */}
+          {/* Botón para colapsar / expandir sidebar (visible en tablet+) */}
           <button
-            className="hidden md:inline-flex text-text px-2 py-1 rounded hover:bg-muted/80 focus:outline-none"
+            className="hidden tablet:inline-flex text-text px-2 py-1 rounded hover:bg-muted/80 focus:outline-none"
             onClick={() => setIsCollapsed(!isCollapsed)}
             aria-label={
               isCollapsed ? "Expandir menú lateral" : "Colapsar menú lateral"
@@ -104,7 +104,7 @@ export default function Navbar({
           <div className="relative" ref={profileRef}>
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center space-x-2 bg-muted px-3 py-2 rounded hover:bg-muted/80 text-sm md:text-base cursor-pointer"
+              className="flex items-center space-x-2 bg-muted px-2 tablet:px-3 py-2 rounded hover:bg-muted/80 text-sm tablet:text-base cursor-pointer"
               aria-haspopup="true"
               aria-expanded={profileOpen}
             >

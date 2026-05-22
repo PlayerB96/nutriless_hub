@@ -28,6 +28,7 @@ function getImageRemotePatterns() {
 
 const nextConfig = {
   reactStrictMode: true,
+  allowedDevOrigins: ["http://127.0.0.1:3000"],
 
   images: {
     remotePatterns: getImageRemotePatterns(),

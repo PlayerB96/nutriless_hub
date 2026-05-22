@@ -42,13 +42,16 @@ prisma/
 - **TraditionalFood**: catálogo orgánico/tradicional del sistema (nutrientes y medidas caseras propias).
 - **Recipe** / **RecipeDetail** / **RecipeIngredient**: recetas con ingredientes ligados a `TraditionalFood`.
 - **Patient**: pacientes del nutricionista (`userId` obligatorio).
+- **PatientDetail** (1:1 con `Patient`): `goal`, `goalComment` (objetivos); `motivation` (1–10); estilo de vida (`activityLevel`, `stressLevel`, `stressReason`, `sleepHours`, `sleepQuality`, `alcoholTypes[]`, `alcoholFrequency`, `tobaccoFrequency`, `supplementTypes[]`); dieta (`dietType`, intolerancias, `mealsPerDay`, `waterLitersPerDay`); salud (`currentConditions`, `medications`, etc.); `FoodFrequency[]`. Constantes: `src/lib/patient-goals.ts`, `src/lib/patient-lifestyle.ts`. UI: `EstiloVidaPaciente.tsx`.
 
-Antes de cambiar relaciones o campos, revisar `prisma/schema.prisma` y las migraciones existentes. Tras cambios en el esquema:
+Antes de cambiar relaciones o campos, revisar `prisma/schema.prisma`. El historial de migraciones está **consolidado** en una sola migración inicial (`20260522195224_init`). Tras cambios en el esquema:
 
 ```bash
 npx prisma migrate dev --name descripcion_cambio
 npx prisma generate
 ```
+
+Tras `migrate reset` o base vacía en Neon: `npx prisma migrate deploy` (o `migrate dev`) y `npx prisma db seed` (variables `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` en `.env`; mín. 3 caracteres, ≥12 recomendado fuera de local).
 
 Para reset local con datos de prueba (destructivo):
 
@@ -74,13 +77,13 @@ Las páginas del dashboard suelen recibir `userId` en la URL y llamar APIs con `
 
 No commitear `.env`. Variables usadas en el código:
 
-- `DATABASE_URL` — PostgreSQL
+- `DATABASE_URL` — PostgreSQL Neon pooler (`sslmode=require`; evitar `channel_binding=require` si Prisma falla al conectar). Opcional `&connect_timeout=15`.
 - `NEXTAUTH_SECRET`, `NEXTAUTH_URL` — sesión NextAuth (JWT)
 - `NEXT_PUBLIC_BASE_URL` — origen para fetch desde el cliente
 - `NEXT_PUBLIC_IMAGE_BASE_URL` — URL pública de imágenes en R2
 - `ALLOWED_ORIGIN` — origen permitido para CORS en APIs (fallback: `NEXTAUTH_URL`)
 - `R2_BUCKET`, `R2_ENDPOINT`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` — almacenamiento
-- `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` — solo para `prisma db seed` (mín. 12 caracteres)
+- `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` — solo para `prisma db seed` (mín. 3 caracteres en dev)
 
 ## Seguridad y autenticación
 
@@ -113,6 +116,7 @@ npm run start        # producción
 ### Frontend
 
 - Muchas páginas son `"use client"` con `useSession()` y redirección a `/login` si no hay sesión.
+- **Breakpoints** (solo 3, definidos en `src/app/globals.css` `@theme`): **mobile** (default, &lt;768px), **tablet** (`tablet:`, ≥768px), **desktop** (`desktop:`, ≥1024px). No usar `sm:`, `md:`, `lg:`, etc. Constantes JS en `src/lib/breakpoints.ts`.
 - Estilos con utilidades Tailwind y tokens del tema (`bg-background`, `text-secondary`, `bg-primary`, etc. en `globals.css`).
 - Feedback: `react-hot-toast` y/o `sweetalert2`; confirmaciones con `confirmAction.ts` cuando aplique.
 - Formularios grandes viven en `components/` del feature (p. ej. `FormularioPaciente`, `FormularioAlimento`).
@@ -157,6 +161,12 @@ npm run start        # producción
 2. **Nuevas pantallas**: ruta bajo `(app)/dashboard/[userId]/...`, protección de sesión, llamadas a API existentes o nuevas.
 3. **PDF / reportes**: ver `src/lib/utils/pdfGenerator.ts`.
 4. **Imágenes**: subida a R2 (`R2_*` en servidor). En UI usar `getPublicImageUrl()` → proxy `/api/images/[filename]` (same-origin, requiere sesión); no depender de URL pública R2 en el cliente.
+
+## Neon (desarrollo)
+
+- El plan gratuito **suspende** la BD tras inactividad; el primer request puede fallar (cold start).
+- **Login** siempre consulta la BD; **sesión JWT** (`/api/auth/session`) no. Por eso puedes ver datos viejos en UI y fallar al volver a iniciar sesión.
+- `withDbRetry()` en `src/lib/db-retry.ts` reintenta conexiones en login; conviene `connect_timeout` en `DATABASE_URL`.
 
 ## Qué evitar
 

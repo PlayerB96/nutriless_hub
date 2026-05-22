@@ -10,9 +10,8 @@ import {
   Calendar,
   ImagePlus,
   ImageUp,
-  CheckCircle,
-  AlertCircle,
 } from "lucide-react";
+import PatientAutoSaveStatus from "./PatientAutoSaveStatus";
 
 type EditData = {
   name: string;
@@ -57,10 +56,10 @@ export default function DatosPersonalesPaciente({
   onInputChange,
 }: Props) {
   return (
-    <div className="w-full flex flex-col md:flex-row gap-6">
+    <div className="w-full flex flex-col tablet:flex-row gap-4 tablet:gap-6">
       {/* Card foto paciente (izquierda en desktop, arriba en mobile) */}
       <div
-        className={`w-full md:basis-1/4 md:max-w-[25%] bg-primary rounded-xl shadow-lg p-6 flex flex-col items-center justify-center border-2 mb-6 md:mb-0 ${dragActive ? "border-secondary" : "border-primary"}`}
+        className={`w-full tablet:basis-1/4 tablet:max-w-[25%] bg-primary rounded-xl shadow-lg p-4 tablet:p-6 flex flex-col items-center justify-center border-2 mb-4 tablet:mb-0 ${dragActive ? "border-secondary" : "border-primary"}`}
         onDrop={onDrop}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
@@ -100,43 +99,17 @@ export default function DatosPersonalesPaciente({
       </div>
 
       {/* Card datos paciente (derecha en desktop, abajo en mobile) */}
-      <div className="w-full md:basis-3/4 md:max-w-[75%] bg-primary rounded-xl shadow-lg p-6 flex flex-col justify-center">
+      <div className="w-full tablet:basis-3/4 tablet:max-w-[75%] bg-primary rounded-xl shadow-lg p-4 tablet:p-6 flex flex-col justify-center">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <User2 size={24} /> Datos del Paciente
           </h2>
-          {updateStatus !== "idle" && (
-            <div
-              className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold ${
-                updateStatus === "saving"
-                  ? "bg-blue-100 text-blue-700"
-                  : updateStatus === "success"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
-              }`}
-            >
-              {updateStatus === "saving" && (
-                <>
-                  <div className="animate-spin w-4 h-4 border-2 border-blue-700 border-t-transparent rounded-full"></div>
-                  Guardando...
-                </>
-              )}
-              {updateStatus === "success" && (
-                <>
-                  <CheckCircle size={16} />
-                  {updateMessage}
-                </>
-              )}
-              {updateStatus === "error" && (
-                <>
-                  <AlertCircle size={16} />
-                  {updateMessage}
-                </>
-              )}
-            </div>
-          )}
+          <PatientAutoSaveStatus
+            status={updateStatus}
+            errorMessage={updateMessage}
+          />
         </div>
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <form className="grid grid-cols-1 tablet:grid-cols-2 gap-3">
           {/* Fila 1 */}
           <div className="flex flex-col gap-2">
             <div>

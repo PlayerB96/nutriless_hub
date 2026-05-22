@@ -162,19 +162,19 @@ export default function PacientesPage() {
   }, [userId]);
 
   return (
-    <div className="relative flex flex-col md:flex-row h-full bg-bg rounded-2xl border border-primary overflow-hidden">
+    <div className="relative flex flex-col desktop:flex-row h-full bg-bg rounded-xl tablet:rounded-2xl border border-primary overflow-hidden">
       {/* MAIN */}
-      <section className="flex-1 p-4 md:p-6 bg-primary flex flex-col gap-4">
+      <section className="flex-1 p-3 tablet:p-4 desktop:p-6 bg-primary flex flex-col gap-3 tablet:gap-4">
         {/* HEADER */}
         <div className="flex items-center justify-between sticky top-0 bg-primary z-10 pb-2">
-          <h2 className="text-lg font-semibold flex items-center gap-2 ">
+          <h2 className="text-base tablet:text-lg font-semibold flex items-center gap-2 ">
             <Contact size={20} /> Pacientes
           </h2>
 
           {/* Desktop button */}
           <button
             onClick={() => setOpenModal(true)}
-            className="hidden md:flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg shadow hover:scale-105 cursor-pointer"
+            className="hidden tablet:flex items-center gap-2 bg-secondary text-white px-4 py-2 rounded-lg shadow hover:scale-105 cursor-pointer"
           >
             <PlusCircle size={18} /> Nuevo
           </button>
@@ -187,7 +187,7 @@ export default function PacientesPage() {
             <h3 className="text-sm font-semibold text-text">Filtros</h3>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col tablet:flex-row gap-3 tablet:gap-4">
             {/* Buscar por nombre */}
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-text-alt flex items-center gap-1">
@@ -200,7 +200,7 @@ export default function PacientesPage() {
                 <input
                   type="text"
                   placeholder="Ej. Juan Pérez..."
-                  className="pl-9 pr-3 py-2 border border-primary rounded-lg w-full sm:w-64
+                  className="pl-9 pr-3 py-2 border border-primary rounded-lg w-full tablet:w-64
                      text-text bg-bg focus:ring-2 focus:ring-secondary focus:outline-none"
                   value={searchTerm}
                   onChange={(e) => {
@@ -242,7 +242,7 @@ export default function PacientesPage() {
         {loading && <p className="text-text-alt">Cargando pacientes...</p>}
 
         {/* MOBILE CARDS */}
-        <div className="grid gap-3 md:hidden">
+        <div className="grid gap-3 tablet:hidden">
           {pacientesPaginados.map((p) => (
             <div
               key={p.id}
@@ -274,14 +274,14 @@ export default function PacientesPage() {
         </div>
 
         {/* DESKTOP TABLE */}
-        <div className="hidden md:block overflow-x-auto">
+        <div className="hidden tablet:block overflow-x-auto">
           <table className="w-full bg-primary rounded-xl border border-primary text-sm">
             <thead className="bg-primary-secondary text-primary">
               <tr>
                 <th className="px-4 py-2 text-left">Nombre</th>
                 <th className="px-4 py-2">Género</th>
                 <th className="px-4 py-2">Nacimiento</th>
-                <th className="px-4 py-2 hidden lg:table-cell">Correo</th>
+                <th className="px-4 py-2 hidden desktop:table-cell">Correo</th>
                 <th className="px-4 py-2">Acciones</th>
               </tr>
             </thead>
@@ -309,7 +309,7 @@ export default function PacientesPage() {
                     </td>
                     <td className="px-4 py-2">{p.gender}</td>
                     <td className="px-4 py-2">{p.birthDate ? new Date(p.birthDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }).replace(' de ', ' ').replace(' de ', ' del ') : ''}</td>
-                    <td className="px-4 py-2 hidden lg:table-cell">{p.email}</td>
+                    <td className="px-4 py-2 hidden desktop:table-cell">{p.email}</td>
                     <td className="px-4 py-2">
                       <div className="flex gap-2">
                         <button
@@ -353,7 +353,7 @@ export default function PacientesPage() {
       </section>
 
       {/* ASIDE (solo desktop) */}
-      <aside className="hidden md:flex w-1/3 bg-bg p-6 border-l border-primary">
+      <aside className="hidden desktop:flex w-full desktop:w-1/3 bg-bg p-4 desktop:p-6 border-t desktop:border-t-0 desktop:border-l border-primary">
         <div className="w-full bg-primary-secondary rounded-xl p-4">
           <h3 className=" font-semibold mb-3">Recientes</h3>
           <ul className="space-y-2">
@@ -388,7 +388,7 @@ export default function PacientesPage() {
       {/* FLOATING BUTTON MOBILE */}
       <button
         onClick={() => setOpenModal(true)}
-        className="md:hidden fixed bottom-6 right-6 bg-secondary text-white p-4 rounded-full shadow-xl"
+        className="tablet:hidden fixed bottom-6 right-6 bg-secondary text-white p-4 rounded-full shadow-xl"
       >
         <PlusCircle />
       </button>
