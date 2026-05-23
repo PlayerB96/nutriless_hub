@@ -6,8 +6,8 @@ Plataforma web para nutricionistas: gestión de alimentos procesados, alimentos 
 
 | Capa | Tecnología |
 |------|------------|
-| Framework | Next.js 14 (App Router) |
-| UI | React 18, Tailwind CSS 4, Framer Motion, Lucide |
+| Framework | Next.js 15.3.8 (App Router) |
+| UI | React 19, Tailwind CSS 4, Framer Motion, Lucide |
 | Auth | NextAuth.js (Credentials + JWT) |
 | ORM / DB | Prisma + PostgreSQL |
 | Storage | Cloudflare R2 (AWS SDK S3) |
@@ -115,7 +115,7 @@ npm run start        # producción
 
 ### Frontend
 
-- Muchas páginas son `"use client"` con `useSession()` y redirección a `/login` si no hay sesión.
+- Muchas páginas son `"use client"` con `useSession()` y redirección a `/login` si no hay sesión. En rutas dinámicas del cliente, preferir `useParams()` de `next/navigation` (Next 15 tipa `params` de página como `Promise` en el servidor).
 - **Breakpoints** (solo 3, definidos en `src/app/globals.css` `@theme`): **mobile** (default, &lt;768px), **tablet** (`tablet:`, ≥768px), **desktop** (`desktop:`, ≥1024px). No usar `sm:`, `md:`, `lg:`, etc. Constantes JS en `src/lib/breakpoints.ts`.
 - Estilos con utilidades Tailwind y tokens del tema (`bg-background`, `text-secondary`, `bg-primary`, etc. en `globals.css`).
 - Feedback: `react-hot-toast` y/o `sweetalert2`; confirmaciones con `confirmAction.ts` cuando aplique.

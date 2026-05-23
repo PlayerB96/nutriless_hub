@@ -2,6 +2,7 @@
 
 import { Food } from "@/domain/models/food";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
 import FoodDetails from "./components/FoodDetails";
 import {
   Check,
@@ -19,14 +20,11 @@ import Modal from "@/components/ui/Modal";
 import EditFood from "./components/EditFood";
 
 
-type Props = {
-  params: { userId: string };
-};
-
-export default function DashboardUserFoodsPage({ params }: Props) {
+export default function DashboardUserFoodsPage() {
+  const params = useParams();
+  const userId = params.userId as string;
   const [foods, setFoods] = useState<Food[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const { userId } = params;
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;

@@ -30,7 +30,7 @@ export default function PatientDietConditionSelect({
   const [customInput, setCustomInput] = useState("");
   const [extraOptions, setExtraOptions] = useState<string[]>([]);
 
-  const presetValues = new Set(
+  const presetValues = new Set<string>(
     DIETARY_CONDITION_PRESETS.map((p) => p.value),
   );
 

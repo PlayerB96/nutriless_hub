@@ -4,20 +4,18 @@
 import { TraditionalFood } from "@/domain/models/traditional-food";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Trash2, LoaderCircle } from "lucide-react";
 import "jspdf-autotable";
 
 import TraditionFoodDetails from "./components/TraditionFoodDetails";
 import Swal from "sweetalert2";
 
-type Props = {
-  params: { userId: string };
-};
-
-export default function DashboardUserFoodsPage({ params }: Props) {
+export default function DashboardUserFoodsPage() {
+  const params = useParams();
+  const userId = params.userId as string;
   const [foods, setFoods] = useState<TraditionalFood[]>([]);
   const [expandedId, setExpandedId] = useState<number | null>(null);
-  const { userId } = params;
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
