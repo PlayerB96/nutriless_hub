@@ -144,7 +144,7 @@ export default function LoginPage() {
             </button>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-foreground select-all">admin1234</span>
+            <span className="text-foreground select-all">123</span>
             <button
               type="button"
               className="text-secondary hover:underline cursor-pointer"
@@ -158,7 +158,7 @@ export default function LoginPage() {
             className="mt-2 w-full text-center text-secondary hover:underline cursor-pointer text-xs"
             onClick={() => {
               setEmail("admin@ejemplo.com");
-              setPassword("admin1234");
+              setPassword("123");
             }}
           >
             Usar ambos
