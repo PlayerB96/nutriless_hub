@@ -127,6 +127,44 @@ export default function LoginPage() {
           )}
         </button>
       </form>
+
+      {process.env.NODE_ENV === "development" && (
+        <div className="mt-4 p-3 border border-dashed border-yellow-500 rounded-md bg-yellow-50 dark:bg-yellow-950/30 text-xs">
+          <p className="font-semibold text-yellow-700 dark:text-yellow-400 mb-2">
+            Credenciales de prueba (dev)
+          </p>
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <span className="text-foreground select-all">admin@ejemplo.com</span>
+            <button
+              type="button"
+              className="text-secondary hover:underline cursor-pointer"
+              onClick={() => setEmail("admin@ejemplo.com")}
+            >
+              Usar
+            </button>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-foreground select-all">admin1234</span>
+            <button
+              type="button"
+              className="text-secondary hover:underline cursor-pointer"
+              onClick={() => setPassword("123")}
+            >
+              Usar
+            </button>
+          </div>
+          <button
+            type="button"
+            className="mt-2 w-full text-center text-secondary hover:underline cursor-pointer text-xs"
+            onClick={() => {
+              setEmail("admin@ejemplo.com");
+              setPassword("admin1234");
+            }}
+          >
+            Usar ambos
+          </button>
+        </div>
+      )}
     </div>
   );
 }
