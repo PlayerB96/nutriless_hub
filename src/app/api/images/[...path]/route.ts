@@ -3,7 +3,29 @@ import { requireSession } from "@/lib/auth-helpers";
 import { getR2ObjectBytes, R2_BUCKET } from "@/lib/r2";
 import { prisma } from "@/lib/prisma";
 
-type RouteParams = Promise<{ filename: string }>;
+type RouteParams = Promise<{ path: string[] }>;
+
+async function userOwnsImage(key: string, userId: number): Promise<boolean> {
+  const food = await prisma.food.findFirst({
+    where: { imageUrl: key, userId },
+    select: { id: true },
+  });
+  if (food) return true;
+
+  const patientImage = await prisma.patientImage.findFirst({
+    where: { imageKey: key, patient: { userId } },
+    select: { id: true },
+  });
+  if (patientImage) return true;
+
+  const patientPhoto = await prisma.patient.findFirst({
+    where: { photo: key, userId },
+    select: { id: true },
+  });
+  if (patientPhoto) return true;
+
+  return false;
+}
 
 export async function GET(
   _req: Request,
@@ -19,19 +41,15 @@ export async function GET(
     );
   }
 
-  const { filename } = await params;
-  const key = decodeURIComponent(filename).trim();
+  const { path } = await params;
+  const key = path.map(decodeURIComponent).join("/").trim();
 
-  if (!key || key.includes("..") || key.includes("/")) {
+  if (!key || key.includes("..")) {
     return NextResponse.json({ error: "Nombre de archivo inválido" }, { status: 400 });
   }
 
-  const food = await prisma.food.findFirst({
-    where: { imageUrl: key, userId: auth.userId },
-    select: { id: true },
-  });
-
-  if (!food) {
+  const owns = await userOwnsImage(key, auth.userId);
+  if (!owns) {
     return NextResponse.json({ error: "Imagen no encontrada" }, { status: 404 });
   }
 

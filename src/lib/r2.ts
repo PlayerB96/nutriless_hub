@@ -1,4 +1,10 @@
-import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
+import { v4 as uuidv4 } from "uuid";
 
 export const R2_BUCKET = process.env.R2_BUCKET ?? "";
 
@@ -45,4 +51,62 @@ export async function getR2ObjectBytes(key: string): Promise<{
     contentType:
       result.ContentType ?? guessImageContentType(key),
   };
+}
+
+/**
+ * Sube una imagen base64 (data URI) a R2 y devuelve la key generada.
+ * Acepta strings como "data:image/png;base64,iVBOR..." o base64 puro.
+ */
+export async function uploadBase64ToR2(
+  base64: string,
+  prefix = "",
+): Promise<string> {
+  let contentType = "image/png";
+  let raw = base64;
+
+  const match = base64.match(/^data:(image\/\w+);base64,(.+)$/);
+  if (match) {
+    contentType = match[1];
+    raw = match[2];
+  }
+
+  const extMap: Record<string, string> = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/gif": "gif",
+  };
+  const ext = extMap[contentType] ?? "png";
+  const normalizedPrefix = prefix ? prefix.replace(/\/+$/, "") + "/" : "";
+  const key = `${normalizedPrefix}${uuidv4()}.${ext}`;
+  const buffer = Buffer.from(raw, "base64");
+
+  await r2.send(
+    new PutObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: key,
+      Body: buffer,
+      ContentType: contentType,
+      ACL: "public-read",
+    }),
+  );
+
+  return key;
+}
+
+/**
+ * Elimina un objeto de R2 por su key. No lanza error si no existe.
+ */
+export async function deleteFromR2(key: string): Promise<void> {
+  if (!key || key.startsWith("data:")) return;
+  try {
+    await r2.send(
+      new DeleteObjectCommand({
+        Bucket: R2_BUCKET,
+        Key: key,
+      }),
+    );
+  } catch (error) {
+    console.error("Error al eliminar de R2:", error);
+  }
 }

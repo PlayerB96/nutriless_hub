@@ -15,6 +15,7 @@ import {
   isValidStressLevel,
   normalizeCustomTag,
 } from "@/lib/patient-lifestyle";
+import { uploadBase64ToR2, deleteFromR2 } from "@/lib/r2";
 
 export async function GET(
   _request: Request,
@@ -106,7 +107,20 @@ export async function PUT(
     if (body.maritalStatus !== undefined)
       updateData.maritalStatus = body.maritalStatus;
     if (body.occupation !== undefined) updateData.occupation = body.occupation;
-    if (body.photo !== undefined) updateData.photo = body.photo;
+    if (body.photo !== undefined) {
+      if (body.photo && typeof body.photo === "string" && body.photo.startsWith("data:")) {
+        const oldPhoto = access.patient.photo;
+        const photoKey = await uploadBase64ToR2(body.photo, "pacientes/fotos");
+        updateData.photo = photoKey;
+        if (oldPhoto && !oldPhoto.startsWith("data:")) {
+          await deleteFromR2(oldPhoto);
+        }
+      } else {
+        updateData.photo = body.photo || null;
+      }
+    }
+    if (body.address !== undefined)
+      updateData.address = body.address || null;
 
     const detailFields: Record<string, unknown> = {};
 
@@ -398,6 +412,53 @@ export async function PUT(
           { status: 400 },
         );
       }
+    }
+
+    if (body.preferredFoods !== undefined) {
+      const tags = normalizeStringArray(body.preferredFoods);
+      if (tags === null) {
+        return NextResponse.json(
+          { error: "Alimentos preferidos no válidos" },
+          { status: 400 },
+        );
+      }
+      detailFields.preferredFoods = tags;
+    }
+
+    if (body.dislikedFoods !== undefined) {
+      const tags = normalizeStringArray(body.dislikedFoods);
+      if (tags === null) {
+        return NextResponse.json(
+          { error: "Alimentos que disgustan no válidos" },
+          { status: 400 },
+        );
+      }
+      detailFields.dislikedFoods = tags;
+    }
+
+    if (body.foodAllergies !== undefined) {
+      const tags = normalizeStringArray(body.foodAllergies);
+      if (tags === null) {
+        return NextResponse.json(
+          { error: "Alergias alimentarias no válidas" },
+          { status: 400 },
+        );
+      }
+      detailFields.foodAllergies = tags;
+    }
+
+    if (body.referralSource !== undefined) {
+      detailFields.referralSource =
+        body.referralSource === null || body.referralSource === ""
+          ? null
+          : String(body.referralSource);
+    }
+
+    if (body.preAppointmentComment !== undefined) {
+      detailFields.preAppointmentComment =
+        body.preAppointmentComment === null || body.preAppointmentComment === ""
+          ? null
+          : String(body.preAppointmentComment);
     }
 
     const hasDetailUpdate = Object.keys(detailFields).length > 0;

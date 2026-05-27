@@ -41,8 +41,9 @@ prisma/
 - **Food**: alimentos procesados creados por usuario (`NutritionDetail`, `HouseholdMeasure`).
 - **TraditionalFood**: catálogo orgánico/tradicional del sistema (nutrientes y medidas caseras propias).
 - **Recipe** / **RecipeDetail** / **RecipeIngredient**: recetas con ingredientes ligados a `TraditionalFood`.
-- **Patient**: pacientes del nutricionista (`userId` obligatorio).
-- **PatientDetail** (1:1 con `Patient`): objetivos (`goal`, `goalComment`, `motivation`); estilo de vida; alimentación (`dietType`, `dietaryConditions[]`, `mealsPerDay`, `waterLitersPerDay`, `hadPreviousDiet`); salud (`currentConditions[]`, `medications[]`, `pathologicalHistory[]`, `familyPathologicalHistory[]`, `intestinalCondition`); `FoodFrequency[]`. Constantes: `patient-goals.ts`, `patient-lifestyle.ts`, `patient-diet.ts`, `patient-health.ts`. UI: `EstiloVidaPaciente`, `DatosAlimentacionPaciente`, `CondicionesSaludPaciente`.
+- **Patient**: pacientes del nutricionista (`userId` obligatorio); incluye `address` (dirección).
+- **PatientDetail** (1:1 con `Patient`): objetivos (`goal`, `goalComment`, `motivation`); estilo de vida; alimentación (`dietType`, `dietaryConditions[]`, `mealsPerDay`, `waterLitersPerDay`, `hadPreviousDiet`); preferencias alimentarias (`preferredFoods[]`, `dislikedFoods[]`, `foodAllergies[]`); comentarios (`referralSource`, `preAppointmentComment`); salud (`currentConditions[]`, `medications[]`, `pathologicalHistory[]`, `familyPathologicalHistory[]`, `intestinalCondition`); `FoodFrequency[]`. Constantes: `patient-goals.ts`, `patient-lifestyle.ts`, `patient-diet.ts`, `patient-health.ts`, `patient-food-preferences.ts`. UI: `EstiloVidaPaciente`, `DatosAlimentacionPaciente`, `CondicionesSaludPaciente`, `PreferenciasFoodPaciente`, `ComentariosPaciente`.
+- **PatientImage** (1:N con `Patient`, máx. 3): imágenes del paciente con `title`, `date`, `imageKey` (key R2). API: `/api/pacientes/[id]/images` (GET/POST), `/api/pacientes/[id]/images/[imageId]` (PUT/DELETE). UI: `ImagenesPaciente`.
 
 Antes de cambiar relaciones o campos, revisar `prisma/schema.prisma`. El historial de migraciones está **consolidado** en una sola migración inicial (`20260522195224_init`). Tras cambios en el esquema:
 
@@ -68,7 +69,7 @@ npx prisma db seed
 | Alimentos procesados | `.../procesados` | `GET/POST /api/users/[id]/foods`, `POST /api/foods`, `POST /api/foods/update` |
 | Alimentos orgánicos | `.../organicos` | `/api/users/[id]/foods/organicos` |
 | Recetas | `.../recetas`, `.../recetas/[recipeId]/edit` | `/api/recipes`, `/api/recipes/[id]`, `/api/recipes/update` |
-| Pacientes | `.../pacientes`, `.../pacientes/[pacienteId]` | `/api/pacientes`, `/api/pacientes/[id]` |
+| Pacientes | `.../pacientes`, `.../pacientes/[pacienteId]` | `/api/pacientes`, `/api/pacientes/[id]`, `/api/pacientes/[id]/images`, `/api/pacientes/[id]/images/[imageId]` |
 | Auth | `/login` | `/api/auth/[...nextauth]` |
 
 Las páginas del dashboard suelen recibir `userId` en la URL y llamar APIs con `NEXT_PUBLIC_BASE_URL`. Las imágenes usan `NEXT_PUBLIC_IMAGE_BASE_URL`.
@@ -127,7 +128,7 @@ npm run start        # producción
 - Respuestas con `NextResponse.json()`; errores con `{ error: string }` y códigos HTTP adecuados (400, 404, 500).
 - Acceso a datos vía `prisma` desde `@/lib/prisma` (singleton con cache en dev).
 - Validar campos requeridos al inicio; mensajes de error en español cuando el resto del endpoint lo hace.
-- Subida de imágenes: seguir el patrón de `src/app/api/foods/route.ts` y `src/lib/r2.ts`.
+- Subida de imágenes: usar helpers de `src/lib/r2.ts` (`uploadBase64ToR2`, `deleteFromR2`). Nunca guardar base64 en la BD.
 
 ### Autenticación
 
@@ -160,7 +161,7 @@ npm run start        # producción
 1. **Nuevos campos en pacientes/alimentos/recetas**: schema Prisma → migración → API → formulario UI → listados/detalle.
 2. **Nuevas pantallas**: ruta bajo `(app)/dashboard/[userId]/...`, protección de sesión, llamadas a API existentes o nuevas.
 3. **PDF / reportes**: ver `src/lib/utils/pdfGenerator.ts`.
-4. **Imágenes**: subida a R2 (`R2_*` en servidor). En UI usar `getPublicImageUrl()` → proxy `/api/images/[filename]` (same-origin, requiere sesión); no depender de URL pública R2 en el cliente.
+4. **Imágenes**: toda imagen (alimentos, foto de paciente, `PatientImage`) se almacena en **Cloudflare R2**; en la BD solo se guarda la key (ej. `uuid.ext`). Helpers en `src/lib/r2.ts`: `uploadBase64ToR2(base64)` → devuelve key; `deleteFromR2(key)` → elimina de R2. En UI usar `getPublicImageUrl(key)` → proxy `/api/images/[filename]` (same-origin, requiere sesión, valida propiedad en `Food`, `Patient`, `PatientImage`). **Nunca guardar base64 en la BD.**
 
 ## Neon (desarrollo)
 

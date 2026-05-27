@@ -1,6 +1,7 @@
 /**
- * URL para mostrar imágenes de alimentos en la app.
- * Usa proxy same-origin (/api/images/...) para evitar errores de red con R2 público.
+ * URL para mostrar imágenes en la app.
+ * Convierte una key R2 (ej. "pacientes/imagenes/uuid.ext") al proxy same-origin.
+ * Soporta keys planas ("uuid.ext") y con paths ("entidad/tipo/uuid.ext").
  */
 export function getPublicImageUrl(
   imagePath: string | null | undefined,
@@ -22,7 +23,7 @@ export function getPublicImageUrl(
       const url = new URL(trimmed);
       const proxyKey = url.pathname.replace(/^\//, "");
       if (proxyKey && !proxyKey.includes("..")) {
-        return `/api/images/${encodeURIComponent(proxyKey)}`;
+        return `/api/images/${proxyKey}`;
       }
     } catch {
       return trimmed;
@@ -31,9 +32,9 @@ export function getPublicImageUrl(
   }
 
   const key = trimmed.replace(/^\//, "");
-  if (!key || key.includes("..") || key.includes("/")) {
+  if (!key || key.includes("..")) {
     return null;
   }
 
-  return `/api/images/${encodeURIComponent(key)}`;
+  return `/api/images/${key}`;
 }

@@ -5,6 +5,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import DatosPersonalesPaciente from "../components/DatosPersonalesPaciente";
 import InformacionCompletaPaciente from "../components/InformacionCompletaPaciente";
+import { getPublicImageUrl } from "@/lib/image-url";
 
 export default function PacienteDetallePage() {
   const params = useParams();
@@ -36,7 +37,13 @@ export default function PacienteDetallePage() {
       pathologicalHistory: string[];
       familyPathologicalHistory: string[];
       intestinalCondition: string | null;
+      preferredFoods: string[];
+      dislikedFoods: string[];
+      foodAllergies: string[];
+      referralSource: string | null;
+      preAppointmentComment: string | null;
     } | null;
+    address?: string | null;
   } | null>(null);
   const [editData, setEditData] = useState({
     name: "",
@@ -117,7 +124,7 @@ export default function PacienteDetallePage() {
           maritalStatus: String(data.maritalStatus ?? ""),
         });
         if (typeof data.photo === "string" && data.photo) {
-          setFoto(data.photo);
+          setFoto(getPublicImageUrl(data.photo));
         }
       } catch (err) {
         if (!cancelled) {
@@ -159,6 +166,9 @@ export default function PacienteDetallePage() {
 
         const updatedData = await response.json();
         setPaciente(updatedData);
+        if (typeof updatedData.photo === "string" && updatedData.photo) {
+          setFoto(getPublicImageUrl(updatedData.photo));
+        }
         setUpdateStatus("success");
         setUpdateMessage("");
 
@@ -267,7 +277,7 @@ export default function PacienteDetallePage() {
   if (!paciente) return <div className="p-8">Paciente no encontrado</div>;
 
   return (
-    <div className="w-full max-w-full tablet:max-w-5xl desktop:max-w-6xl mx-auto p-3 tablet:p-4 desktop:p-6 flex flex-col gap-3 tablet:gap-4">
+    <div className="w-full mx-auto p-2 tablet:p-3 desktop:p-4 flex flex-col gap-3 tablet:gap-4">
       <Breadcrumb
         items={[
           { label: "Pacientes", href: `/dashboard/${userId}/pacientes` },
@@ -295,6 +305,7 @@ export default function PacienteDetallePage() {
       <InformacionCompletaPaciente
         pacienteId={pacienteId}
         detail={paciente.detail ?? null}
+        address={paciente.address ?? null}
       />
     </div>
   );

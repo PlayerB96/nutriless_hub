@@ -221,12 +221,14 @@ model Patient {
 
   maritalStatus  String?  // Single, Married, etc.
   occupation     String?  // Job / profession
+  address        String?  // Patient address
   photo          String?  // Image URL or file path
 
   createdAt      DateTime @default(now())
 
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   detail         PatientDetail?
+  images         PatientImage[]
 }
 
 model PatientDetail {
@@ -263,6 +265,11 @@ model PatientDetail {
   intestinalCondition         String?
   medications                 String[]
   pathologicalHistory         String[]
+  preferredFoods              String[]        @default([])
+  dislikedFoods               String[]        @default([])
+  foodAllergies               String[]        @default([])
+  referralSource              String?
+  preAppointmentComment       String?
   foodFrequencies      FoodFrequency[]
 
   patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
@@ -277,4 +284,15 @@ model FoodFrequency {
   patientDetail PatientDetail @relation(fields: [patientDetailId], references: [id], onDelete: Cascade)
 
   @@unique([patientDetailId, foodGroup])
+}
+
+model PatientImage {
+  id        Int      @id @default(autoincrement())
+  patientId Int
+  title     String   @default("")
+  date      DateTime @default(now())
+  imageKey  String   // R2 object key
+  createdAt DateTime @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 }

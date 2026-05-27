@@ -6,6 +6,9 @@ import CondicionesSaludPaciente from "./CondicionesSaludPaciente";
 import DatosAlimentacionPaciente from "./DatosAlimentacionPaciente";
 import EstiloVidaPaciente from "./EstiloVidaPaciente";
 import ObjetivosPaciente from "./ObjetivosPaciente";
+import PreferenciasFoodPaciente from "./PreferenciasFoodPaciente";
+import ComentariosPaciente from "./ComentariosPaciente";
+import ImagenesPaciente from "./ImagenesPaciente";
 
 const SECTIONS = [
   { key: "objetivos", label: "Objetivos", title: "Objetivos" },
@@ -60,11 +63,17 @@ type PatientDetailPayload = {
   pathologicalHistory: string[];
   familyPathologicalHistory: string[];
   intestinalCondition: string | null;
+  preferredFoods: string[];
+  dislikedFoods: string[];
+  foodAllergies: string[];
+  referralSource: string | null;
+  preAppointmentComment: string | null;
 } | null;
 
 type Props = {
   pacienteId: string;
   detail?: PatientDetailPayload;
+  address?: string | null;
 };
 
 function SectionPlaceholder({ title }: { title: string }) {
@@ -82,6 +91,7 @@ function SectionPlaceholder({ title }: { title: string }) {
 export default function InformacionCompletaPaciente({
   pacienteId,
   detail,
+  address,
 }: Props) {
   const [activeTab, setActiveTab] = useState<SectionKey>("objetivos");
   const activeSection = SECTIONS.find((s) => s.key === activeTab) ?? SECTIONS[0];
@@ -95,21 +105,45 @@ export default function InformacionCompletaPaciente({
       <DatosAlimentacionPaciente pacienteId={pacienteId} initialDetail={detail} />
     ) : activeTab === "salud" ? (
       <CondicionesSaludPaciente pacienteId={pacienteId} initialDetail={detail} />
+    ) : activeTab === "preferidos" ? (
+      <PreferenciasFoodPaciente
+        pacienteId={pacienteId}
+        initialDetail={
+          detail
+            ? {
+                preferredFoods: detail.preferredFoods ?? [],
+                dislikedFoods: detail.dislikedFoods ?? [],
+                foodAllergies: detail.foodAllergies ?? [],
+              }
+            : null
+        }
+      />
+    ) : activeTab === "comentarios" ? (
+      <ComentariosPaciente
+        pacienteId={pacienteId}
+        initialDetail={{
+          address: address ?? null,
+          referralSource: detail?.referralSource ?? null,
+          preAppointmentComment: detail?.preAppointmentComment ?? null,
+        }}
+      />
+    ) : activeTab === "imagenes" ? (
+      <ImagenesPaciente pacienteId={pacienteId} />
     ) : (
       <SectionPlaceholder title={activeSection.title} />
     );
 
   return (
-    <section className="flex w-full min-h-[min(420px,70vh)] flex-col overflow-hidden rounded-xl border border-primary bg-primary p-4 shadow-lg tablet:p-6">
-      <h2 className="mb-4 shrink-0 text-xl font-bold">Información completa</h2>
+    <section className="flex w-full min-h-[min(420px,70vh)] flex-col overflow-hidden rounded-xl border border-primary bg-primary p-3 shadow-lg tablet:p-4 desktop:p-6">
+      <h2 className="mb-3 tablet:mb-4 shrink-0 text-lg tablet:text-xl font-bold">Información completa</h2>
       <Tabs
         tabs={SECTIONS.map(({ key, label }) => ({ key, label }))}
         value={activeTab}
         onChange={setActiveTab}
         orientation="vertical"
-        className="flex min-h-0 flex-1 flex-col gap-3 tablet:flex-row tablet:gap-6"
-        listClassName="flex shrink-0 gap-1.5 overflow-x-auto pb-1 tablet:w-[11rem] tablet:flex-col tablet:overflow-x-visible tablet:overflow-y-auto tablet:pb-0 desktop:w-[13rem] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        panelClassName="min-h-0 flex-1 overflow-y-auto rounded-lg border border-primary bg-bg p-4"
+        className="flex min-h-0 flex-1 flex-col gap-3 tablet:flex-row tablet:gap-4 desktop:gap-6"
+        listClassName="flex shrink-0 gap-1.5 overflow-x-auto pb-1 tablet:w-[10rem] tablet:flex-col tablet:overflow-x-visible tablet:overflow-y-auto tablet:pb-0 desktop:w-[13rem] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        panelClassName="min-h-0 flex-1 overflow-y-auto rounded-lg border border-primary bg-bg p-3 tablet:p-4 desktop:p-5"
       >
         {panelContent}
       </Tabs>
