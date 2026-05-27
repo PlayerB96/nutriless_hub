@@ -79,6 +79,7 @@ export default function DatosPersonalesPaciente({
               alt="Foto del paciente"
               width={160}
               height={160}
+              unoptimized
               className="w-full h-full object-cover rounded-full"
             />
           ) : (

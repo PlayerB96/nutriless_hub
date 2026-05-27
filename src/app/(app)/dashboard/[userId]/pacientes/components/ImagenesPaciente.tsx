@@ -210,6 +210,7 @@ export default function ImagenesPaciente({ pacienteId }: Props) {
                 src={getPublicImageUrl(img.imageKey) || ""}
                 alt={img.title || "Imagen del paciente"}
                 fill
+                unoptimized
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 33vw"
               />
@@ -309,6 +310,7 @@ export default function ImagenesPaciente({ pacienteId }: Props) {
                 src={editNewImage || getPublicImageUrl(editModal.imageKey) || ""}
                 alt={editTitle || "Imagen del paciente"}
                 fill
+                unoptimized
                 className="object-contain"
                 sizes="(max-width: 768px) 100vw, 500px"
               />
